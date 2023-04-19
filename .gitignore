@@ -1,3 +1,8 @@
+.vs/
+build/
+roms/*
+!roms/PLACE_ROMS_HERE.txt
+
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
