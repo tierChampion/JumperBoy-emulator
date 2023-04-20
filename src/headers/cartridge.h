@@ -8,7 +8,7 @@ namespace jmpr {
 
 		u8 _entry[4];
 		u8 _nintendo_logo[0x30];
-		char _title[0xF];
+		char _title[16];
 		char _manufacturer_code[4];
 		u8 _cgb_flag;
 		u16 _new_licensee_code;
@@ -22,12 +22,12 @@ namespace jmpr {
 		u8 _header_checksum;
 		u16 _global_checksum;
 
-		void formatHeader(u8 header[0x50]);
+		void formatHeader(u8* header);
 	};
 
 	class Cartridge {
 
-		char filname[1024];
+		const char* _filename;
 		u32 _rom_size;
 		u8* _rom_data;
 		CartridgeHeader _header;
@@ -36,6 +36,7 @@ namespace jmpr {
 
 		Cartridge(const char* file);
 
+		friend std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge);
 	};
 
 }

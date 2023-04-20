@@ -1,13 +1,33 @@
 #include <headers/cartridge.h>
 #include <unordered_map>
+#include <fstream>
 
 namespace jmpr {
 
 	Cartridge::Cartridge(const char* file) {
 
+		std::ifstream stream;
+		stream.open(file, std::fstream::in | std::fstream::binary);
+
+		auto begin = stream.tellg();
+		stream.seekg(0, std::ios::end);
+		auto end = stream.tellg();
+		stream.seekg(0, std::ios::beg);
+
+		_rom_size = (end - begin);
+
+		_rom_data = new u8[_rom_size];
+
+		stream.read((char*)_rom_data, _rom_size);
+
+		_header.formatHeader(&_rom_data[0x100]);
+
+		_filename = file;
+
+		stream.close();
 	}
 
-	void CartridgeHeader::formatHeader(u8 header[0x50]) {
+	void CartridgeHeader::formatHeader(u8* header) {
 
 		for (int i = 0; i < 4; i++)
 			_entry[i] = header[i];
@@ -39,8 +59,7 @@ namespace jmpr {
 
 		_version = header[0x4C];
 
-		// TODO ...
-		_header_checksum = 0;
+		_header_checksum = 0; // TODO ...
 
 		_global_checksum = header[0x4E] << 8 | header[0x4F];
 	}
@@ -72,8 +91,34 @@ namespace jmpr {
 
 	// 0x0147: kind of hardware present on the cartridge
 	static const std::unordered_map<u8, const char*> CARTRIDGE_TYPES = {
-		{0x00, "ROM ONLY"}
-		// TODO ...
+		{0x00, "ROM ONLY"},
+		{0x01, "MBC1"},
+		{0x02, "MBC1+RAM"},
+		{0x03, "MBC1+RAM+BATTERY"},
+		{0x05, "MBC2"},
+		{0x06, "MBC2+BATTERY"},
+		{0x08, "ROM+RAM"},
+		{0x09, "ROM+RAM+BATTERY"},
+		{0x0B, "MMM01"},
+		{0x0C, "MMM01+RAM"},
+		{0x0D, "MMM01+RAM+BATTERY"},
+		{0x0F, "MBC3+TIMER+BATTERY"},
+		{0x10, "MBC3+TIMER+RAM+BATTERY"},
+		{0x11, "MBC3"},
+		{0x12, "MBC3+RAM"},
+		{0x13, "MBC3+RAM+BATTERY"},
+		{0x19, "MBC5"},
+		{0x1A, "MBC5+RAM"},
+		{0x1B, "MBC5+RAM+BATTERY"},
+		{0x1C, "MBC5+RUMBLE"},
+		{0x1D, "MBC5+RUMBLE+RAM"},
+		{0x1E, "MBC5+RUMBLE+RAM+BATTERY"},
+		{0x20, "MBC6"},
+		{0x22, "MBC7+SENSOR+RUMBLE+RAM+BATTERY"},
+		{0xFC, "POCKET CAMERA"},
+		{0xFD, "BANDAI TAMA5"},
+		{0xFE, "HuC3"},
+		{0xFF, "HuC1+RAM+BATTERY"},
 	};
 
 	/**
@@ -111,4 +156,31 @@ namespace jmpr {
 		{0x00, "None"},
 		// TODO ... 
 	};
+
+	std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge) {
+
+		os << "---Cartridge---" << std::endl;
+		os << "Title: " << cartridge._header._title << std::endl;
+		os << "Manufacturer Code: " << cartridge._header._manufacturer_code << std::endl;
+		os << "Version: " << (int)cartridge._header._version << std::endl;
+
+		os << "Rom size: " << romSize(cartridge._header._rom_size) << std::endl;
+		os << "Ram size: " << RAM_SIZES[cartridge._header._ram_size] << std::endl;
+
+		// Check if applicable
+		//os << "CGB Flag: " << CGB_FLAGS.at(cartridge._header._cgb_flag) << std::endl;
+		// Add also the licensees
+
+		os << "Cartridge Hardware: " << CARTRIDGE_TYPES.at(cartridge._header._cartridge_type) << std::endl;
+
+		os << "Super GameBoy compatibility: " <<
+			(cartridge._header._sgb_flag == SUPPORTS_SGB ? "Yes" : "No") << std::endl;
+
+		os << "Destination: " << DESTINATION_CODES[cartridge._header._destination_code] << std::endl;
+
+		os << "Global Checksum: " << (int)cartridge._header._global_checksum << std::endl;
+
+		return os;
+	}
+
 }
