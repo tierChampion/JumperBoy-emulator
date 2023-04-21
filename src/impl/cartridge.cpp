@@ -4,6 +4,10 @@
 
 namespace jmpr {
 
+	/**
+	* Load a cartridge from a binary file.
+	* @param file Path of the file containing the game
+	*/
 	Cartridge::Cartridge(const char* file) {
 
 		std::ifstream stream;
@@ -27,6 +31,11 @@ namespace jmpr {
 		stream.close();
 	}
 
+	/**
+	* Fetch and decode the information of the header of the
+	* rom.
+	* @param header Bytes to decode starting at location 0x0100
+	*/
 	void CartridgeHeader::formatHeader(u8* header) {
 
 		for (int i = 0; i < 4; i++)
@@ -50,17 +59,14 @@ namespace jmpr {
 		_cartridge_type = header[0x47];
 
 		_rom_size = header[0x48];
-
 		_ram_size = header[0x49];
 
 		_destination_code = header[0x4A];
 
 		_old_licensee_code = header[0x4B];
-
 		_version = header[0x4C];
 
-		_header_checksum = 0; // TODO ...
-
+		_header_checksum = header[0x4D];
 		_global_checksum = header[0x4E] << 8 | header[0x4F];
 	}
 
@@ -79,11 +85,11 @@ namespace jmpr {
 
 	// 0x143: support GameBoy Color features.
 	static const std::unordered_map<u8, const char*> CGB_FLAGS = {
-		{0x80, "ALL_GBS"},
-		{0xC0, "CGB_ONLY"},
+		{0x80, "ALL GBS"},
+		{0xC0, "CGB ONLY"},
 		// Unknown mode.
-		{0x42, "PGB_MODE"},
-		{0x43, "PGB_MODE"}
+		{0x42, "PGB MODE"},
+		{0x44, "PGB MODE"}
 	};
 
 	// 0x0146: support Super GameBoy functions.
@@ -125,8 +131,8 @@ namespace jmpr {
 	* Computes the size of the rom with the flag (0x0148) on the cartridge.
 	* @param flag Value on the cartridge
 	*/
-	inline u32 romSize(u8 flag) {
-		return 0x8000 * (1 << flag);
+	u32 CartridgeHeader::getRomSize() const {
+		return 0x8000 * (1 << _rom_size);
 	}
 
 	// 0x0149: how much ram is present on the cartridge.
@@ -144,43 +150,127 @@ namespace jmpr {
 		"Overseas"
 	};
 
-	// 0x0144 - 0x0145: game publisher. Only considered if the old licensee
+	// 0x0144 - 0x0145: game publisher code for games released after 
+	// the SGB. Only considered if the old licensee
 	// code is exactly 33.
-	static const std::unordered_map<u16, const char*> NEW_LICENSEE_CODE = {
-		{0x0000, "None"},
-		// TODO ... 
+	static const std::unordered_map<u16, const char*> NEW_LICENSEE_CODES = {
+		{0x3030, "None"},				{0x3031, "Nintendo"},		{0x0038, "Capcom"},
+		{0x3133, "Electronic Arts"},	{0x3138, "HudsonSoft"},		{0x3139, "B-Ai"},
+		{0x3230, "KSS"},				{0x3232, "Pow"},			{0x3234, "PCM Complete"},
+		{0x3235, "San-X"},				{0x3238, "Kemco Japan"},	{0x3239, "Seta"},
+		{0x3330, "Viacom"},				{0x3331, "Nintendo"},		{0x3332, "Bandia"},
+		{0x3333, "Ocean/Acclaim"},		{0x3334, "Konami"},			{0x3335, "Hector"},
+		{0x3337, "Taito"},				{0x3338, "Hudson"},			{0x3339, "Banpresto"},
+		{0x3431, "UbiSoft"},			{0x3432, "Atlus"},			{0x3434, "Malibu"},
+		{0x3436, "Angel"},				{0x3437, "Pullet-proof"},	{0x3439, "Irem"},
+		{0x3530, "Absolute"},			{0x3531, "Acclaim"},		{0x3532, "Activision"},
+		{0x3533, "American Sammy"},		{0x3534, "Konami"},			{0x3535, "Hi Tech Entertainment"},
+		{0x3536, "LJN"},				{0x3537, "Matchbox"},		{0x3538, "Mattel"},
+		{0x3539, "Milton Bradley"},		{0x3630, "Titus"},			{0x3631, "Virgin"},
+		{0x3634, "LucasArts"},			{0x3637, "Ocean"},			{0x3639, "Electronic Arts"},
+		{0x3730, "InfoGrames"},			{0x3731, "Interplay"},		{0x3732, "Broderbund"},
+		{0x3733, "Sculptured"},			{0x3735, "Sci"},			{0x3738, "T*HQ"},
+		{0x3739, "Accolade"},			{0x3830, "Misawa"},			{0x3833, "Lozc"},
+		{0x3836, "Tokuma Shoten I*"},	{0x3837, "Tsukuda Ori*"},	{0x3931, "Chun Soft"},
+		{0x3932, "Video System"},		{0x3933, "Ocean/Acclaim"},	{0x3935, "Varie"},
+		{0x3936, "Yonezawa/s'Pal"},		{0x3937, "Kaneko"},			{0x3939, "Pack in Soft"},
 	};
 
-	// 0x014B: game publisher. 
+	// 0x014B: game publisher code for games released before the SGB. 
 	static const std::unordered_map<u8, const char*> OLD_LICENSEE_CODES = {
-		{0x00, "None"},
-		// TODO ... 
+		{0x00, "None"},					{0x01, "Nintendo"},					{0x08, "Capcom"},
+		{0x09, "Hot-B"},				{0x0A, "Jaleco"},					{0x0B, "Coconuts"},
+		{0x0C, "Elite Systems"},		{0x13, "Electronic Arts"},			{0x18, "HudsonSoft"},
+		{0x19, "ITC Entertainment"},	{0x1A, "Yanoman"},					{0x1D, "Clary"},
+		{0x1F, "Virgin"},				{0x24, "PCM Complete"},				{0x25, "San-X"},
+		{0x28, "Kotobuki Systems"},		{0x29, "Seta"},						{0x30, "Infogrames"},
+		{0x31, "Nintendo"},				{0x32, "Bandai"},					{0x33, "USE NEW LICENSEE CODE"},
+		{0x34, "Konami"},				{0x35, "Hector"},					{0x38, "Capcom"},
+		{0x39, "Banpresto"},			{0x3C, "Entertainment I"},			{0x3E, "Gremlin"},
+		{0x41, "UbiSoft"},				{0x42, "Atlus"},					{0x44, "Malibu"},
+		{0x46, "Angel"},				{0x47, "Spectrum Holoby"},			{0x49, "Irem"},
+		{0x4A, "Virgin"},				{0x4D, "Malibu"},					{0x4F, "U.S. Gold"},
+		{0x50, "Absolute"},				{0x51, "Acclaim"},					{0x52, "Activision"},
+		{0x53, "American Sammy"},		{0x54, "Gametek"},					{0x55, "Park Place"},
+		{0x56, "LJN"},					{0x57, "Matchbox"},					{0x59, "Milton Bradley"},
+		{0x5A, "Mindscape"},			{0x58, "Romstar"},					{0x5C, "Naxat Soft"},
+		{0x5D, "TradeWest"},			{0x60, "Titus"},					{0x61, "Virgin"},
+		{0x67, "Ocean"},				{0x69, "Electronics Arts"},			{0x6E, "Elite Systems"},
+		{0x6F, "Electro Brain"},		{0x70, "Infogrames"},				{0x71, "Interplay"},
+		{0x72, "Broderbund"},			{0x73, "Sculptered Soft"},			{0x75, "The Sales Curve"},
+		{0x78, "T*HQ"},					{0x79, "Accolade"},					{0x7A, "Triffix Entertainment"},
+		{0x7C, "Micropose"},			{0x7F, "Kemco"},					{0x80, "Misawa Entertainment"},
+		{0x83, "LOZC"},					{0x86, "Tokuma Shoten I"},			{0x8B, "Bullet-proof Entertainment"},
+		{0x8C, "Vic Tokai"},			{0x8E, "APE"},						{0x8F, "I'Max"},
+		{0x91, "Chun Soft"},			{0x92, "Video System"},				{0x93, "Truburava"},
+		{0x95, "Varie"},				{0x96, "Yonezawa/s'pal"},			{0x97, "Kaneko"},
+		{0x99, "Arc"},					{0x9A, "Nihon Bussan"},				{0x9B, "Tecmo"},
+		{0x9C, "Imagineer"},			{0x9D, "Banpresto"},				{0x9F, "Nova"},
+		{0xA1, "Hori Electric"},		{0xA2, "Bandai"},					{0xA4, "Konami"},
+		{0xA6, "Kawada"},				{0xA7, "Takara"},					{0xA9, "Technos Japan"},
+		{0xAA, "Broderbund"},			{0xAC, "Toei Animation"},			{0xAD, "Toho"},
+		{0xAF, "Namco"},				{0xB0, "Acclaim"},					{0xB1, "ASCII or Nexoft"},
+		{0xB2, "Bandai"},				{0xB4, "Enix"},						{0xB6, "HAL"},
+		{0xB7, "SNK"},					{0xB9, "Pony Canyon"},				{0xBA, "Culture Brain O"},
+		{0xBB, "SunSoft"},				{0xBD, "Sony ImageSoft"},			{0xBF, "Sammy"},
+		{0xC0, "Taito"},				{0xC2, "Kemco"},					{0xC3, "SquareSoft"},
+		{0xC4, "Tokuma Shoten I"},		{0xC5, "Data East"},				{0xC6, "Tonkin House"},
+		{0xC8, "Koei"},					{0xC9, "UFL"},						{0xCA, "Ultra"},
+		{0xCB, "Vap"},					{0xCC, "USE"},						{0xCD, "Meldac"},
+		{0xCE, "Pony Canyon Or"},		{0xCF, "Angel"},					{0xD0, "Taito"},
+		{0xD1, "Sofel"},				{0xD2, "Quest"},					{0xD3, "Sigma Enterprises"},
+		{0xD4, "Ask Kodansha"},			{0xD6, "Naxat Soft"},				{0xD7, "Copya Systems"},
+		{0xD9, "Banpresto"},			{0xDA, "Tomy"},						{0xDB, "LJN"},
+		{0xDD, "NCS"},					{0xDE, "Human"},					{0xDF, "Altron"},
+		{0xE0, "Jaleco"},				{0xE1, "Towachiki"},				{0xE2, "Uutaka"},
+		{0xE3, "Varie"},				{0xE5, "Epoch"},					{0xE7, "Athena"},
+		{0xE8, "Asmik"},				{0xE9, "Natsume"},					{0xEA, "King Records"},
+		{0xEB, "Atlus"},				{0xEC, "Epic/Sony Records"},		{0xEE, "IGS"},
+		{0xF0, "A Wave"},				{0xF3, "Extreme Entertainment"},	{0xFF, "LJN"},
 	};
+
+	/**
+	* Get the name of the licensed company.
+	*/
+	const char* CartridgeHeader::getLicenseeName() const {
+
+		if (_old_licensee_code == 0x33) {
+			// Use the New Licensee Code
+			if (auto search = NEW_LICENSEE_CODES.find(_new_licensee_code);
+				search != NEW_LICENSEE_CODES.end())
+				return search->second;
+		}
+		else {
+			// Use the Old Licensee Code
+			if (auto search = OLD_LICENSEE_CODES.find(_old_licensee_code);
+				search != OLD_LICENSEE_CODES.end())
+				return search->second;
+		}
+
+		return "Unknown";
+	}
 
 	std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge) {
 
 		os << "---Cartridge---" << std::endl;
+		// General Game information
 		os << "Title: " << cartridge._header._title << std::endl;
 		os << "Manufacturer Code: " << cartridge._header._manufacturer_code << std::endl;
 		os << "Version: " << (int)cartridge._header._version << std::endl;
-
-		os << "Rom size: " << romSize(cartridge._header._rom_size) << std::endl;
+		os << "Licensee code: " << cartridge._header.getLicenseeName() << std::endl;
+		os << "Destination: " << DESTINATION_CODES[cartridge._header._destination_code] << std::endl;
+		// Hardware Specification
+		os << "Rom size: " << cartridge._header.getRomSize() << std::endl;
 		os << "Ram size: " << RAM_SIZES[cartridge._header._ram_size] << std::endl;
-
-		// Check if applicable
-		//os << "CGB Flag: " << CGB_FLAGS.at(cartridge._header._cgb_flag) << std::endl;
-		// Add also the licensees
-
 		os << "Cartridge Hardware: " << CARTRIDGE_TYPES.at(cartridge._header._cartridge_type) << std::endl;
-
+		// Console Compatibility
+		os << "GameBoy Color compatibility: " << CGB_FLAGS.at(cartridge._header._cgb_flag) << std::endl;
 		os << "Super GameBoy compatibility: " <<
 			(cartridge._header._sgb_flag == SUPPORTS_SGB ? "Yes" : "No") << std::endl;
-
-		os << "Destination: " << DESTINATION_CODES[cartridge._header._destination_code] << std::endl;
-
+		// Checksums
+		os << "Header Checksum: " << (int)cartridge._header._header_checksum << std::endl;
 		os << "Global Checksum: " << (int)cartridge._header._global_checksum << std::endl;
 
 		return os;
 	}
-
 }

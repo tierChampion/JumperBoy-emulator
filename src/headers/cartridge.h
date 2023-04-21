@@ -23,6 +23,9 @@ namespace jmpr {
 		u16 _global_checksum;
 
 		void formatHeader(u8* header);
+
+		u32 getRomSize() const;
+		const char* getLicenseeName() const;
 	};
 
 	class Cartridge {
