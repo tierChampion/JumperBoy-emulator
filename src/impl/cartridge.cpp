@@ -85,11 +85,11 @@ namespace jmpr {
 
 	// 0x143: support GameBoy Color features.
 	static const std::unordered_map<u8, const char*> CGB_FLAGS = {
-		{0x80, "ALL GBS"},
-		{0xC0, "CGB ONLY"},
-		// Unknown mode.
-		{0x42, "PGB MODE"},
-		{0x44, "PGB MODE"}
+		{0x00, "No CGB"},
+		{0x80, "All GBS"},
+		{0xC0, "CGB Only"},
+		{0x42, "PGB Mode (Unknown)"},
+		{0x44, "PGB Mode (Unknown)"}
 	};
 
 	// 0x0146: support Super GameBoy functions.
