@@ -13,6 +13,12 @@ namespace jmpr {
 		std::ifstream stream;
 		stream.open(file, std::fstream::in | std::fstream::binary);
 
+		if (!stream) {
+			std::cerr << "Error: the ROM path (" << file << ") isn't valid." << std::endl;
+			exit(-1);
+			return;
+		}
+
 		auto begin = stream.tellg();
 		stream.seekg(0, std::ios::end);
 		auto end = stream.tellg();
@@ -29,6 +35,22 @@ namespace jmpr {
 		_filename = file;
 
 		stream.close();
+
+		if (!isValid()) {
+			std::cerr << "Error: The provided ROM (" << _header._title << ") isn't valid." << std::endl;
+			exit(-2);
+			return;
+		}
+	}
+
+	u8 Cartridge::read(u16 address) {
+
+		return _rom_data[address];
+	}
+
+	void Cartridge::write(u16 address, u8 data) {
+
+		noImpl();
 	}
 
 	/**
@@ -52,7 +74,7 @@ namespace jmpr {
 
 		_cgb_flag = header[0x43];
 
-		_new_licensee_code = header[0x44] << 8 | header[0x45];
+		_new_licensee_code = merge(header[0x44], header[0x45]);
 
 		_sgb_flag = header[0x46];
 
@@ -66,13 +88,21 @@ namespace jmpr {
 		_old_licensee_code = header[0x4B];
 		_version = header[0x4C];
 
+		u8 valid_details = 0;
+		for (int i = 0x34; i < 0x4D; i++) {
+			valid_details = valid_details - header[i] - 1;
+		}
+
 		_header_checksum = header[0x4D];
-		_global_checksum = header[0x4E] << 8 | header[0x4F];
+
+		_valid_sum = (valid_details == _header_checksum);
+
+		_global_checksum = merge(header[0x4E], header[0x4F]);
 	}
 
 
 	/*
-	* HEADER CODES
+	* HEADER CODES https://raw.githubusercontent.com/gb-archive/salvage/master/txt-files/gbrom.txt
 	*/
 
 
@@ -128,14 +158,14 @@ namespace jmpr {
 	};
 
 	/**
-	* Computes the size of the rom with the flag (0x0148) on the cartridge.
+	* Computes the size of the rom with the flag (0x0148) on the cartridge in bytes.
 	* @param flag Value on the cartridge
 	*/
 	u32 CartridgeHeader::getRomSize() const {
 		return 0x8000 * (1 << _rom_size);
 	}
 
-	// 0x0149: how much ram is present on the cartridge.
+	// 0x0149: how much ram is present on the cartridge in bytes.
 	static const u32 RAM_SIZES[5] = {
 		0,
 		0x800, // Unofficial value. Somtimes used in homebrew
@@ -250,6 +280,17 @@ namespace jmpr {
 		return "Unknown";
 	}
 
+	/**
+	* Checks if the cartridge is valid. Done by the Boot ROM in normal execution.
+	*/
+	bool Cartridge::isValid() const {
+		return
+			std::equal(std::begin(_header._nintendo_logo),
+				std::end(_header._nintendo_logo),
+				std::begin(VALID_NINTENDO_LOGO)) &&
+			_header._valid_sum;
+	}
+
 	std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge) {
 
 		os << "---Cartridge---" << std::endl;
@@ -260,8 +301,8 @@ namespace jmpr {
 		os << "Licensee code: " << cartridge._header.getLicenseeName() << std::endl;
 		os << "Destination: " << DESTINATION_CODES[cartridge._header._destination_code] << std::endl;
 		// Hardware Specification
-		os << "Rom size: " << cartridge._header.getRomSize() << std::endl;
-		os << "Ram size: " << RAM_SIZES[cartridge._header._ram_size] << std::endl;
+		os << "Rom size: " << (cartridge._header.getRomSize() >> 10) << " KiB" << std::endl;
+		os << "Ram size: " << (RAM_SIZES[cartridge._header._ram_size] >> 10) << " KiB" << std::endl;
 		os << "Cartridge Hardware: " << CARTRIDGE_TYPES.at(cartridge._header._cartridge_type) << std::endl;
 		// Console Compatibility
 		os << "GameBoy Color compatibility: " << CGB_FLAGS.at(cartridge._header._cgb_flag) << std::endl;
@@ -270,6 +311,7 @@ namespace jmpr {
 		// Checksums
 		os << "Header Checksum: " << (int)cartridge._header._header_checksum << std::endl;
 		os << "Global Checksum: " << (int)cartridge._header._global_checksum << std::endl;
+		os << "Valid Checksum: " << (cartridge._header._valid_sum ? "True" : "False") << std::endl;
 
 		return os;
 	}

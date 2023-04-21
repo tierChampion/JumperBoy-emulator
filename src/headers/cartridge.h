@@ -21,6 +21,7 @@ namespace jmpr {
 		u8 _version;
 		u8 _header_checksum;
 		u16 _global_checksum;
+		bool _valid_sum;
 
 		void formatHeader(u8* header);
 
@@ -38,6 +39,10 @@ namespace jmpr {
 	public:
 
 		Cartridge(const char* file);
+		bool isValid() const;
+
+		u8 read(u16 address);
+		void write(u16 address, u8 data);
 
 		friend std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge);
 	};

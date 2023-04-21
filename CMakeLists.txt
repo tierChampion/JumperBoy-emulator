@@ -26,5 +26,5 @@ include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 add_executable(JumperBoy "src/impl/jumper_boy.cpp" "src/impl/cartridge.cpp"
-"src/impl/tinyfiledialogs.cpp")
+"src/impl/tinyfiledialogs.cpp" "src/impl/bus.cpp" "src/impl/cpu.cpp" )
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
