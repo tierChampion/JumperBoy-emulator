@@ -19,12 +19,11 @@ endif()
 
 add_definitions(-DDIRECTORY_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
-set(SDL2_DIR "libs")
+set(SDL2_DIR "libs/SDL2")
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
+include_directories(include)
 
-add_executable(JumperBoy "src/impl/jumper_boy.cpp" "src/impl/cartridge.cpp"
-"src/impl/tinyfiledialogs.cpp" "src/impl/bus.cpp" "src/impl/cpu.cpp" )
-target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
+# Executable definition
+add_subdirectory(src)
