@@ -22,8 +22,8 @@ add_definitions(-DDIRECTORY_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 set(SDL2_DIR "libs/SDL2")
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR})
-include_directories(include)
+include_directories("include")
+include_directories("libs/SDL2/include")
 
 # Executable definition
 add_subdirectory(src)
