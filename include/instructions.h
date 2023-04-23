@@ -59,7 +59,8 @@ namespace jmpr {
 	};
 
 	/**
-	* Addressing mode of bits used.
+	* Addressing mode of bits used. If two components are referenced, it means that the first
+	* is where the result is stored and the second is the data.
 	*
 	* REG =				Register
 	* REGADD =			Address pointed to by register
@@ -146,3 +147,14 @@ namespace jmpr {
 
 	const Instruction* fromOpcode(u8 opcode);
 }
+
+// Hashing function for the instruction type.
+namespace std {
+	template<>
+	struct hash<jmpr::InstrType> {
+		std::size_t operator()(const jmpr::InstrType& it) const {
+			return static_cast<std::size_t>(it);
+		}
+	};
+}
+

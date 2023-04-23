@@ -10,14 +10,14 @@ namespace jmpr {
 
 		// To see...
 		CPU* _cpu;
-		Cartridge* _cartridge;
+		Cartridge* _cart;
 
 	public:
 
 		Bus();
 
-		void attachCPU(CPU* cpu);
-		void attachCartridge(Cartridge* cart);
+		void connectCPU(CPU* cpu) { _cpu = cpu; }
+		void connectCartridge(Cartridge* cart) { _cart = cart; }
 
 		u8 read(u16 address);
 		void write(u16 address, u8 data);

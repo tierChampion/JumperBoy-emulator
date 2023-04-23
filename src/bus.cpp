@@ -21,23 +21,7 @@ namespace jmpr {
 	*/
 	Bus::Bus() {
 		_cpu = nullptr;
-		_cartridge = nullptr;
-	}
-
-	/**
-	* Attach a CPU to the bus.
-	* @param cpu CPU to attach to the bus
-	*/
-	void Bus::attachCPU(CPU* cpu) {
-		_cpu = cpu;
-	}
-
-	/**
-	* Attach a cartridge to the bus.
-	* @param cart Cartridge to attach
-	*/
-	void Bus::attachCartridge(Cartridge* cart) {
-		_cartridge = cart;
+		_cart = nullptr;
 	}
 
 	/**
@@ -47,8 +31,8 @@ namespace jmpr {
 	u8 Bus::read(u16 address) {
 
 		if (address < 0x8000) {
-			if (_cartridge)
-				return _cartridge->read(address);
+			if (_cart)
+				return _cart->read(address);
 			else
 				std::cerr << "Warning: the Cartridge is not " <<
 				"connected to the Bus, so it could not be read." << std::endl;
@@ -67,8 +51,8 @@ namespace jmpr {
 	void Bus::write(u16 address, u8 data) {
 
 		if (address < 0x8000) {
-			if (_cartridge)
-				_cartridge->write(address, data);
+			if (_cart)
+				_cart->write(address, data);
 			else
 				std::cerr << "Warning: the Cartridge is not " <<
 				"connected to the Bus, so it could not be written to." << std::endl;

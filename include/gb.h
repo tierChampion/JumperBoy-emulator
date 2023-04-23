@@ -10,22 +10,22 @@ namespace jmpr {
 	class GameBoy {
 
 		// Components
-		Bus _bus;
-		CPU _cpu;
-		Cartridge _cart;
+		static Bus _bus;
+		static CPU _cpu;
+		static Cartridge _cart;
 
 		// States
-		bool _paused;
-		bool _running;
-		u64 _ticks;
+		static bool _paused;
+		static bool _running;
+		static u64 _ticks;
 
 	public:
 
-		GameBoy();
+		static int runGameBoy();
 
-		bool insertCartridge(const char* rom_file);
+		static bool insertCartridge(const char* rom_file);
 
-		void cycle(int cpuCycles);
+		static void cycle(int cpuCycles);
 	};
 
 }

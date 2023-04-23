@@ -33,18 +33,17 @@ namespace jmpr {
 
 		const char* _filename;
 		u32 _rom_size = 0;
-		u8* _rom_data;
+		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
 
 	public:
 
-		Cartridge() {}
+		Cartridge() { _filename = ""; }
 		Cartridge(const char* file);
-		~Cartridge();
 
 		bool isValid() const;
 
-		u8 read(u16 address);
+		u8 read(u16 address) const;
 		void write(u16 address, u8 data);
 
 		friend std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge);

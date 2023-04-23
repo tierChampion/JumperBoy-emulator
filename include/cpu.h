@@ -2,10 +2,13 @@
 
 #include <common.h>
 #include <instructions.h>
+#include <functional>
+#include <unordered_map>
 
 
 namespace jmpr {
 
+	class GameBoy;
 	class Bus;
 
 	struct CpuRegisters {
@@ -28,14 +31,17 @@ namespace jmpr {
 
 		Bus* _bus;
 
-		u16 _current_fetch;
-		u16 _mem_dest;
+		// Current Instruction
 		u8 _current_opcode;
 		const Instruction* _current_instr;
+		// Instruction information
+		u16 _current_fetch;
+		u16 _mem_dest;
+		bool _dest_is_mem;
 
+		// Status
 		bool _halted;
 		bool _stepping;
-
 
 	public:
 
@@ -44,10 +50,21 @@ namespace jmpr {
 		void connectBus(Bus* bus) { _bus = bus; }
 
 		u16 readRegister(Register reg) const;
+		void writeRegister(Register reg, u16 data);
 
 		void fetchOpcode();
 		void fetchData();
 		void execute();
 		bool cycle();
+
+	private:
+
+		// INSTRUCTION FUNCTIONS
+		void XXX(); // Unknown Opcode option
+		void NOP();
+
+		// INSTRUCTION FUNCTIONS TABLE
+		typedef void(CPU::*ProcessFunction)();
+		static const std::unordered_map<InstrType, ProcessFunction> _PROCESSES;
 	};
 }

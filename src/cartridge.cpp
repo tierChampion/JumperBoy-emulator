@@ -26,11 +26,11 @@ namespace jmpr {
 
 		_rom_size = (u32)(end - begin);
 
-		_rom_data = new u8[_rom_size];
+		_rom_data = std::unique_ptr<u8>(new u8[_rom_size]);
 
-		stream.read((char*)_rom_data, _rom_size);
+		stream.read((char*)_rom_data.get(), _rom_size);
 
-		_header.formatHeader(&_rom_data[0x100]);
+		_header.formatHeader(&_rom_data.get()[0x100]);
 
 		_filename = file;
 
@@ -43,17 +43,13 @@ namespace jmpr {
 		}
 	}
 
-	Cartridge::~Cartridge() {
-		delete _rom_data;
-	}
-
 	/**
 	* Read from the rom data on the cartridge.
 	* @param address Address to read from.
 	*/
-	u8 Cartridge::read(u16 address) {
+	u8 Cartridge::read(u16 address) const {
 
-		return _rom_data[address];
+		return _rom_data.get()[address];
 	}
 
 	/**

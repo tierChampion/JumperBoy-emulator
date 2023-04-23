@@ -5,9 +5,12 @@ add_executable(JumperBoy
 "cartridge.cpp" 
 "tinyfiledialogs.cpp" 
 "bus.cpp"
-"cpu.cpp" 
+"cpu/cpu.cpp" 
 "instructions.cpp"
-"gb.cpp" )
+"gb.cpp"
+"cpu/cpu_fetch.cpp"
+"cpu/cpu_execute.cpp"
+"cpu/cpu_registers.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 
