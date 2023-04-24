@@ -138,14 +138,11 @@ namespace jmpr {
 		Register _reg1;
 		Register _reg2;
 
-		u8 _length;
-		u8 _cycles;
-		u8 _extra_cycles;
-
 		u8 _affected_flags;
 	};
 
 	const Instruction* fromOpcode(u8 opcode);
+	const char* instructionName(const Instruction instr);
 }
 
 // Hashing function for the instruction type.

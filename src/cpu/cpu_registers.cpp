@@ -53,4 +53,42 @@ namespace jmpr {
 		case Register::PC: _PC = data; break;
 		}
 	}
+
+	/**
+	* Set the flags in the F register. A value greater than 1 will leave
+	* the flag unchanged.
+	*/
+	void CPU::setFlags(u8 Z, u8 N, u8 H, u8 C) {
+
+		if (Z < 0b10)
+			_registers._F |= Z << 7;
+
+		if (N < 0b10)
+			_registers._F |= N << 6;
+
+		if (H < 0b10)
+			_registers._H |= H << 5;
+
+		if (C < 0b10)
+			_registers._F |= C << 4;
+	}
+
+	/**
+	* Check if the flags in the F register are set.
+	*/
+	bool CPU::checkFlags(Condition cond) {
+
+		bool Z = _registers._F & 0b10000000;
+		bool C = _registers._C & 0b01000000;
+
+		switch (cond) {
+		case Condition::NONE: return true;
+		case Condition::Z: return Z;
+		case Condition::NZ: return !Z;
+		case Condition::C: return C;
+		case Condition::NC: return !C;
+		}
+
+		return false;
+	}
 }

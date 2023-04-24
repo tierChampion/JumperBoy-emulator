@@ -2,7 +2,7 @@
 
 #include <common.h>
 #include <instructions.h>
-#include <functional>
+
 #include <unordered_map>
 
 
@@ -40,6 +40,8 @@ namespace jmpr {
 		bool _dest_is_mem;
 
 		// Status
+		bool _IME;
+		bool _IME_scheduled;
 		bool _halted;
 		bool _stepping;
 
@@ -51,6 +53,8 @@ namespace jmpr {
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);
+		void setFlags(u8 Z, u8 N, u8 H, u8 C);
+		bool checkFlags(Condition cond);
 
 		void fetchOpcode();
 		void fetchData();
@@ -60,8 +64,53 @@ namespace jmpr {
 	private:
 
 		// INSTRUCTION FUNCTIONS
-		void XXX(); // Unknown Opcode option
+		void XXX();
 		void NOP();
+		void LD();
+		void INC();
+		void DEC();
+		void RLCA();
+		void ADD();
+		void RRCA();
+		void STOP();
+		void RLA();
+		void JR();
+		void RRA();
+		void DAA();
+		void CPL();
+		void SCF();
+		void CCF();
+		void HALT();
+		void ADC();
+		void SUB();
+		void SBC();
+		void AND();
+		void XOR();
+		void OR();
+		void CP();
+		void RET();
+		void POP();
+		void JP();
+		void CALL();
+		void PUSH();
+		void RST();
+		void PREFIX();
+		void RETI();
+		void LDH();
+		void DI();
+		void EI();
+		void CB_ERR();
+		void CB_RLC();
+		void CB_RRC();
+		void CB_RL();
+		void CB_RR();
+		void CB_SLA();
+		void CB_SRA();
+		void CB_SWAP();
+		void CB_SRL();
+		void CB_BIT();
+		void CB_RES();
+		void CB_SET();
 
 		// INSTRUCTION FUNCTIONS TABLE
 		typedef void(CPU::*ProcessFunction)();

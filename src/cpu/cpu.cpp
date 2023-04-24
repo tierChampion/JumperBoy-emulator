@@ -26,6 +26,8 @@ namespace jmpr {
 
 		_bus = nullptr;
 
+		_IME = true;
+		_IME_scheduled = false;
 		_halted = false;
 		_stepping = false; // todo?
 	}
@@ -37,8 +39,16 @@ namespace jmpr {
 
 	bool CPU::cycle() {
 		if (!_halted) {
+
+			u16 programCounter = _PC;
+
 			fetchOpcode();
 			fetchData();
+
+			std::cout << std::hex << programCounter << ": ";
+			std::cout << std::hex << int(_current_opcode);
+			std::cout << "( " << std::hex << instructionName(*_current_instr) << " )" << std::endl;
+
 			execute();
 		}
 

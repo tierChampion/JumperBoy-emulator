@@ -110,10 +110,34 @@ namespace jmpr {
 		}
 
 
-		default: {
-			noImpl();
+		case Mode::REG_D8:
+
+			_current_fetch = _bus->read(_PC);
+			GameBoy::cycle(1);
+
+			_PC++;
+			break;
+
+
+		case Mode::A16: {
+
+			u8 lo = _bus->read(_PC);
+			GameBoy::cycle(1);
+			u8 hi = _bus->read(_PC + 1);
+			GameBoy::cycle(1);
+
+			_current_fetch = merge(hi, lo);
+
+			_PC += 2;
+			break;
+
 		}
 
+
+		default: {
+			std::cerr << "Error: Addressing mode not implemented yet: " <<
+				std::hex << int(_current_instr->_mode) << std::endl;
+		}
 		}
 	}
 }

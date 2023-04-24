@@ -5,6 +5,8 @@
 #include <cpu.h>
 #include <cartridge.h>
 
+#include <SDL/SDL.h>
+
 namespace jmpr {
 
 	class GameBoy {
@@ -26,6 +28,8 @@ namespace jmpr {
 		static bool insertCartridge(const char* rom_file);
 
 		static void cycle(int cpuCycles);
+
+		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 	};
 
 }

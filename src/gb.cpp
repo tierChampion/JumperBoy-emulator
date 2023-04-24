@@ -1,7 +1,6 @@
 #include <gb.h>
 
 #include <tinyfiledialogs.h>
-#include <SDL/SDL.h>
 
 namespace jmpr {
 
@@ -14,36 +13,78 @@ namespace jmpr {
 	u64 GameBoy::_ticks = 0;
 
 
+	static const char* filterPatterns[2] = { "*.gb", "*.gbc" };
+
 	int GameBoy::runGameBoy() {
+
+		_cpu.connectBus(&_bus);
+		_bus.connectCPU(&_cpu);
 
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
 			exit(-10);
 		}
 
-		const char* filterPatterns[2] = { "*.gb", "*.gbc" };
+		const char* selection;
 
-		const char* selection = tinyfd_openFileDialog(
-			"Select ROM",
-			DIRECTORY_PATH,
-			1,
-			filterPatterns,
-			NULL,
-			0
-		);
+		// TODO
+		SDL_Window* window = SDL_CreateWindow("gb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 500, 400, 0);
 
-		if (!insertCartridge(selection)) {
-			std::cerr << "Couldn't open the given ROM." << std::endl;
-			return -1;
+		_running = false;
+		bool quitting = false;
+
+		SDL_Event event;
+
+		while (!quitting) {
+
+			if (_running) {
+				_cpu.cycle();
+
+				_ticks++;
+			}
+
+			while (SDL_PollEvent(&event)) {
+				switch (event.type) {
+					// X button on the screen
+				case SDL_QUIT: quitting = true; break;
+
+				case SDL_KEYDOWN:
+					_cpu.cycle();
+					_ticks++;
+					break;
+
+					// Run commands to create actions.
+				case SDL_MOUSEBUTTONDOWN:
+
+					const char* message = "Enter a command: open_rom, set_controls";
+
+					// Input a command to process afterwards.
+					const char* input = tinyfd_inputBox("Input command", message, "");
+
+					//if (std::strcmp(input, "open_rom") == 0) {
+					selection = tinyfd_openFileDialog(
+						"Select ROM",
+						DIRECTORY_PATH,
+						1,
+						filterPatterns,
+						NULL,
+						0
+					);
+
+
+					insertCartridge(selection);
+					std::cout << _cart << std::endl;
+					//}
+
+					break;
+				}
+			}
+
+			delay(100);
 		}
 
-		_running = true;
-
-		while (_running) {
-			_cpu.cycle();
-
-			_ticks++;
-		}
+		SDL_DestroyWindow(window);
+		SDL_Quit();
 
 		return 0;
 	}
