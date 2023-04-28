@@ -7,6 +7,7 @@ namespace jmpr {
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	Cartridge GameBoy::_cart = Cartridge();
+	Ram GameBoy::_ram = Ram();
 
 	bool GameBoy::_paused = false;
 	bool GameBoy::_running = false;
@@ -19,6 +20,7 @@ namespace jmpr {
 
 		_cpu.connectBus(&_bus);
 		_bus.connectCPU(&_cpu);
+		_bus.connectRam(&_ram);
 
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
@@ -61,20 +63,20 @@ namespace jmpr {
 					// Input a command to process afterwards.
 					const char* input = tinyfd_inputBox("Input command", message, "");
 
-					//if (std::strcmp(input, "open_rom") == 0) {
-					selection = tinyfd_openFileDialog(
-						"Select ROM",
-						DIRECTORY_PATH,
-						1,
-						filterPatterns,
-						NULL,
-						0
-					);
+					if (input) {
+						selection = tinyfd_openFileDialog(
+							"Select ROM",
+							DIRECTORY_PATH,
+							1,
+							filterPatterns,
+							NULL,
+							0
+						);
 
 
-					insertCartridge(selection);
-					std::cout << _cart << std::endl;
-					//}
+						insertCartridge(selection);
+						std::cout << _cart << std::endl;
+					}
 
 					break;
 				}

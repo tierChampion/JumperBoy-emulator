@@ -4,6 +4,7 @@
 #include <bus.h>
 #include <cpu.h>
 #include <cartridge.h>
+#include <ram.h>
 
 #include <SDL/SDL.h>
 
@@ -15,6 +16,7 @@ namespace jmpr {
 		static Bus _bus;
 		static CPU _cpu;
 		static Cartridge _cart;
+		static Ram _ram;
 
 		// States
 		static bool _paused;

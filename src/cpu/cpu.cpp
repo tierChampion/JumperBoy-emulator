@@ -1,6 +1,7 @@
 #include <cpu.h>
 
 #include <bus.h>
+#include <ram.h>
 
 namespace jmpr {
 
@@ -27,7 +28,6 @@ namespace jmpr {
 		_bus = nullptr;
 
 		_IME = true;
-		_IME_scheduled = false;
 		_halted = false;
 		_stepping = false; // todo?
 	}
@@ -43,13 +43,16 @@ namespace jmpr {
 			u16 programCounter = _PC;
 
 			fetchOpcode();
+
+			printf("%04X: %s (%02X %02X %02X)",
+				programCounter, instructionName(*_current_instr), int(_current_opcode), int(_bus->read(programCounter + 1)),
+				int(_bus->read(programCounter + 2)));
+
 			fetchData();
-
-			std::cout << std::hex << programCounter << ": ";
-			std::cout << std::hex << int(_current_opcode);
-			std::cout << "( " << std::hex << instructionName(*_current_instr) << " )" << std::endl;
-
 			execute();
+
+			printf(" => AF: %02X%02X, BC: %02X%02X, DE: %02X%02X, HL: %02X%02X\n", _registers._A, _registers._F, _registers._B,
+				_registers._C, _registers._D, _registers._E, _registers._H, _registers._L);
 		}
 
 		return true;

@@ -10,6 +10,7 @@ namespace jmpr {
 
 	class GameBoy;
 	class Bus;
+	class Ram;
 
 	struct CpuRegisters {
 		u8 _A; // Accumulator
@@ -41,7 +42,6 @@ namespace jmpr {
 
 		// Status
 		bool _IME;
-		bool _IME_scheduled;
 		bool _halted;
 		bool _stepping;
 
@@ -53,8 +53,12 @@ namespace jmpr {
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);
+
 		void setFlags(u8 Z, u8 N, u8 H, u8 C);
 		bool checkFlags(Condition cond);
+
+		u8 readInterruptEnabledRegister() { return _IME; }
+		void writeInterruptEnabledRegister(u8 data) { _IME = (data > 0); }
 
 		void fetchOpcode();
 		void fetchData();
@@ -62,6 +66,12 @@ namespace jmpr {
 		bool cycle();
 
 	private:
+
+		// STACK OPERATIONS
+		void pushStack8(u8 data);
+		void pushStack16(u16 data);
+		u8 popStack8();
+		u16 popStack16();
 
 		// INSTRUCTION FUNCTIONS
 		void XXX();

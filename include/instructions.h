@@ -34,16 +34,15 @@ namespace jmpr {
 		CP,			// ?
 		RET,		// Return from a subroutine
 		POP,		// Pop from the stack ?
-		JP,			// Jump ?
+		JP,			// Jump
 		CALL,		// Call a subroutine ?
 		PUSH,		// Push on the stack ?
 		RST,		// Reset ?
 		PREFIX,		// Call a CB
 		RETI,		// ?
-		// JPHL?
-		LDH,		// ?
-		DI,			// ?
-		EI,			// ?
+		LDH,		// Loading with 8 bit values and the Accumulator
+		DI,			// Disable interrupts
+		EI,			// Enable interrupts
 		CB_ERR,		// Unknown CB Instruction
 		CB_RLC,		// ?
 		CB_RRC,		// ?
@@ -79,7 +78,6 @@ namespace jmpr {
 		A16_REG,
 		REG_REG,
 		REG_REGADD,
-		R8,
 		HLINC_REG,
 		REG_HLINC,
 		HLDEC_REG,
@@ -89,12 +87,9 @@ namespace jmpr {
 		A16,
 		D8,
 		A8_REG,
-		REG_R8,
 		REG_A8,
 		HL_SPR8,
 		REG_A16,
-		// D16 ?
-		// D16 Reg ?
 	};
 
 	/**
@@ -140,6 +135,8 @@ namespace jmpr {
 
 		u8 _affected_flags;
 	};
+
+	bool is16Bits(Register reg);
 
 	const Instruction* fromOpcode(u8 opcode);
 	const char* instructionName(const Instruction instr);

@@ -1,5 +1,7 @@
 #include <cpu.h>
 
+#include <bus.h>
+
 namespace jmpr {
 
 	/**
@@ -39,16 +41,16 @@ namespace jmpr {
 		switch (reg) {
 		case Register::A: _registers._A = data & 0xFF; break;
 		case Register::F: _registers._F = data & 0xFF; break;
-		case Register::AF: _registers._A = data & 0xFF00; _registers._F = 0xFF; break;
+		case Register::AF: _registers._A = (data >> 8) & 0xFF; _registers._F = data & 0xFF; break;
 		case Register::B: _registers._B = data & 0xFF; break;
 		case Register::C: _registers._C = data & 0xFF; break;
-		case Register::BC: _registers._B = data & 0xFF00; _registers._C = 0xFF; break;
+		case Register::BC: _registers._B = (data >> 8) & 0xFF; _registers._C = data & 0xFF; break;
 		case Register::D: _registers._D = data & 0xFF; break;
 		case Register::E: _registers._E = data & 0xFF; break;
-		case Register::DE: _registers._D = data & 0xFF00; _registers._E = 0xFF; break;
+		case Register::DE: _registers._D = (data >> 8) & 0xFF; _registers._E = data & 0xFF; break;
 		case Register::H: _registers._H = data & 0xFF; break;
 		case Register::L: _registers._L = data & 0xFF; break;
-		case Register::HL: _registers._H = data & 0xFF00; _registers._L = 0xFF; break;
+		case Register::HL: _registers._H = (data >> 8) & 0xFF; _registers._L = data & 0xFF; break;
 		case Register::SP: _SP = data; break;
 		case Register::PC: _PC = data; break;
 		}
@@ -90,5 +92,30 @@ namespace jmpr {
 		}
 
 		return false;
+	}
+
+	void CPU::pushStack8(u8 data) {
+		_SP--;
+		_bus->write(_SP, data);
+	}
+
+	void CPU::pushStack16(u16 data) {
+
+		pushStack8(hiByte(data));
+		pushStack8(loByte(data));
+	}
+
+	u8 CPU::popStack8() {
+		u8 popped = _bus->read(_SP);
+		_SP++;
+		return popped;
+	}
+
+	u16 CPU::popStack16() {
+
+		u8 lo = popStack8();
+		u8 hi = popStack8();
+
+		return merge(hi, lo);
 	}
 }

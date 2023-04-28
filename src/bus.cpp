@@ -22,25 +22,56 @@ namespace jmpr {
 	Bus::Bus() {
 		_cpu = nullptr;
 		_cart = nullptr;
+		_ram = nullptr;
 	}
 
 	/**
-	* Read data at the desired address. Gets mapped to the desired address.
+	* Read a byte of data at the desired address. Gets mapped to the desired address.
 	* @param address Address to read.
 	*/
 	u8 Bus::read(u16 address) {
 
 		if (address < 0x8000) {
-			if (_cart)
-				return _cart->read(address);
-			else
-				std::cerr << "Warning: the Cartridge is not " <<
-				"connected to the Bus, so it could not be read." << std::endl;
+			return _cart->read(address);
 		}
-		else {
+		else if (address < 0xA000) {
+			// Video Ram
 			noImpl();
 		}
+		else if (address < 0xC000) {
+			// Cartridge Ram
+			return _cart->read(address);
+		}
+		else if (address < 0xE000) {
+			// Work Ram
+			return _ram->readWorkRam(address);
+		}
+		else if (address < 0xFE00) {
+			// Echo Ram, unused
+			return 0;
+		}
+		else if (address < 0xFEA0) {
+			// Sprite tables
+			noImpl();
+		}
+		else if (address < 0xFF00) {
+			// Prohibited area
+			return 0;
+		}
+		else if (address < 0xFF80) {
+			// IO registers
+			noImpl();
+		}
+		else if (address < 0xFFFF) {
+			// High Ram
+			return _ram->readHighRam(address);
+		}
+		else if (address == 0xFFFF) {
+			// Interrupt enabled register
+			return _cpu->readInterruptEnabledRegister();
+		}
 
+		// should never happen
 		return 0;
 	}
 
@@ -51,14 +82,51 @@ namespace jmpr {
 	void Bus::write(u16 address, u8 data) {
 
 		if (address < 0x8000) {
-			if (_cart)
-				_cart->write(address, data);
-			else
-				std::cerr << "Warning: the Cartridge is not " <<
-				"connected to the Bus, so it could not be written to." << std::endl;
+			_cart->write(address, data);
 		}
-		else {
+		else if (address < 0xA000) {
+			// Video Ram
 			noImpl();
 		}
+		else if (address < 0xC000) {
+			// Cartridge Ram
+			_cart->write(address, data);
+		}
+		else if (address < 0xE000) {
+			// Work Ram
+			_ram->writeWorkRam(address, data);
+		}
+		else if (address < 0xFE00) {
+			// Echo Ram, unused
+		}
+		else if (address < 0xFEA0) {
+			// Sprite tables
+			noImpl();
+		}
+		else if (address < 0xFF00) {
+			// Prohibited area
+		}
+		else if (address < 0xFF80) {
+			// IO registers
+			noImpl();
+		}
+		else if (address < 0xFFFF) {
+			// High Ram
+			_ram->writeHighRam(address, data);
+		}
+		else {
+			// Interrupt enabled register
+			_cpu->writeInterruptEnabledRegister(data);
+		}
+	}
+
+	/**
+	* Write 2 bytes of data at the desired address. Gets mapped to the desired address.
+	* @param address Address to write.
+	*/
+	void Bus::write16(u16 address, u16 data) {
+
+		write(address + 1, (data >> 8) & 0xFF);
+		write(address, data & 0xFF);
 	}
 }
