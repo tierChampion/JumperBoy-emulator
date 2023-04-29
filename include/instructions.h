@@ -21,9 +21,9 @@ namespace jmpr {
 		JR,			// Jump ?
 		RRA,		// ?
 		DAA,		// ?
-		CPL,		// ?
-		SCF,		// ?
-		CCF,		// ?
+		CPL,		// Negate the accumulator
+		SCF,		// Set the carry flag
+		CCF,		// Negate the carry flag
 		HALT,		// Halt
 		ADC,		// Addition ?
 		SUB,		// Substraction
@@ -31,16 +31,16 @@ namespace jmpr {
 		AND,		// Logical AND
 		XOR,		// Logical XOR
 		OR,			// Logical OR
-		CP,			// ?
-		RET,		// Return from a subroutine
-		POP,		// Pop from the stack ?
+		CP,			// Logical XNOR (Compare)
+		RET,		// Return from a function
+		POP,		// Pop from the stack
 		JP,			// Jump
-		CALL,		// Call a subroutine ?
-		PUSH,		// Push on the stack ?
-		RST,		// Reset ?
+		CALL,		// Call a function
+		PUSH,		// Push on the stack
+		RST,		// Reset the gameboy
 		PREFIX,		// Call a CB
-		RETI,		// ?
-		LDH,		// Loading with 8 bit values and the Accumulator
+		RETI,		// Return from a function and enable interrupts
+		LDH,		// Load to the HRAM 
 		DI,			// Disable interrupts
 		EI,			// Enable interrupts
 		CB_ERR,		// Unknown CB Instruction

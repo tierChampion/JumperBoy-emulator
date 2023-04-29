@@ -37,6 +37,14 @@ namespace jmpr {
 
 		SDL_Event event;
 
+		u8 test = 10;
+
+		u8 val = 200;
+
+		test += val;
+
+		printf("%02X (%i)\n", test, val);
+
 		while (!quitting) {
 
 			if (_running) {

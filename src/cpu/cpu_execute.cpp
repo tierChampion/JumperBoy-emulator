@@ -52,16 +52,56 @@ namespace jmpr {
 
 	void CPU::INC() {
 
-		noImpl(); // todo
+		if (_dest_is_mem) {
+
+			_bus->write(_mem_dest, _current_fetch + 1);
+			GameBoy::cycle(1);
+		}
+		else {
+			writeRegister(_current_instr->_reg1, readRegister(_current_instr->_reg1) + 1);
+		}
+
+		bool is16 = is16Bits(_current_instr->_reg1);
+
+		if (is16) {
+			GameBoy::cycle(1);
+		}
+
+		if (!is16 || _dest_is_mem) {
+			setFlags(readRegister(_current_instr->_reg1) == 0, 0,
+				(readRegister(_current_instr->_reg1) & 0xF) == 0, -1);
+		}
 	}
 
 	void CPU::DEC() {
 
-		noImpl(); // todo
+		if (_dest_is_mem) {
+
+			_bus->write(_mem_dest, _current_fetch - 1);
+			GameBoy::cycle(1);
+		}
+		else {
+			writeRegister(_current_instr->_reg1, readRegister(_current_instr->_reg1) - 1);
+		}
+
+		bool is16 = is16Bits(_current_instr->_reg1);
+
+		if (is16) {
+			GameBoy::cycle(1);
+		}
+
+		if (!is16 || _dest_is_mem) {
+			setFlags(readRegister(_current_instr->_reg1) == 0, 1,
+				(readRegister(_current_instr->_reg1) & 0xF) == 0xF, -1);
+		}
 	}
 
 	void CPU::RLCA() { noImpl(); }
-	void CPU::ADD() { noImpl(); } // special case for sp, r8
+
+	void CPU::ADD() { // todo
+		// the flags just don't make any sense...
+	} // special case for sp, r8
+
 	void CPU::RRCA() { noImpl(); }
 	void CPU::STOP() { noImpl(); }
 	void CPU::RLA() { noImpl(); }
@@ -75,26 +115,58 @@ namespace jmpr {
 		}
 	}
 
+	// no information...
 	void CPU::RRA() { noImpl(); }
 	void CPU::DAA() { noImpl(); }
-	void CPU::CPL() { noImpl(); }
-	void CPU::SCF() { noImpl(); }
-	void CPU::CCF() { noImpl(); }
+
+	void CPU::CPL() {
+
+		_registers._A = ~_registers._A;
+		setFlags(-1, 1, 1, -1);
+	}
+
+	void CPU::SCF() {
+
+		setFlags(-1, 0, 0, 1);
+	}
+
+	void CPU::CCF() {
+
+		bool C = checkFlags(_current_instr->_cond);
+
+		setFlags(-1, 0, 0, ~C);
+	}
+
 	void CPU::HALT() { noImpl(); }
 	void CPU::ADC() { noImpl(); }
 	void CPU::SUB() { noImpl(); }
 	void CPU::SBC() { noImpl(); }
-	void CPU::AND() { noImpl(); }
+
+	void CPU::AND() {
+
+		_registers._A &= (_current_fetch & 0xFF);
+		setFlags(_registers._A == 0, 0, 1, 0);
+	}
 
 	void CPU::XOR() {
 
 		_registers._A ^= (_current_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
-
 	}
 
-	void CPU::OR() { noImpl(); }
-	void CPU::CP() { noImpl(); }
+	void CPU::OR() {
+
+		_registers._A |= (_current_fetch & 0xFF);
+		setFlags(_registers._A == 0, 0, 0, 0);
+	}
+
+	void CPU::CP() {
+
+		u8 result = _registers._A - (_current_fetch & 0xFF);
+		u8 half_res = (_registers._A & 0xF) - (_current_fetch & 0xF);
+
+		setFlags(_registers._A == 0, 1, half_res > (_registers._A & 0xF), result > _registers._A);
+	}
 
 	void CPU::RET() {
 
@@ -204,7 +276,6 @@ namespace jmpr {
 		_IME = true;
 	}
 
-	void CPU::CB_ERR() { noImpl(); }
 	void CPU::CB_RLC() { noImpl(); }
 	void CPU::CB_RRC() { noImpl(); }
 	void CPU::CB_RL() { noImpl(); }
@@ -234,17 +305,17 @@ namespace jmpr {
 		{InstrType::JR, &CPU::JR},
 		//	{InstrType::RRA, &CPU::XXX},
 		//	{InstrType::DAA, &CPU::XXX},
-		//	{InstrType::CPL, &CPU::XXX},
-		//	{InstrType::SCF, &CPU::XXX},
-		//	{InstrType::CCF, &CPU::XXX},
+		{InstrType::CPL, &CPU::CPL},
+		{InstrType::SCF, &CPU::SCF},
+		{InstrType::CCF, &CPU::CCF},
 		//	{InstrType::HALT, &CPU::XXX},
 		//	{InstrType::ADC, &CPU::XXX},
 		//	{InstrType::SUB, &CPU::XXX},
 		//	{InstrType::SBC, &CPU::XXX},
-		//	{InstrType::AND, &CPU::XXX},
+		{InstrType::AND, &CPU::AND},
 		{InstrType::XOR, &CPU::XOR},
-		//	{InstrType::OR, &CPU::XXX},
-		//	{InstrType::CP, &CPU::XXX},
+		{InstrType::OR, &CPU::OR},
+		{InstrType::CP, &CPU::CP},
 		{InstrType::RET, &CPU::RET},
 		{InstrType::POP, &CPU::POP},
 		{InstrType::JP, &CPU::JP},
@@ -256,7 +327,7 @@ namespace jmpr {
 		{InstrType::LDH, &CPU::LDH},
 		{InstrType::DI, &CPU::DI},
 		{InstrType::EI, &CPU::EI},
-		//	{InstrType::CB_ERR, &CPU::XXX},
+		{InstrType::CB_ERR, &CPU::XXX},
 		//	{InstrType::CB_RLC, &CPU::XXX},
 		//	{InstrType::CB_RRC, &CPU::XXX},
 		//	{InstrType::CB_RL, &CPU::XXX},

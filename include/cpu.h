@@ -14,7 +14,11 @@ namespace jmpr {
 
 	struct CpuRegisters {
 		u8 _A; // Accumulator
-		u8 _F; // Flags: Zero Flag, Substraction Flag, Half Carry Flag, Carry Flag
+
+		// Flags: Zero Flag (result is 0), Substraction Flag (if the operation removes),
+		// Half-Carry Flag (if there is a carry in the before last 4 bits) and 
+		// Carry Flag (if there is a carry at the end)
+		u8 _F;
 		u8 _B;
 		u8 _C;
 		u8 _D;
@@ -109,7 +113,6 @@ namespace jmpr {
 		void LDH();
 		void DI();
 		void EI();
-		void CB_ERR();
 		void CB_RLC();
 		void CB_RRC();
 		void CB_RL();
