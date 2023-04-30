@@ -76,6 +76,14 @@ namespace jmpr {
 	}
 
 	/**
+	* Get the value of the desired flag.
+	* @param flag 0 for Z, 1 for N, 2 for H and 3 for C
+	*/
+	u8 CPU::readFlag(u8 flag) {
+		return bit(_registers._F, 7 - flag);
+	}
+
+	/**
 	* Check if the flags in the F register are set.
 	*/
 	bool CPU::checkFlags(Condition cond) {

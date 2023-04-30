@@ -16,6 +16,8 @@ namespace jmpr {
 
 	static const char* filterPatterns[2] = { "*.gb", "*.gbc" };
 
+	// todo the CB instructions
+
 	int GameBoy::runGameBoy() {
 
 		_cpu.connectBus(&_bus);
@@ -36,14 +38,6 @@ namespace jmpr {
 		bool quitting = false;
 
 		SDL_Event event;
-
-		u8 test = 10;
-
-		u8 val = 200;
-
-		test += val;
-
-		printf("%02X (%i)\n", test, val);
 
 		while (!quitting) {
 
@@ -84,6 +78,8 @@ namespace jmpr {
 
 						insertCartridge(selection);
 						std::cout << _cart << std::endl;
+
+						_running = true;
 					}
 
 					break;

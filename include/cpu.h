@@ -59,6 +59,7 @@ namespace jmpr {
 		void writeRegister(Register reg, u16 data);
 
 		void setFlags(u8 Z, u8 N, u8 H, u8 C);
+		u8 readFlag(u8 flag);
 		bool checkFlags(Condition cond);
 
 		u8 readInterruptEnabledRegister() { return _IME; }
@@ -113,17 +114,18 @@ namespace jmpr {
 		void LDH();
 		void DI();
 		void EI();
-		void CB_RLC();
-		void CB_RRC();
-		void CB_RL();
-		void CB_RR();
-		void CB_SLA();
-		void CB_SRA();
-		void CB_SWAP();
-		void CB_SRL();
-		void CB_BIT();
-		void CB_RES();
-		void CB_SET();
+
+		void CB_RLC(Register reg);
+		void CB_RRC(Register reg);
+		void CB_RL(Register reg);
+		void CB_RR(Register reg);
+		void CB_SLA(Register reg);
+		void CB_SRA(Register reg);
+		void CB_SWAP(Register reg);
+		void CB_SRL(Register reg);
+		void CB_BIT(Register reg);
+		void CB_RES(Register reg);
+		void CB_SET(Register reg);
 
 		// INSTRUCTION FUNCTIONS TABLE
 		typedef void(CPU::*ProcessFunction)();

@@ -13,21 +13,21 @@ namespace jmpr {
 		LD,			// Load
 		INC,		// Increment
 		DEC,		// Decrement
-		RLCA,		// ?
+		RLCA,		// Rotate bits left
 		ADD,		// Addition
-		RRCA,		// ?
+		RRCA,		// Rotate bits right
 		STOP,		// ?
-		RLA,		// ?
-		JR,			// Jump ?
-		RRA,		// ?
-		DAA,		// ?
+		RLA,		// Rotate bits left through carry
+		JR,			// Jump to a relative address
+		RRA,		// Rotate bits right through carry
+		DAA,		// Decimal adjust after addition for BCD addition / substraction
 		CPL,		// Negate the accumulator
 		SCF,		// Set the carry flag
 		CCF,		// Negate the carry flag
-		HALT,		// Halt
-		ADC,		// Addition ?
+		HALT,		// ?
+		ADC,		// Addition with carry
 		SUB,		// Substraction
-		SBC,		// Sub ?
+		SBC,		// Substraction with carry
 		AND,		// Logical AND
 		XOR,		// Logical XOR
 		OR,			// Logical OR
@@ -43,18 +43,19 @@ namespace jmpr {
 		LDH,		// Load to the HRAM 
 		DI,			// Disable interrupts
 		EI,			// Enable interrupts
+
 		CB_ERR,		// Unknown CB Instruction
-		CB_RLC,		// ?
-		CB_RRC,		// ?
-		CB_RL,		// ?
-		CB_RR,		// ?
-		CB_SLA,		// ?
-		CB_SRA,		// ?
-		CB_SWAP,	// ?
-		CB_SRL,		// ?
-		CB_BIT,		// ?
-		CB_RES,		// ?
-		CB_SET,		// ?
+		CB_RLC,		// Rotate left
+		CB_RRC,		// Rotate right
+		CB_RL,		// Rotate left through carry
+		CB_RR,		// Rotate right through carry
+		CB_SLA,		// Shift left
+		CB_SRA,		// Shift right
+		CB_SWAP,	// Exchange the low and high nibbles
+		CB_SRL,		// Shift right logical
+		CB_BIT,		// Test bit
+		CB_RES,		// Reset bit
+		CB_SET,		// Set bit
 	};
 
 	/**
