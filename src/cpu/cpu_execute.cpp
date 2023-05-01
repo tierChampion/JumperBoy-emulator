@@ -4,6 +4,9 @@
 
 namespace jmpr {
 
+	/**
+	* Execute the current instruction.
+	*/
 	void CPU::execute() {
 
 		ProcessFunction process = _PROCESSES.at(_current_instr->_type);
@@ -11,14 +14,23 @@ namespace jmpr {
 		(this->*process)();
 	}
 
+	/**
+	* Error operation. Stops the program.
+	*/
 	void CPU::XXX() {
 
 		std::cerr << "Error: Unknown instruction trying to execute." << std::endl;
 		exit(-3);
 	}
 
+	/**
+	* Perform no operation.
+	*/
 	void CPU::NOP() {}
 
+	/**
+	* Load a value into a register.
+	*/
 	void CPU::LD() {
 
 		if (_dest_is_mem) {
@@ -50,6 +62,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Increment a register.
+	*/
 	void CPU::INC() {
 
 		if (_dest_is_mem) {
@@ -73,6 +88,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Decrement a register.
+	*/
 	void CPU::DEC() {
 
 		if (_dest_is_mem) {
@@ -96,6 +114,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Rotate the bits to the left.
+	*/
 	void CPU::RLCA() {
 
 		u8 c = bit(_registers._A, 7);
@@ -104,6 +125,9 @@ namespace jmpr {
 		setFlags(0, 0, 0, c);
 	}
 
+	/**
+	* Addition between two values.
+	*/
 	void CPU::ADD() {
 
 		u32 val = readRegister(_current_instr->_reg1) + _current_fetch;
@@ -141,6 +165,9 @@ namespace jmpr {
 		setFlags(z, 0, h, c);
 	}
 
+	/**
+	* Rotate the bits right.
+	*/
 	void CPU::RRCA() {
 
 		u8 c = bit(_registers._A, 0);
@@ -149,8 +176,14 @@ namespace jmpr {
 		setFlags(0, 0, 0, c);
 	}
 
-	void CPU::STOP() { noImpl(); }
+	/**
+	* Stop the cpu
+	*/
+	void CPU::STOP() { noImpl(); } // todo
 
+	/**
+	* Rotate the bits to the left. Add the carry at the LSB instead of the rotated bit.
+	*/
 	void CPU::RLA() {
 
 		u8 c = readFlag(3);
@@ -162,6 +195,9 @@ namespace jmpr {
 		setFlags(0, 0, 0, rotated_bit);
 	}
 
+	/**
+	* Jump to a relative location.
+	*/
 	void CPU::JR() {
 
 		if (checkFlags(_current_instr->_cond)) {
@@ -171,6 +207,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Rotate the bits to the right. Add the carry at the MSB instead of the rotated bit.
+	*/
 	void CPU::RRA() {
 
 		u8 c = readFlag(3);
@@ -182,6 +221,9 @@ namespace jmpr {
 		setFlags(0, 0, 0, rotated_bit);
 	}
 
+	/**
+	* Decimal addition adjust. Fix potential errors with BCD addition.
+	*/
 	void CPU::DAA() {
 
 		s8 correction = 0;
@@ -206,17 +248,26 @@ namespace jmpr {
 		setFlags(_registers._A == 0, -1, 0, full_carry);
 	}
 
+	/**
+	* Complement the accumulator.
+	*/
 	void CPU::CPL() {
 
 		_registers._A = ~_registers._A;
 		setFlags(-1, 1, 1, -1);
 	}
 
+	/**
+	* Set the carry flag.
+	*/
 	void CPU::SCF() {
 
 		setFlags(-1, 0, 0, 1);
 	}
 
+	/**
+	* Complement the carry flag.
+	*/
 	void CPU::CCF() {
 
 		bool C = checkFlags(_current_instr->_cond);
@@ -224,8 +275,14 @@ namespace jmpr {
 		setFlags(-1, 0, 0, ~(bool)readFlag(3));
 	}
 
-	void CPU::HALT() { noImpl(); }
+	/**
+	* Halt the CPU. Enter a low power stopped state.
+	*/
+	void CPU::HALT() { noImpl(); } // todo
 
+	/**
+	* Addition with carry.
+	*/
 	void CPU::ADC() {
 
 		_registers._A += (readFlag(3) + _current_fetch) & 0xFF;
@@ -239,6 +296,9 @@ namespace jmpr {
 		setFlags(_registers._A == 0, 0, half_carry, full_carry);
 	}
 
+	/**
+	* Substraction without carry.
+	*/
 	void CPU::SUB() {
 
 		_registers._A -= _current_fetch;
@@ -252,6 +312,9 @@ namespace jmpr {
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
 
+	/**
+	* Substraction with carry.
+	*/
 	void CPU::SBC() {
 
 		_registers._A -= (readFlag(3) + _current_fetch) & 0xFF;
@@ -265,24 +328,36 @@ namespace jmpr {
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
 
+	/**
+	* AND logical operation. Result stored in the accumulator.
+	*/
 	void CPU::AND() {
 
 		_registers._A &= (_current_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 1, 0);
 	}
 
+	/**
+	* XOR logical operation. Result stored in the accumulator.
+	*/
 	void CPU::XOR() {
 
 		_registers._A ^= (_current_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
+	/**
+	* OR logical operation. Result stored in the accumulator.
+	*/
 	void CPU::OR() {
 
 		_registers._A |= (_current_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
+	/**
+	* Compare two values. Check if the substraction is 0.
+	*/
 	void CPU::CP() {
 
 		u8 result = _registers._A - (_current_fetch & 0xFF);
@@ -291,6 +366,9 @@ namespace jmpr {
 		setFlags(_registers._A == 0, 1, half_res > (_registers._A & 0xF), result > _registers._A);
 	}
 
+	/**
+	* Return from a function. Jump to the location at the top of the stack
+	*/
 	void CPU::RET() {
 
 		if (checkFlags(_current_instr->_cond)) {
@@ -300,12 +378,13 @@ namespace jmpr {
 			u8 hi = popStack8();
 			GameBoy::cycle(1);
 
-			printf("Popped %04X from the stack.\n", merge(hi, lo));
-
 			_PC = merge(hi, lo);
 		}
 	}
 
+	/**
+	* Pop from the stack.
+	*/
 	void CPU::POP() {
 
 		u8 lo = popStack8();
@@ -316,6 +395,9 @@ namespace jmpr {
 		writeRegister(_current_instr->_reg1, merge(hi, lo));
 	}
 
+	/**
+	* Jump to a location.
+	*/
 	void CPU::JP() {
 
 		if (checkFlags(_current_instr->_cond)) {
@@ -324,6 +406,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Jump to the beginning of a function and push the PC to the stack
+	*/
 	void CPU::CALL() {
 
 		if (checkFlags(_current_instr->_cond)) {
@@ -333,14 +418,13 @@ namespace jmpr {
 			pushStack8(loByte(_PC));
 			GameBoy::cycle(1);
 
-			printf("Pushed %04X to the stack.\n", _PC);
-
 			_PC = _current_fetch;
-
-			printf("Jumped to %04X.\n", _PC);
 		}
 	}
 
+	/**
+	* Push to the stack.
+	*/
 	void CPU::PUSH() {
 
 		pushStack8(hiByte(_current_fetch));
@@ -349,6 +433,9 @@ namespace jmpr {
 		GameBoy::cycle(1);
 	}
 
+	/**
+	* Jump to the boot rom and reinitialize the cpu.
+	*/
 	void CPU::RST() {
 
 		pushStack8(hiByte(_PC));
@@ -356,12 +443,15 @@ namespace jmpr {
 		pushStack8(hiByte(_PC));
 		GameBoy::cycle(1);
 
-		// to see
+		// todo: to see
 		u8 addr = ((_current_opcode & 0x30)) | (_current_opcode & 0x8) << 3;
 
 		_PC = addr;
 	}
 
+	/**
+	* Launch a CB binary operation.
+	*/
 	void CPU::PREFIX() {
 
 		// CB Instruction to execute
@@ -385,48 +475,41 @@ namespace jmpr {
 			GameBoy::cycle(1);
 			break;
 		}
-		case 7: reg = Register::A; break;
+		default: reg = Register::A; break;
 		}
 
 		// Bit checked / affected
 		_current_fetch = 2 * ((_current_opcode & 0x40) >> 8) + ((_current_opcode & 0x8) >> 3);
 
 		// RLC
-		if (_current_opcode < 0x08) {
-			CB_RLC();
-		}
-		else if (_current_opcode < 0x10) {
-			CB_RRC();
-		}
-		else if (_current_opcode < 0x18) {
-			CB_RL();
-		}
-		else if (_current_opcode < 0x20) {
-			CB_RR();
-		}
-		else if (_current_opcode < 0x28) {
-			CB_SLA();
-		}
-		else if (_current_opcode < 0x30) {
-			CB_SRA();
-		}
-		else if (_current_opcode < 0x38) {
-			CB_SWAP();
-		}
-		else if (_current_opcode < 0x40) {
-			CB_SRL();
-		}
-		else if (_current_opcode < 0x80) {
-			CB_BIT();
-		}
-		else if (_current_opcode < 0xC0) {
-			CB_RES();
-		}
-		else {
-			CB_SET();
-		}
+		if (_current_opcode < 0x08)
+			CB_RLC(reg);
+		else if (_current_opcode < 0x10)
+			CB_RRC(reg);
+		else if (_current_opcode < 0x18)
+			CB_RL(reg);
+		else if (_current_opcode < 0x20)
+			CB_RR(reg);
+		else if (_current_opcode < 0x28)
+			CB_SLA(reg);
+		else if (_current_opcode < 0x30)
+			CB_SRA(reg);
+		else if (_current_opcode < 0x38)
+			CB_SWAP(reg);
+		else if (_current_opcode < 0x40)
+			CB_SRL(reg);
+		else if (_current_opcode < 0x80)
+			CB_BIT(reg);
+		else if (_current_opcode < 0xC0)
+			CB_RES(reg);
+		else
+			CB_SET(reg);
+
 	}
 
+	/**
+	* Return from a function and enable interrupts.
+	*/
 	void CPU::RETI() {
 
 		u8 lo = popStack8();
@@ -440,6 +523,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Load to the high ram.
+	*/
 	void CPU::LDH() {
 
 		if (_dest_is_mem) {
@@ -454,20 +540,146 @@ namespace jmpr {
 		GameBoy::cycle(1);
 	}
 
+	/**
+	* Disable the interrupts.
+	*/
 	void CPU::DI() {
 		_IME = false;
 	}
 
+	/**
+	* Enable the interrupts.
+	*/
 	void CPU::EI() {
 		_IME = true;
 	}
 
-	void CPU::CB_RLC(Register reg) { noImpl(); }
-	void CPU::CB_RRC(Register reg) { noImpl(); }
-	void CPU::CB_RL(Register reg) { noImpl(); }
-	void CPU::CB_RR(Register reg) { noImpl(); }
+	/**
+	* Rotate the bits to the left.
+	*/
+	void CPU::CB_RLC(Register reg) {
+
+		u8 rotated = 0;
+		u8 isZ = 0;
+
+		if (_dest_is_mem) {
+
+			u8 data = _bus->read(_mem_dest);
+			GameBoy::cycle(1);
+
+			rotated = bit(data, 7);
+			isZ = data == 0;
+
+			_bus->write(_mem_dest, (data << 1) | rotated);
+			GameBoy::cycle(1);
+		}
+		else {
+
+			rotated = bit(readRegister(reg), 7);
+			isZ = readRegister(reg) == 0;
+
+			writeRegister(reg, (readRegister(reg) << 1) | rotated);
+		}
+
+		setFlags(isZ, 0, 0, rotated);
+	}
+
+	/**
+	* Rotate the bits to the right.
+	*/
+	void CPU::CB_RRC(Register reg) {
+
+		u8 rotated = 0;
+		u8 isZ = 0;
+
+		if (_dest_is_mem) {
+
+			u8 data = _bus->read(_mem_dest);
+			GameBoy::cycle(1);
+
+			rotated = bit(data, 0);
+			isZ = data == 0;
+
+			_bus->write(_mem_dest, (data >> 1) | (rotated << 7));
+			GameBoy::cycle(1);
+		}
+		else {
+
+			rotated = bit(readRegister(reg), 0);
+			isZ = readRegister(reg) == 0;
+
+			writeRegister(reg, (readRegister(reg) >> 1) | (rotated << 7));
+		}
+
+		setFlags(isZ, 0, 0, rotated);
+
+	}
+
+	/**
+	* Rotate the bits to the left. Set the LSB to the carry.
+	*/
+	void CPU::CB_RL(Register reg) {
+
+		u8 rotated = 0;
+		u8 isZ = 0;
+
+		if (_dest_is_mem) {
+
+			u8 data = _bus->read(_mem_dest);
+			GameBoy::cycle(1);
+
+			rotated = bit(data, 7);
+			isZ = data == 0;
+
+			_bus->write(_mem_dest, (data << 1) | readFlag(3));
+			GameBoy::cycle(1);
+		}
+		else {
+
+			rotated = bit(readRegister(reg), 7);
+			isZ = readRegister(reg) == 0;
+
+			writeRegister(reg, (readRegister(reg) << 1) | readFlag(3));
+		}
+
+		setFlags(isZ, 0, 0, rotated);
+
+	}
+
+	/**
+	* Rotate the bits right. Set the MSB to the carry.
+	*/
+	void CPU::CB_RR(Register reg) {
+
+		u8 rotated = 0;
+		u8 isZ = 0;
+
+		if (_dest_is_mem) {
+
+			u8 data = _bus->read(_mem_dest);
+			GameBoy::cycle(1);
+
+			rotated = bit(data, 0);
+			isZ = data == 0;
+
+			_bus->write(_mem_dest, (data >> 1) | (readFlag(3) << 7));
+			GameBoy::cycle(1);
+		}
+		else {
+
+			rotated = bit(readRegister(reg), 0);
+			isZ = readRegister(reg) == 0;
+
+			writeRegister(reg, (readRegister(reg) >> 1) | (readFlag(3) << 7));
+		}
+
+		setFlags(isZ, 0, 0, rotated);
+	}
 
 
+	/**
+	* Left shift a register by 1. Set the LSB at 0.
+	*/
 	void CPU::CB_SLA(Register reg) {
 
 		u8 shifted = 0;
@@ -496,6 +708,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Right shift a register by 1. Leave the MSB at its old value.
+	*/
 	void CPU::CB_SRA(Register reg) {
 
 		u8 shifted = 0;
@@ -524,6 +739,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Swap the hi nibble and the lo nibble of a register.
+	*/
 	void CPU::CB_SWAP(Register reg) {
 
 		u8 hi = 0;
@@ -534,15 +752,15 @@ namespace jmpr {
 			u8 data = _bus->read(_mem_dest);
 			GameBoy::cycle(1);
 
-			hi = hiByte(data);
-			lo = loByte(data);
+			hi = hiNibble(data);
+			lo = loNibble(data);
 
 			_bus->write(_mem_dest, merge(lo, hi));
 			GameBoy::cycle(1);
 		}
 		else {
-			hi = hiByte(readRegister(reg));
-			lo = loByte(readRegister(reg));
+			hi = hiNibble(readRegister(reg));
+			lo = loNibble(readRegister(reg));
 
 			writeRegister(reg, merge(lo, hi));
 		}
@@ -551,6 +769,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Right shift a register by 1. Set the MSB at 0.
+	*/
 	void CPU::CB_SRL(Register reg) {
 
 		u8 shifted = 0;
@@ -579,6 +800,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Check if a bit is 0 in a register.
+	*/
 	void CPU::CB_BIT(Register reg) {
 
 		u8 isZ = 0;
@@ -595,6 +819,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Reset a bit in a register.
+	*/
 	void CPU::CB_RES(Register reg) {
 
 		if (_dest_is_mem) {
@@ -611,6 +838,9 @@ namespace jmpr {
 	}
 
 
+	/**
+	* Set a bit in a register.
+	*/
 	void CPU::CB_SET(Register reg) {
 
 		if (_dest_is_mem) {
@@ -637,7 +867,7 @@ namespace jmpr {
 		{InstrType::RLCA, &CPU::RLCA},
 		{InstrType::ADD, &CPU::ADD},
 		{InstrType::RRCA, &CPU::RRCA},
-		//	{InstrType::STOP, &CPU::XXX},
+		{InstrType::STOP, &CPU::XXX},
 		{InstrType::RLA, &CPU::RLA},
 		{InstrType::JR, &CPU::JR},
 		{InstrType::RRA, &CPU::RRA},
@@ -645,7 +875,7 @@ namespace jmpr {
 		{InstrType::CPL, &CPU::CPL},
 		{InstrType::SCF, &CPU::SCF},
 		{InstrType::CCF, &CPU::CCF},
-		//	{InstrType::HALT, &CPU::XXX},
+		{InstrType::HALT, &CPU::XXX},
 		{InstrType::ADC, &CPU::ADC},
 		{InstrType::SUB, &CPU::SUB},
 		{InstrType::SBC, &CPU::SBC},
@@ -659,7 +889,7 @@ namespace jmpr {
 		{InstrType::CALL, &CPU::CALL},
 		{InstrType::PUSH, &CPU::PUSH},
 		{InstrType::RST, &CPU::RST},
-		//	{InstrType::PREFIX, &CPU::XXX},
+		{InstrType::PREFIX, &CPU::PREFIX},
 		{InstrType::RETI, &CPU::RETI},
 		{InstrType::LDH, &CPU::LDH},
 		{InstrType::DI, &CPU::DI},

@@ -31,6 +31,14 @@ namespace jmpr {
 		return bytes & 0xFF;
 	}
 
+	inline u8 hiNibble(u8 byte) {
+		return (byte >> 4) & 0xF;
+	}
+
+	inline u8 loNibble(u8 byte) {
+		return byte & 0xF;
+	}
+
 	inline void notImplemented(const char* file, int line) {
 		std::cout << file << " ( line " << std::dec << line << " ): " << "NOT YET IMPLEMENTED" << std::endl;
 	}
