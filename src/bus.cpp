@@ -68,7 +68,7 @@ namespace jmpr {
 		}
 		else if (address == 0xFFFF) {
 			// Interrupt enabled register
-			return _cpu->readInterruptEnabledRegister();
+			noImpl();
 		}
 
 		// should never happen
@@ -116,7 +116,7 @@ namespace jmpr {
 		}
 		else {
 			// Interrupt enabled register
-			_cpu->writeInterruptEnabledRegister(data);
+			noImpl();
 		}
 	}
 

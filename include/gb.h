@@ -5,6 +5,7 @@
 #include <cpu.h>
 #include <cartridge.h>
 #include <ram.h>
+#include <user_interface.h>
 
 #include <SDL/SDL.h>
 
@@ -12,11 +13,14 @@ namespace jmpr {
 
 	class GameBoy {
 
-		// Components
+		// Internal Components
 		static Bus _bus;
 		static CPU _cpu;
 		static Cartridge _cart;
 		static Ram _ram;
+
+		// Interactive Components
+		static UI _ui;
 
 		// States
 		static bool _paused;
@@ -29,7 +33,7 @@ namespace jmpr {
 
 		static bool insertCartridge(const char* rom_file);
 
-		static void cycle(int cpuCycles);
+		static void cycle(int m_cycles);
 
 		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 	};

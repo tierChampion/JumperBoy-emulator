@@ -9,7 +9,7 @@ namespace jmpr {
 	*/
 	void CPU::execute() {
 
-		ProcessFunction process = _PROCESSES.at(_current_instr->_type);
+		ProcessFunction process = _PROCESSES.at(_curr_instr->_type);
 
 		(this->*process)();
 	}
@@ -36,29 +36,29 @@ namespace jmpr {
 		if (_dest_is_mem) {
 
 			// 16 bit registers need 2 writes
-			if (is16Bits(_current_instr->_reg2)) {
+			if (is16Bits(_curr_instr->_reg2)) {
 
-				_bus->write16(_mem_dest, _current_fetch);
+				_bus->write16(_mem_dest, _curr_fetch);
 				GameBoy::cycle(1);
 			}
 			else {
-				_bus->write(_mem_dest, _current_fetch);
+				_bus->write(_mem_dest, _curr_fetch);
 			}
 		}
 		else {
 
-			if (_current_instr->_mode == Mode::HL_SPR8) {
+			if (_curr_instr->_mode == Mode::HL_SPR8) {
 
-				u8 half_carry = ((readRegister(_current_instr->_reg2) & 0xF) >
-					(_current_fetch & 0xF));
+				u8 half_carry = ((readRegister(_curr_instr->_reg2) & 0xF) >
+					(_curr_fetch & 0xF));
 
-				u8 full_carry = ((readRegister(_current_instr->_reg2) & 0xFF) >
-					(_current_fetch & 0xFF));
+				u8 full_carry = ((readRegister(_curr_instr->_reg2) & 0xFF) >
+					(_curr_fetch & 0xFF));
 
 				setFlags(0, 0, half_carry, full_carry);
 			}
 
-			writeRegister(_current_instr->_reg1, _current_fetch);
+			writeRegister(_curr_instr->_reg1, _curr_fetch);
 		}
 	}
 
@@ -69,22 +69,22 @@ namespace jmpr {
 
 		if (_dest_is_mem) {
 
-			_bus->write(_mem_dest, _current_fetch + 1);
+			_bus->write(_mem_dest, _curr_fetch + 1);
 			GameBoy::cycle(1);
 		}
 		else {
-			writeRegister(_current_instr->_reg1, readRegister(_current_instr->_reg1) + 1);
+			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) + 1);
 		}
 
-		bool is16 = is16Bits(_current_instr->_reg1);
+		bool is16 = is16Bits(_curr_instr->_reg1);
 
 		if (is16) {
 			GameBoy::cycle(1);
 		}
 
 		if (!is16 || _dest_is_mem) {
-			setFlags(readRegister(_current_instr->_reg1) == 0, 0,
-				(readRegister(_current_instr->_reg1) & 0xF) == 0, -1);
+			setFlags(readRegister(_curr_instr->_reg1) == 0, 0,
+				(readRegister(_curr_instr->_reg1) & 0xF) == 0, -1);
 		}
 	}
 
@@ -95,22 +95,22 @@ namespace jmpr {
 
 		if (_dest_is_mem) {
 
-			_bus->write(_mem_dest, _current_fetch - 1);
+			_bus->write(_mem_dest, _curr_fetch - 1);
 			GameBoy::cycle(1);
 		}
 		else {
-			writeRegister(_current_instr->_reg1, readRegister(_current_instr->_reg1) - 1);
+			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) - 1);
 		}
 
-		bool is16 = is16Bits(_current_instr->_reg1);
+		bool is16 = is16Bits(_curr_instr->_reg1);
 
 		if (is16) {
 			GameBoy::cycle(1);
 		}
 
 		if (!is16 || _dest_is_mem) {
-			setFlags(readRegister(_current_instr->_reg1) == 0, 1,
-				(readRegister(_current_instr->_reg1) & 0xF) == 0xF, -1);
+			setFlags(readRegister(_curr_instr->_reg1) == 0, 1,
+				(readRegister(_curr_instr->_reg1) & 0xF) == 0xF, -1);
 		}
 	}
 
@@ -130,38 +130,38 @@ namespace jmpr {
 	*/
 	void CPU::ADD() {
 
-		u32 val = readRegister(_current_instr->_reg1) + _current_fetch;
+		u32 val = readRegister(_curr_instr->_reg1) + _curr_fetch;
 
-		bool is16 = is16Bits(_current_instr->_reg1);
+		bool is16 = is16Bits(_curr_instr->_reg1);
 
 		if (is16) {
 			GameBoy::cycle(1);
 		}
 
-		bool toStackPointer = _current_instr->_reg1 == Register::SP;
+		bool toStackPointer = _curr_instr->_reg1 == Register::SP;
 
 		if (toStackPointer) {
-			val = readRegister(_current_instr->_reg1) + s8(_current_fetch);
+			val = readRegister(_curr_instr->_reg1) + s8(_curr_fetch);
 		}
 
 		// 8 bit flags
 		u8 z = (val & 0xFF) == 0;
-		u8 h = (readRegister(_current_instr->_reg1) & 0xF) + (_current_fetch & 0xF) >= 0x10;
-		u8 c = (readRegister(_current_instr->_reg1) & 0xFF) + (_current_fetch & 0xFF) >= 0x100;
+		u8 h = (readRegister(_curr_instr->_reg1) & 0xF) + (_curr_fetch & 0xF) >= 0x10;
+		u8 c = (readRegister(_curr_instr->_reg1) & 0xFF) + (_curr_fetch & 0xFF) >= 0x100;
 
 		// regular 16 bit flags
 		if (is16 && !toStackPointer) {
 			z = -1;
-			h = (readRegister(_current_instr->_reg1) & 0xFFF) + (_current_fetch & 0xFFF) >= 0x1000;
-			c = (readRegister(_current_instr->_reg1) & 0xFFFF) +
-				(_current_fetch & 0xFFFF) < readRegister(_current_instr->_reg1);
+			h = (readRegister(_curr_instr->_reg1) & 0xFFF) + (_curr_fetch & 0xFFF) >= 0x1000;
+			c = (readRegister(_curr_instr->_reg1) & 0xFFFF) +
+				(_curr_fetch & 0xFFFF) < readRegister(_curr_instr->_reg1);
 		}
 		// special case
 		else if (toStackPointer) {
 			z = 0;
 		}
 
-		writeRegister(_current_instr->_reg1, val & 0xFFFF);
+		writeRegister(_curr_instr->_reg1, val & 0xFFFF);
 		setFlags(z, 0, h, c);
 	}
 
@@ -200,9 +200,9 @@ namespace jmpr {
 	*/
 	void CPU::JR() {
 
-		if (checkFlags(_current_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond)) {
 			// check if it works
-			_PC += (s8)_current_fetch;
+			_PC += (s8)_curr_fetch;
 			GameBoy::cycle(1);
 		}
 	}
@@ -270,7 +270,7 @@ namespace jmpr {
 	*/
 	void CPU::CCF() {
 
-		bool C = checkFlags(_current_instr->_cond);
+		bool C = checkFlags(_curr_instr->_cond);
 
 		setFlags(-1, 0, 0, ~(bool)readFlag(3));
 	}
@@ -285,13 +285,13 @@ namespace jmpr {
 	*/
 	void CPU::ADC() {
 
-		_registers._A += (readFlag(3) + _current_fetch) & 0xFF;
+		_registers._A += (readFlag(3) + _curr_fetch) & 0xFF;
 
 		u8 half_carry = (_registers._A & 0xF) <
-			((_current_fetch + readFlag(3)) & 0xF);
+			((_curr_fetch + readFlag(3)) & 0xF);
 
 		u8 full_carry = (_registers._A & 0xFF) <
-			((_current_fetch + readFlag(3)) & 0xFF);
+			((_curr_fetch + readFlag(3)) & 0xFF);
 
 		setFlags(_registers._A == 0, 0, half_carry, full_carry);
 	}
@@ -301,13 +301,13 @@ namespace jmpr {
 	*/
 	void CPU::SUB() {
 
-		_registers._A -= _current_fetch;
+		_registers._A -= _curr_fetch;
 
 		u8 half_carry = (_registers._A & 0xF) >
-			(_current_fetch & 0xF);
+			(_curr_fetch & 0xF);
 
 		u8 full_carry = (_registers._A & 0xFF) >
-			(_current_fetch & 0xFF);
+			(_curr_fetch & 0xFF);
 
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
@@ -317,13 +317,13 @@ namespace jmpr {
 	*/
 	void CPU::SBC() {
 
-		_registers._A -= (readFlag(3) + _current_fetch) & 0xFF;
+		_registers._A -= (readFlag(3) + _curr_fetch) & 0xFF;
 
 		u8 half_carry = (_registers._A & 0xF) >
-			((_current_fetch + readFlag(3)) & 0xF);
+			((_curr_fetch + readFlag(3)) & 0xF);
 
 		u8 full_carry = (_registers._A & 0xFF) >
-			((_current_fetch + readFlag(3)) & 0xFF);
+			((_curr_fetch + readFlag(3)) & 0xFF);
 
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
@@ -333,7 +333,7 @@ namespace jmpr {
 	*/
 	void CPU::AND() {
 
-		_registers._A &= (_current_fetch & 0xFF);
+		_registers._A &= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 1, 0);
 	}
 
@@ -342,7 +342,7 @@ namespace jmpr {
 	*/
 	void CPU::XOR() {
 
-		_registers._A ^= (_current_fetch & 0xFF);
+		_registers._A ^= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
@@ -351,7 +351,7 @@ namespace jmpr {
 	*/
 	void CPU::OR() {
 
-		_registers._A |= (_current_fetch & 0xFF);
+		_registers._A |= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
@@ -360,8 +360,8 @@ namespace jmpr {
 	*/
 	void CPU::CP() {
 
-		u8 result = _registers._A - (_current_fetch & 0xFF);
-		u8 half_res = (_registers._A & 0xF) - (_current_fetch & 0xF);
+		u8 result = _registers._A - (_curr_fetch & 0xFF);
+		u8 half_res = (_registers._A & 0xF) - (_curr_fetch & 0xF);
 
 		setFlags(_registers._A == 0, 1, half_res > (_registers._A & 0xF), result > _registers._A);
 	}
@@ -371,7 +371,7 @@ namespace jmpr {
 	*/
 	void CPU::RET() {
 
-		if (checkFlags(_current_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond)) {
 
 			u8 lo = popStack8();
 			GameBoy::cycle(1);
@@ -392,7 +392,7 @@ namespace jmpr {
 		u8 hi = popStack8();
 		GameBoy::cycle(1);
 
-		writeRegister(_current_instr->_reg1, merge(hi, lo));
+		writeRegister(_curr_instr->_reg1, merge(hi, lo));
 	}
 
 	/**
@@ -400,8 +400,8 @@ namespace jmpr {
 	*/
 	void CPU::JP() {
 
-		if (checkFlags(_current_instr->_cond)) {
-			_PC = _current_fetch;
+		if (checkFlags(_curr_instr->_cond)) {
+			_PC = _curr_fetch;
 			GameBoy::cycle(1);
 		}
 	}
@@ -411,14 +411,14 @@ namespace jmpr {
 	*/
 	void CPU::CALL() {
 
-		if (checkFlags(_current_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond)) {
 
 			pushStack8(hiByte(_PC));
 			GameBoy::cycle(1);
 			pushStack8(loByte(_PC));
 			GameBoy::cycle(1);
 
-			_PC = _current_fetch;
+			_PC = _curr_fetch;
 		}
 	}
 
@@ -427,9 +427,9 @@ namespace jmpr {
 	*/
 	void CPU::PUSH() {
 
-		pushStack8(hiByte(_current_fetch));
+		pushStack8(hiByte(_curr_fetch));
 		GameBoy::cycle(1);
-		pushStack8(loByte(_current_fetch));
+		pushStack8(loByte(_curr_fetch));
 		GameBoy::cycle(1);
 	}
 
@@ -444,7 +444,7 @@ namespace jmpr {
 		GameBoy::cycle(1);
 
 		// todo: to see
-		u8 addr = ((_current_opcode & 0x30)) | (_current_opcode & 0x8) << 3;
+		u8 addr = ((_curr_opcode & 0x30)) | (_curr_opcode & 0x8) << 3;
 
 		_PC = addr;
 	}
@@ -455,12 +455,12 @@ namespace jmpr {
 	void CPU::PREFIX() {
 
 		// CB Instruction to execute
-		_current_opcode = _current_fetch;
+		_curr_opcode = _curr_fetch;
 
 		Register reg;
 
 		// Register affected
-		switch (_current_opcode & 0x7) {
+		switch (_curr_opcode & 0x7) {
 		case 0: reg = Register::B; break;
 		case 1: reg = Register::C; break;
 		case 2: reg = Register::D; break;
@@ -479,28 +479,28 @@ namespace jmpr {
 		}
 
 		// Bit checked / affected
-		_current_fetch = 2 * ((_current_opcode & 0x40) >> 8) + ((_current_opcode & 0x8) >> 3);
+		_curr_fetch = 2 * ((_curr_opcode & 0x40) >> 8) + ((_curr_opcode & 0x8) >> 3);
 
 		// RLC
-		if (_current_opcode < 0x08)
+		if (_curr_opcode < 0x08)
 			CB_RLC(reg);
-		else if (_current_opcode < 0x10)
+		else if (_curr_opcode < 0x10)
 			CB_RRC(reg);
-		else if (_current_opcode < 0x18)
+		else if (_curr_opcode < 0x18)
 			CB_RL(reg);
-		else if (_current_opcode < 0x20)
+		else if (_curr_opcode < 0x20)
 			CB_RR(reg);
-		else if (_current_opcode < 0x28)
+		else if (_curr_opcode < 0x28)
 			CB_SLA(reg);
-		else if (_current_opcode < 0x30)
+		else if (_curr_opcode < 0x30)
 			CB_SRA(reg);
-		else if (_current_opcode < 0x38)
+		else if (_curr_opcode < 0x38)
 			CB_SWAP(reg);
-		else if (_current_opcode < 0x40)
+		else if (_curr_opcode < 0x40)
 			CB_SRL(reg);
-		else if (_current_opcode < 0x80)
+		else if (_curr_opcode < 0x80)
 			CB_BIT(reg);
-		else if (_current_opcode < 0xC0)
+		else if (_curr_opcode < 0xC0)
 			CB_RES(reg);
 		else
 			CB_SET(reg);
@@ -530,11 +530,11 @@ namespace jmpr {
 
 		if (_dest_is_mem) {
 
-			_bus->write(_mem_dest, _current_fetch);
+			_bus->write(_mem_dest, _curr_fetch);
 		}
 		else {
 
-			writeRegister(_current_instr->_reg1, _current_fetch);
+			writeRegister(_curr_instr->_reg1, _curr_fetch);
 		}
 
 		GameBoy::cycle(1);
@@ -809,11 +809,11 @@ namespace jmpr {
 
 		if (_dest_is_mem) {
 
-			isZ = bit(_bus->read(_mem_dest), _current_fetch);
+			isZ = bit(_bus->read(_mem_dest), _curr_fetch);
 			GameBoy::cycle(1);
 		}
 		else {
-			isZ = bit(readRegister(reg), _current_fetch);
+			isZ = bit(readRegister(reg), _curr_fetch);
 		}
 		setFlags(isZ == 0, 0, 1, -1);
 	}
@@ -828,12 +828,12 @@ namespace jmpr {
 
 			u8 data = _bus->read(_mem_dest);
 			GameBoy::cycle(1);
-			_bus->write(_mem_dest, data & ~(1 << _current_fetch));
+			_bus->write(_mem_dest, data & ~(1 << _curr_fetch));
 			GameBoy::cycle(1);
 		}
 		else {
 
-			writeRegister(reg, readRegister(reg) & ~(1 << _current_fetch));
+			writeRegister(reg, readRegister(reg) & ~(1 << _curr_fetch));
 		}
 	}
 
@@ -847,11 +847,11 @@ namespace jmpr {
 
 			u8 data = _bus->read(_mem_dest);
 			GameBoy::cycle(1);
-			_bus->write(_mem_dest, data | (1 << _current_fetch));
+			_bus->write(_mem_dest, data | (1 << _curr_fetch));
 			GameBoy::cycle(1);
 		}
 		else {
-			writeRegister(reg, readRegister(reg) | (1 << _current_fetch));
+			writeRegister(reg, readRegister(reg) | (1 << _curr_fetch));
 		}
 	}
 

@@ -9,6 +9,8 @@ namespace jmpr {
 	Cartridge GameBoy::_cart = Cartridge();
 	Ram GameBoy::_ram = Ram();
 
+	UI GameBoy::_ui = UI();
+
 	bool GameBoy::_paused = false;
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
@@ -16,30 +18,16 @@ namespace jmpr {
 
 	static const char* filterPatterns[2] = { "*.gb", "*.gbc" };
 
-	// todo the CB instructions
-
 	int GameBoy::runGameBoy() {
 
 		_cpu.connectBus(&_bus);
 		_bus.connectCPU(&_cpu);
 		_bus.connectRam(&_ram);
 
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
-			exit(-10);
-		}
-
-		const char* selection;
-
-		// TODO
-		SDL_Window* window = SDL_CreateWindow("gb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 500, 400, 0);
-
 		_running = false;
 		bool quitting = false;
 
-		SDL_Event event;
-
-		while (!quitting) {
+		while (_ui.isOpened()) {
 
 			if (_running) {
 				_cpu.cycle();
@@ -47,50 +35,10 @@ namespace jmpr {
 				_ticks++;
 			}
 
-			while (SDL_PollEvent(&event)) {
-				switch (event.type) {
-					// X button on the screen
-				case SDL_QUIT: quitting = true; break;
-
-				case SDL_KEYDOWN:
-					_cpu.cycle();
-					_ticks++;
-					break;
-
-					// Run commands to create actions.
-				case SDL_MOUSEBUTTONDOWN:
-
-					const char* message = "Enter a command: open_rom, set_controls";
-
-					// Input a command to process afterwards.
-					const char* input = tinyfd_inputBox("Input command", message, "");
-
-					if (input) {
-						selection = tinyfd_openFileDialog(
-							"Select ROM",
-							DIRECTORY_PATH,
-							1,
-							filterPatterns,
-							NULL,
-							0
-						);
-
-
-						insertCartridge(selection);
-						std::cout << _cart << std::endl;
-
-						_running = true;
-					}
-
-					break;
-				}
-			}
+			_ui.handleEvents();
 
 			delay(100);
 		}
-
-		SDL_DestroyWindow(window);
-		SDL_Quit();
 
 		return 0;
 	}
@@ -101,10 +49,13 @@ namespace jmpr {
 		if (!_cart.isValid()) return false;
 
 		_bus.connectCartridge(&_cart);
+
+		_running = true;
+
 		return true;
 	}
 
-	void GameBoy::cycle(int cpuCycles) {
+	void GameBoy::cycle(int m_cycles) {
 
 		// TODO...
 		// Run the ppu and the timer / clock, etc...

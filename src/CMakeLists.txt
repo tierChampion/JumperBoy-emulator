@@ -11,7 +11,8 @@ add_executable(JumperBoy
 "cpu/cpu_fetch.cpp"
 "cpu/cpu_execute.cpp"
 "cpu/cpu_registers.cpp" 
-"ram.cpp")
+"ram.cpp" 
+"user_interface.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

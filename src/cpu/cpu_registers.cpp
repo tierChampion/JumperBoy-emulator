@@ -102,23 +102,35 @@ namespace jmpr {
 		return false;
 	}
 
+	/**
+	* Push a byte to the stack.
+	*/
 	void CPU::pushStack8(u8 data) {
 		_SP--;
 		_bus->write(_SP, data);
 	}
 
+	/**
+	* Push two bytes to the stack.
+	*/
 	void CPU::pushStack16(u16 data) {
 
 		pushStack8(hiByte(data));
 		pushStack8(loByte(data));
 	}
 
+	/**
+	* Pop a byte from the stack.
+	*/
 	u8 CPU::popStack8() {
 		u8 popped = _bus->read(_SP);
 		_SP++;
 		return popped;
 	}
 
+	/**
+	* Pop two bytes from the stack.
+	*/
 	u16 CPU::popStack16() {
 
 		u8 lo = popStack8();

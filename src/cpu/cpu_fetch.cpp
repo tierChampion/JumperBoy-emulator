@@ -4,10 +4,6 @@
 
 namespace jmpr {
 
-	// fetch second reg
-	// set dest to first reg
-	// 1 gameboy cycles when bus read
-
 	/**
 	* Read the data requested by the current instruction.
 	*/
@@ -16,7 +12,7 @@ namespace jmpr {
 		_mem_dest = 0;
 		_dest_is_mem = false;
 
-		switch (_current_instr->_mode) {
+		switch (_curr_instr->_mode) {
 
 		case Mode::NONE: break;
 
@@ -29,7 +25,7 @@ namespace jmpr {
 			u8 hi = _bus->read(_PC + 1);
 			GameBoy::cycle(1);
 
-			_current_fetch = merge(hi, lo);
+			_curr_fetch = merge(hi, lo);
 			_PC += 2;
 			break;
 
@@ -38,12 +34,12 @@ namespace jmpr {
 
 		case Mode::REGADD_REG: {
 
-			_current_fetch = readRegister(_current_instr->_reg1);
+			_curr_fetch = readRegister(_curr_instr->_reg1);
 
-			u16 address = readRegister(_current_instr->_reg2);
+			u16 address = readRegister(_curr_instr->_reg2);
 
 			// Special case for the LDH instruction.
-			if (_current_instr->_reg2 == Register::C) {
+			if (_curr_instr->_reg2 == Register::C) {
 				address = merge(0xFF, address);
 			}
 
@@ -55,13 +51,13 @@ namespace jmpr {
 
 		case Mode::REG:
 
-			_current_fetch = readRegister(_current_instr->_reg1);
+			_curr_fetch = readRegister(_curr_instr->_reg1);
 			break;
 
 
 		case Mode::REG_D8:
 
-			_current_fetch = _bus->read(_PC);
+			_curr_fetch = _bus->read(_PC);
 			GameBoy::cycle(1);
 
 			_PC++;
@@ -77,7 +73,7 @@ namespace jmpr {
 
 			_PC += 2;
 
-			_current_fetch = readRegister(_current_instr->_reg1);
+			_curr_fetch = readRegister(_curr_instr->_reg1);
 
 			_mem_dest = merge(hi, lo);
 			_dest_is_mem = true;
@@ -88,20 +84,20 @@ namespace jmpr {
 
 		case Mode::REG_REG:
 
-			_current_fetch = readRegister(_current_instr->_reg2);
+			_curr_fetch = readRegister(_curr_instr->_reg2);
 			break;
 
 
 		case Mode::REG_REGADD: {
 
-			u16 address = readRegister(_current_instr->_reg2);
+			u16 address = readRegister(_curr_instr->_reg2);
 
 			// Special case for the LDH instruction.
-			if (_current_instr->_reg2 == Register::C) {
+			if (_curr_instr->_reg2 == Register::C) {
 				address = merge(0xFF, address);
 			}
 
-			_current_fetch = _bus->read(address);
+			_curr_fetch = _bus->read(address);
 			GameBoy::cycle(1);
 
 			break;
@@ -113,14 +109,14 @@ namespace jmpr {
 			_dest_is_mem = true;
 			writeRegister(Register::HL, readRegister(Register::HL) + 1);
 
-			_current_fetch = readRegister(_current_instr->_reg2);
+			_curr_fetch = readRegister(_curr_instr->_reg2);
 
 			break;
 
 
 		case Mode::REG_HLINC:
 
-			_current_fetch = _bus->read(readRegister(Register::HL));
+			_curr_fetch = _bus->read(readRegister(Register::HL));
 			GameBoy::cycle(1);
 
 			writeRegister(Register::HL, readRegister(Register::HL) + 1);
@@ -134,29 +130,29 @@ namespace jmpr {
 			_dest_is_mem = true;
 			writeRegister(Register::HL, readRegister(Register::HL) - 1);
 
-			_current_fetch = readRegister(_current_instr->_reg2);
+			_curr_fetch = readRegister(_curr_instr->_reg2);
 
 			break;
 
 
 		case Mode::REGADD:
 
-			_mem_dest = readRegister(_current_instr->_reg1);
+			_mem_dest = readRegister(_curr_instr->_reg1);
 			_dest_is_mem = true;
 
-			_current_fetch = _bus->read(_mem_dest);
+			_curr_fetch = _bus->read(_mem_dest);
 			GameBoy::cycle(1);
 			break;
 
 
 		case Mode::REGADD_D8:
 
-			_current_fetch = _bus->read(_PC);
+			_curr_fetch = _bus->read(_PC);
 			GameBoy::cycle(1);
 
 			_PC++;
 
-			_mem_dest = readRegister(_current_instr->_reg1);
+			_mem_dest = readRegister(_curr_instr->_reg1);
 			_dest_is_mem = true;
 
 			break;
@@ -164,7 +160,7 @@ namespace jmpr {
 
 		case Mode::REG_HLDEC:
 
-			_current_fetch = _bus->read(readRegister(Register::HL));
+			_curr_fetch = _bus->read(readRegister(Register::HL));
 			GameBoy::cycle(1);
 
 			writeRegister(Register::HL, readRegister(Register::HL) - 1);
@@ -179,7 +175,7 @@ namespace jmpr {
 			u8 hi = _bus->read(_PC + 1);
 			GameBoy::cycle(1);
 
-			_current_fetch = merge(hi, lo);
+			_curr_fetch = merge(hi, lo);
 
 			_PC += 2;
 			break;
@@ -188,7 +184,7 @@ namespace jmpr {
 
 		case Mode::D8:
 
-			_current_fetch = _bus->read(_PC);
+			_curr_fetch = _bus->read(_PC);
 			GameBoy::cycle(1);
 
 			_PC++;
@@ -198,7 +194,7 @@ namespace jmpr {
 
 		case Mode::A8_REG: {
 
-			_current_fetch = readRegister(_current_instr->_reg1);
+			_curr_fetch = readRegister(_curr_instr->_reg1);
 
 			u16 address = _bus->read(_PC);
 			GameBoy::cycle(1);
@@ -222,7 +218,7 @@ namespace jmpr {
 			// Required for LDH instruction.
 			address = merge(0xFF, address);
 
-			_current_fetch = _bus->read(address);
+			_curr_fetch = _bus->read(address);
 			GameBoy::cycle(1);
 
 			break;
@@ -232,7 +228,7 @@ namespace jmpr {
 		case Mode::HL_SPR8:
 
 			// todo check if signed works
-			_current_fetch = _SP + (s8)_bus->read(_PC);
+			_curr_fetch = _SP + (s8)_bus->read(_PC);
 			GameBoy::cycle(1);
 
 			_PC++;
@@ -251,7 +247,7 @@ namespace jmpr {
 			// Required for LDH instruction.
 			u16 address = merge(hi, lo);
 
-			_current_fetch = _bus->read(address);
+			_curr_fetch = _bus->read(address);
 			GameBoy::cycle(1);
 
 			break;
@@ -260,7 +256,7 @@ namespace jmpr {
 
 		default: {
 			std::cerr << "Error: Addressing mode not implemented yet: " <<
-				std::hex << int(_current_instr->_mode) << std::endl;
+				std::hex << int(_curr_instr->_mode) << std::endl;
 		}
 		}
 	}

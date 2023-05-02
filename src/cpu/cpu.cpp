@@ -19,11 +19,11 @@ namespace jmpr {
 		_SP = 0xFFFE;
 		_PC = 0x100;
 
-		_current_fetch = 0x0000;
+		_curr_fetch = 0x0000;
 		_mem_dest = 0x0000;
 		_dest_is_mem = false;
-		_current_opcode = 0x00;
-		_current_instr = nullptr;
+		_curr_opcode = 0x00;
+		_curr_instr = nullptr;
 
 		_bus = nullptr;
 
@@ -33,8 +33,8 @@ namespace jmpr {
 	}
 
 	void CPU::fetchOpcode() {
-		_current_opcode = _bus->read(_PC++);
-		_current_instr = fromOpcode(_current_opcode);
+		_curr_opcode = _bus->read(_PC++);
+		_curr_instr = fromOpcode(_curr_opcode);
 	}
 
 	bool CPU::cycle() {
@@ -45,7 +45,7 @@ namespace jmpr {
 			fetchOpcode();
 
 			printf("%04X: %s (%02X %02X %02X)",
-				programCounter, instructionName(*_current_instr), int(_current_opcode), int(_bus->read(programCounter + 1)),
+				programCounter, instructionName(*_curr_instr), int(_curr_opcode), int(_bus->read(programCounter + 1)),
 				int(_bus->read(programCounter + 2)));
 
 			fetchData();

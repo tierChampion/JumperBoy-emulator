@@ -37,10 +37,10 @@ namespace jmpr {
 		Bus* _bus;
 
 		// Current Instruction
-		u8 _current_opcode;
-		const Instruction* _current_instr;
+		u8 _curr_opcode;
+		const Instruction* _curr_instr;
 		// Instruction information
-		u16 _current_fetch;
+		u16 _curr_fetch;
 		u16 _mem_dest;
 		bool _dest_is_mem;
 
@@ -61,9 +61,6 @@ namespace jmpr {
 		void setFlags(u8 Z, u8 N, u8 H, u8 C);
 		u8 readFlag(u8 flag);
 		bool checkFlags(Condition cond);
-
-		u8 readInterruptEnabledRegister() { return _IME; }
-		void writeInterruptEnabledRegister(u8 data) { _IME = (data > 0); }
 
 		void fetchOpcode();
 		void fetchData();
@@ -114,7 +111,7 @@ namespace jmpr {
 		void LDH();
 		void DI();
 		void EI();
-
+		// BINARY INSTRUCTIONS
 		void CB_RLC(Register reg);
 		void CB_RRC(Register reg);
 		void CB_RL(Register reg);
