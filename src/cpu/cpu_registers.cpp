@@ -79,14 +79,14 @@ namespace jmpr {
 	* Get the value of the desired flag.
 	* @param flag 0 for Z, 1 for N, 2 for H and 3 for C
 	*/
-	u8 CPU::readFlag(u8 flag) {
+	u8 CPU::readFlag(u8 flag) const {
 		return bit(_registers._F, 7 - flag);
 	}
 
 	/**
 	* Check if the flags in the F register are set.
 	*/
-	bool CPU::checkFlags(Condition cond) {
+	bool CPU::checkFlags(Condition cond) const {
 
 		bool Z = _registers._F & 0b10000000;
 		bool C = _registers._C & 0b01000000;
@@ -137,5 +137,21 @@ namespace jmpr {
 		u8 hi = popStack8();
 
 		return merge(hi, lo);
+	}
+
+	/**
+	* Read to the IE register.
+	*/
+	u8 CPU::readInterruptEnabledRegister() {
+
+		return _inter_handler.readInterruptEnabled();
+	}
+
+	/**
+	* Write to the IE register.
+	*/
+	void CPU::writeInterruptEnabledRegister(u8 data) {
+
+		_inter_handler.writeInterruptEnabled(data);
 	}
 }

@@ -28,19 +28,7 @@ namespace jmpr {
 		u8 _IE;
 		u8 _IF;
 
-		HaltBugStatus _bug_status;
-
-		// stored the interrupt vars
-		// can call an interrupt (jump to an interrupt function in the cpu)
-
-		// use a friend class to have access to vars and  functions of cpu ?
-
-		// Procedure:
-		// If IF, IE and IME are set,
-		// reset IME to prevent other interrupts
-		// push pc to stack
-		// jump at the start of interrupt
-		// reset the bit in IF 
+		HaltBugStatus _bug_status; // apparently doesn't happen on gb color
 
 	public:
 

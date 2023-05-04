@@ -30,6 +30,7 @@ namespace jmpr {
 		_inter_handler = InterruptHandler(this);
 
 		_halted = false;
+		_stopped = false;
 		_stepping = false; // todo?
 	}
 

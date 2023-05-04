@@ -12,20 +12,29 @@ namespace jmpr {
 		_cpu = cpu;
 
 		_IME = true;
-		_IE = 0xFF;
-		_IF = 0x00;
+		_IE = 0x00;
+		_IF = 0xE1;
 
 		_bug_status = HaltBugStatus();
 	}
 
+	/**
+	* Enable interrupts with the EI or RETI instruction.
+	*/
 	void InterruptHandler::enableInterrupts() {
 		_IME = true;
 	}
 
+	/**
+	* Disable interrupts with the DI instruction.
+	*/
 	void InterruptHandler::disableInterrupts() {
 		_IME = false;
 	}
 
+	/**
+	* Request an interrupt of a specific type.
+	*/
 	void InterruptHandler::requestInterrupt(const InterruptType type) {
 
 		_IF = set(_IF, (u8)type);
@@ -65,6 +74,9 @@ namespace jmpr {
 		{InterruptType::JOYPAD, 0x0060},
 	};
 
+	/**
+	* Verify if there are pending interrupts.
+	*/
 	void InterruptHandler::checkInterrupts() {
 
 		for (u8 interrupt = 0; interrupt < 5; interrupt++) {
@@ -84,14 +96,19 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Have the CPU execute an interrupt. Similar to a call of the interrupt function.
+	*/
 	void CPU::executeInterrupt(bool enabled, u16 location) {
 
+		if (_halted && !enabled)
+			GameBoy::cycle(1);
+
 		_halted = false;
-		GameBoy::cycle(1);
 
 		if (enabled) {
 
-			GameBoy::cycle(1);
+			GameBoy::cycle(2);
 
 			pushStack8(hiByte(_PC));
 			GameBoy::cycle(1);

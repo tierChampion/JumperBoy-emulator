@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.h>
+
 #include <instructions.h>
 #include <interrupt.h>
 
@@ -12,6 +13,7 @@ namespace jmpr {
 	class GameBoy;
 	class Bus;
 	class Ram;
+	class InterruptHandler;
 
 	struct CpuRegisters {
 		u8 _A; // Accumulator
@@ -40,16 +42,18 @@ namespace jmpr {
 		// Current Instruction
 		u8 _curr_opcode;
 		const Instruction* _curr_instr;
+
 		// Instruction information
 		u16 _curr_fetch;
 		u16 _mem_dest;
 		bool _dest_is_mem;
 
+		// Interrupts
 		InterruptHandler _inter_handler;
-		u16 _halt_bugged_address;
 
 		// Status
 		bool _halted;
+		bool _stopped;
 		bool _stepping;
 
 	public:
@@ -57,21 +61,22 @@ namespace jmpr {
 		CPU();
 
 		void connectBus(Bus* bus) { _bus = bus; }
+		InterruptHandler getInterruptHandler() const { return _inter_handler; }
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);
 
 		void setFlags(u8 Z, u8 N, u8 H, u8 C);
-		u8 readFlag(u8 flag);
-		bool checkFlags(Condition cond);
+		u8 readFlag(u8 flag) const;
+		bool checkFlags(Condition cond) const;
 
 		void fetchOpcode();
 		void fetchData();
 		void execute();
 		bool cycle();
 
-		u8 readInterruptEnabledRegister() { return _inter_handler.readInterruptEnabled(); }
-		void writeInterruptEnabledRegister(u8 data) { _inter_handler.writeInterruptEnabled(data); }
+		u8 readInterruptEnabledRegister();
+		void writeInterruptEnabledRegister(u8 data);
 		void executeInterrupt(bool enabled, u16 location);
 
 	private:

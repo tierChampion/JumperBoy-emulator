@@ -181,7 +181,7 @@ namespace jmpr {
 	/**
 	* Stop the cpu
 	*/
-	void CPU::STOP() { noImpl(); } // todo
+	void CPU::STOP() { _stopped = true; }
 
 	/**
 	* Rotate the bits to the left. Add the carry at the LSB instead of the rotated bit.
