@@ -5,7 +5,7 @@
 
 namespace jmpr {
 
-	UI::UI() {
+	UI::UI(InputHandler* inpHandler) {
 
 		// Initialize SDL
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -19,6 +19,7 @@ namespace jmpr {
 
 		_opened = (_window == NULL ? false : true);
 
+		_inp_handler = inpHandler;
 	}
 
 	UI::~UI() {
@@ -36,6 +37,12 @@ namespace jmpr {
 			switch (_curr_event.type) {
 
 			case SDL_QUIT: _opened = false; break;
+
+			case SDL_KEYDOWN:
+				_inp_handler->onKeyDown(_curr_event.key); break;
+
+			case SDL_KEYUP:
+				_inp_handler->onKeyUp(_curr_event.key); break;
 
 			case SDL_MOUSEBUTTONDOWN: {
 

@@ -179,7 +179,7 @@ namespace jmpr {
 	}
 
 	/**
-	* Stop the cpu
+	* Stop the cpu.
 	*/
 	void CPU::STOP() { _stopped = true; }
 
@@ -274,7 +274,7 @@ namespace jmpr {
 
 		bool C = checkFlags(_curr_instr->_cond);
 
-		setFlags(-1, 0, 0, ~(bool)readFlag(3));
+		setFlags(-1, 0, 0, !(bool)readFlag(3));
 	}
 
 	/**
@@ -462,7 +462,7 @@ namespace jmpr {
 	void CPU::PREFIX() {
 
 		// CB Instruction to execute
-		_curr_opcode = _curr_fetch;
+		_curr_opcode = _curr_fetch & 0xFF;
 
 		Register reg;
 

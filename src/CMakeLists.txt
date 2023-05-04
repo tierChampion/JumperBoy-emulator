@@ -15,7 +15,7 @@ add_executable(JumperBoy
 "user_interface.cpp" 
 "io.cpp" 
 "interrupt.cpp" 
-"joypad.cpp")
+"joypad.cpp" "input_handler.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

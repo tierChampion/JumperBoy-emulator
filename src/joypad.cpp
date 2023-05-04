@@ -1,9 +1,15 @@
 #include <joypad.h>
 
+#include <interrupt.h>
+
 namespace jmpr {
 
-	Joypad::Joypad() {
+	Joypad::Joypad(InterruptHandler* handler) {
+
 		_p1 = 0xCF;
+		_inp_handler = InputHandler(this);
+
+		_int_handler = handler;
 	}
 
 	u8 Joypad::readP1Register() const {
@@ -30,6 +36,10 @@ namespace jmpr {
 		if (bit(_p1, inputType) == 0) {
 
 			reset(_p1, inputBit(input));
+
+			// Request an interrupt
+			_int_handler->requestInterrupt(InterruptType::JOYPAD);
+			// todo make sure this only runs for the first time the input is entered
 		}
 	}
 

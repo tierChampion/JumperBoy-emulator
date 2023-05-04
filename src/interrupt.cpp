@@ -83,8 +83,10 @@ namespace jmpr {
 
 			if (_IE & _IF & (1 << interrupt)) {
 
-				u16 interruptAddress = INTERRUPT_LOCATIONS.at((InterruptType)interrupt);
-				_cpu->executeInterrupt(_IME, interruptAddress);
+				InterruptType type = (InterruptType)interrupt;
+
+				u16 interruptAddress = INTERRUPT_LOCATIONS.at(type);
+				_cpu->executeInterrupt(_IME, type, interruptAddress);
 
 				if (_IME) {
 					_IME = false;
@@ -99,7 +101,7 @@ namespace jmpr {
 	/**
 	* Have the CPU execute an interrupt. Similar to a call of the interrupt function.
 	*/
-	void CPU::executeInterrupt(bool enabled, u16 location) {
+	void CPU::executeInterrupt(bool enabled, InterruptType type, u16 location) {
 
 		if (_halted && !enabled)
 			GameBoy::cycle(1);
@@ -118,5 +120,8 @@ namespace jmpr {
 			_PC = location;
 			GameBoy::cycle(1);
 		}
+
+		if (type == InterruptType::JOYPAD)
+			_stopped = false;
 	}
 }

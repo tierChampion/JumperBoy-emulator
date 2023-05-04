@@ -4,7 +4,9 @@
 #include <bus.h>
 #include <cpu.h>
 #include <cartridge.h>
+#include <joypad.h>
 #include <ram.h>
+#include <io.h>
 #include <user_interface.h>
 
 #include <SDL/SDL.h>
@@ -17,7 +19,9 @@ namespace jmpr {
 		static Bus _bus;
 		static CPU _cpu;
 		static Cartridge _cart;
+		static Joypad _joypad;
 		static Ram _ram;
+		static IO _io;
 
 		// Interactive Components
 		static UI _ui;

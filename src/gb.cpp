@@ -1,22 +1,19 @@
 #include <gb.h>
 
-#include <tinyfiledialogs.h>
-
 namespace jmpr {
 
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	Cartridge GameBoy::_cart = Cartridge();
+	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
 	Ram GameBoy::_ram = Ram();
+	IO GameBoy::_io = IO(&_joypad);
 
-	UI GameBoy::_ui = UI();
+	UI GameBoy::_ui = UI(_joypad.getInputHandler());
 
 	bool GameBoy::_paused = false;
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
-
-
-	static const char* filterPatterns[2] = { "*.gb", "*.gbc" };
 
 	int GameBoy::runGameBoy() {
 

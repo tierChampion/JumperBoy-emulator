@@ -61,7 +61,7 @@ namespace jmpr {
 		CPU();
 
 		void connectBus(Bus* bus) { _bus = bus; }
-		InterruptHandler getInterruptHandler() const { return _inter_handler; }
+		InterruptHandler* getInterruptHandler() { return &_inter_handler; }
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);
@@ -77,9 +77,10 @@ namespace jmpr {
 
 		u8 readInterruptEnabledRegister();
 		void writeInterruptEnabledRegister(u8 data);
-		void executeInterrupt(bool enabled, u16 location);
+		void executeInterrupt(bool enabled, InterruptType type, u16 location);
 
 	private:
+
 
 		// STACK OPERATIONS
 		void pushStack8(u8 data);

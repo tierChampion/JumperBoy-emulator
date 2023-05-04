@@ -4,10 +4,12 @@
 
 namespace jmpr {
 
+	class Joypad;
+
 	// manage the io registers.
 	class IO {
 
-		u8 _pad_input;
+		Joypad* _joypad;
 		u8 _serial_trans[2];
 		u8 _tim_div[4];
 		u8 _audio[0x16];
@@ -21,7 +23,7 @@ namespace jmpr {
 
 	public:
 
-		IO();
+		IO(Joypad* pad);
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);

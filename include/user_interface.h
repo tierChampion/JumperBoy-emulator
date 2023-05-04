@@ -5,6 +5,7 @@
 
 namespace jmpr {
 
+	class InputHandler;
 
 	class UI {
 
@@ -13,13 +14,15 @@ namespace jmpr {
 		SDL_Window* _window;
 		SDL_Event _curr_event;
 
+		InputHandler* _inp_handler;
+
 		const char* _curr_input;
 
 		inline static const char* _ROM_FILTER[2] = { "*.gb", "*.gbc" };
 
 	public:
 
-		UI();
+		UI(InputHandler* inpHandler);
 		~UI();
 
 		bool isOpened() { return _opened; }

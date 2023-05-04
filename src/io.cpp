@@ -1,5 +1,7 @@
 #include <io.h>
 
+#include <joypad.h>
+
 namespace jmpr {
 	/*
 	FF00			Joypad input
@@ -14,24 +16,24 @@ namespace jmpr {
 	FF68	FF69	BG / OBJ palettes
 	FF70			WRAM Bank Select
 
-	There is much stuff, like specific register for the CGB and IF, etc...
+	There is more stuff, like specific register for the CGB, etc...
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO() :
+	IO::IO(Joypad* pad) :
 		_serial_trans{ 0x00, 0x7E },
 		_tim_div{ 0xAB, 0x00, 0x00, 0xF8 },
 		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
 		0xFF, 0x9F, 0xFF, 0xBF, 0xFF, 0x00, 0x00, 0xBF, 0x77, 0xF3, 0xF1 },
 		_wave_patts{ 0x00 },
 		_lcd_stuff{ 0x91, 0x85, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFC,
-		0x00, 0x00, // weird
+		0x00, 0x00, // weird, unknown state
 		0x00, 0x00 },
 		_vram_dma{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
 		_bg_obj_pallets{ 0xFF, 0xFF }
 	{
+		_joypad = pad;
 
-		_pad_input = 0xCF;
 		_vram_select = 0xFF;
 		_disable_bootrom = 0xFF;
 		_wram_select = 0xFF;
@@ -43,7 +45,7 @@ namespace jmpr {
 		u8 out = 0;
 
 		if (range == 0x0) {
-			out = _pad_input;
+			out = _joypad->readP1Register();
 		}
 		else if (range >= 0x1 && range <= 0x2) {
 			out = _serial_trans[range - 0x1];
@@ -88,7 +90,7 @@ namespace jmpr {
 		u8 range = loByte(address);
 
 		if (range == 0x0) {
-			_pad_input = data;
+			_joypad->writeP1Register(data);
 		}
 		else if (range >= 0x1 && range <= 0x2) {
 			_serial_trans[range - 0x1] = data;
