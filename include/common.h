@@ -23,6 +23,14 @@ namespace jmpr {
 		return (byte & (1 << pos)) >> pos;
 	}
 
+	inline u8 set(u8 byte, u8 pos) {
+		return byte | (1 << pos);
+	}
+
+	inline u8 reset(u8 byte, u8 pos) {
+		return byte & (0 << pos);
+	}
+
 	inline u8 hiByte(u16 bytes) {
 		return (bytes >> 8) & 0xFF;
 	}
@@ -37,6 +45,10 @@ namespace jmpr {
 
 	inline u8 loNibble(u8 byte) {
 		return byte & 0xF;
+	}
+
+	inline bool between(u16 val, u16 lo, u16 hi) {
+		return val >= lo && val <= hi;
 	}
 
 	inline void notImplemented(const char* file, int line) {

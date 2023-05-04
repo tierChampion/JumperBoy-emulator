@@ -39,18 +39,18 @@ namespace jmpr {
 	void CPU::writeRegister(Register reg, u16 data) {
 
 		switch (reg) {
-		case Register::A: _registers._A = data & 0xFF; break;
-		case Register::F: _registers._F = data & 0xFF; break;
-		case Register::AF: _registers._A = (data >> 8) & 0xFF; _registers._F = data & 0xFF; break;
-		case Register::B: _registers._B = data & 0xFF; break;
-		case Register::C: _registers._C = data & 0xFF; break;
-		case Register::BC: _registers._B = (data >> 8) & 0xFF; _registers._C = data & 0xFF; break;
-		case Register::D: _registers._D = data & 0xFF; break;
-		case Register::E: _registers._E = data & 0xFF; break;
-		case Register::DE: _registers._D = (data >> 8) & 0xFF; _registers._E = data & 0xFF; break;
-		case Register::H: _registers._H = data & 0xFF; break;
-		case Register::L: _registers._L = data & 0xFF; break;
-		case Register::HL: _registers._H = (data >> 8) & 0xFF; _registers._L = data & 0xFF; break;
+		case Register::A: _registers._A = loByte(data); break;
+		case Register::F: _registers._F = loByte(data); break;
+		case Register::AF: _registers._A = hiByte(data); _registers._F = loByte(data); break;
+		case Register::B: _registers._B = loByte(data); break;
+		case Register::C: _registers._C = loByte(data); break;
+		case Register::BC: _registers._B = hiByte(data); _registers._C = loByte(data); break;
+		case Register::D: _registers._D = loByte(data); break;
+		case Register::E: _registers._E = loByte(data); break;
+		case Register::DE: _registers._D = hiByte(data); _registers._E = loByte(data); break;
+		case Register::H: _registers._H = loByte(data); break;
+		case Register::L: _registers._L = loByte(data); break;
+		case Register::HL: _registers._H = hiByte(data); _registers._L = loByte(data); break;
 		case Register::SP: _SP = data; break;
 		case Register::PC: _PC = data; break;
 		}

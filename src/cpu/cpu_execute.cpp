@@ -49,6 +49,8 @@ namespace jmpr {
 
 			if (_curr_instr->_mode == Mode::HL_SPR8) {
 
+				// todo: check if it works
+
 				u8 half_carry = ((readRegister(_curr_instr->_reg2) & 0xF) >
 					(_curr_fetch & 0xF));
 
@@ -278,7 +280,12 @@ namespace jmpr {
 	/**
 	* Halt the CPU. Enter a low power stopped state.
 	*/
-	void CPU::HALT() { noImpl(); } // todo
+	void CPU::HALT() {
+		_halted = true;
+
+		// halt bug
+		_inter_handler.checkHaltBug(_PC);
+	}
 
 	/**
 	* Addition with carry.
@@ -519,7 +526,7 @@ namespace jmpr {
 
 		_PC = merge(hi, lo);
 
-		_IME = true;
+		_inter_handler.enableInterrupts();
 	}
 
 
@@ -544,14 +551,14 @@ namespace jmpr {
 	* Disable the interrupts.
 	*/
 	void CPU::DI() {
-		_IME = false;
+		_inter_handler.enableInterrupts();
 	}
 
 	/**
 	* Enable the interrupts.
 	*/
 	void CPU::EI() {
-		_IME = true;
+		_inter_handler.enableInterrupts();
 	}
 
 	/**

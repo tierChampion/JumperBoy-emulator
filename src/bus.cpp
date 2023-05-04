@@ -16,6 +16,7 @@ namespace jmpr {
 	FFFF	FFFF	Interrupt Enable register (IE)
 	*/
 
+
 	/**
 	* Create a Bus that is connected to no components.
 	*/
@@ -31,44 +32,44 @@ namespace jmpr {
 	*/
 	u8 Bus::read(u16 address) {
 
-		if (address < 0x8000) {
+		if (between(address, 0x0000, 0x7FFF)) {
 			return _cart->read(address);
 		}
-		else if (address < 0xA000) {
+		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
 			noImpl();
 		}
-		else if (address < 0xC000) {
+		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
 			return _cart->read(address);
 		}
-		else if (address < 0xE000) {
+		else if (between(address, 0xC000, 0xDFFF)) {
 			// Work Ram
 			return _ram->readWorkRam(address);
 		}
-		else if (address < 0xFE00) {
+		else if (between(address, 0xE000, 0xFDFF)) {
 			// Echo Ram, unused
 			return 0;
 		}
-		else if (address < 0xFEA0) {
+		else if (between(address, 0xFE00, 0xFE9F)) {
 			// Sprite tables
 			noImpl();
 		}
-		else if (address < 0xFF00) {
+		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
 			return 0;
 		}
-		else if (address < 0xFF80) {
+		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
 			noImpl();
 		}
-		else if (address < 0xFFFF) {
+		else if (between(address, 0xFF80, 0xFFFE)) {
 			// High Ram
 			return _ram->readHighRam(address);
 		}
 		else if (address == 0xFFFF) {
 			// Interrupt enabled register
-			noImpl();
+			return _cpu->readInterruptEnabledRegister();
 		}
 
 		// should never happen
@@ -81,42 +82,42 @@ namespace jmpr {
 	*/
 	void Bus::write(u16 address, u8 data) {
 
-		if (address < 0x8000) {
+		if (between(address, 0x0000, 0x7FFF)) {
 			_cart->write(address, data);
 		}
-		else if (address < 0xA000) {
+		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
 			noImpl();
 		}
-		else if (address < 0xC000) {
+		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
 			_cart->write(address, data);
 		}
-		else if (address < 0xE000) {
+		else if (between(address, 0xC000, 0xDFFF)) {
 			// Work Ram
 			_ram->writeWorkRam(address, data);
 		}
-		else if (address < 0xFE00) {
+		else if (between(address, 0xE000, 0xFDFF)) {
 			// Echo Ram, unused
 		}
-		else if (address < 0xFEA0) {
+		else if (between(address, 0xFE00, 0xFE9F)) {
 			// Sprite tables
 			noImpl();
 		}
-		else if (address < 0xFF00) {
+		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
 		}
-		else if (address < 0xFF80) {
+		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
 			noImpl();
 		}
-		else if (address < 0xFFFF) {
+		else if (between(address, 0xFF80, 0xFFFE)) {
 			// High Ram
 			_ram->writeHighRam(address, data);
 		}
 		else {
 			// Interrupt enabled register
-			noImpl();
+			_cpu->writeInterruptEnabledRegister(data);
 		}
 	}
 
@@ -126,7 +127,7 @@ namespace jmpr {
 	*/
 	void Bus::write16(u16 address, u16 data) {
 
-		write(address + 1, (data >> 8) & 0xFF);
-		write(address, data & 0xFF);
+		write(address + 1, hiByte(data));
+		write(address, loByte(data));
 	}
 }

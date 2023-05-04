@@ -27,17 +27,35 @@ namespace jmpr {
 
 		_bus = nullptr;
 
-		_IME = true;
+		_inter_handler = InterruptHandler(this);
+
 		_halted = false;
 		_stepping = false; // todo?
 	}
 
+	/**
+	* Get the opcode of the instruction to execute.
+	*/
 	void CPU::fetchOpcode() {
-		_curr_opcode = _bus->read(_PC++);
+
+		_curr_opcode = _bus->read(_PC);
+
+		// Halt bug, fails to increment PC
+		if (!_inter_handler.haltBugged(_PC)) {
+			_PC++;
+		}
+
 		_curr_instr = fromOpcode(_curr_opcode);
 	}
 
+	/**
+	* Execute a single CPU instruction. Might take up multiple M-cycles.
+	*/
 	bool CPU::cycle() {
+
+		// todo verify that it goes here
+		_inter_handler.checkInterrupts();
+
 		if (!_halted) {
 
 			u16 programCounter = _PC;

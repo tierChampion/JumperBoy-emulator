@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <instructions.h>
+#include <interrupt.h>
 
 #include <unordered_map>
 
@@ -44,8 +45,10 @@ namespace jmpr {
 		u16 _mem_dest;
 		bool _dest_is_mem;
 
+		InterruptHandler _inter_handler;
+		u16 _halt_bugged_address;
+
 		// Status
-		bool _IME;
 		bool _halted;
 		bool _stepping;
 
@@ -66,6 +69,10 @@ namespace jmpr {
 		void fetchData();
 		void execute();
 		bool cycle();
+
+		u8 readInterruptEnabledRegister() { return _inter_handler.readInterruptEnabled(); }
+		void writeInterruptEnabledRegister(u8 data) { _inter_handler.writeInterruptEnabled(data); }
+		void executeInterrupt(bool enabled, u16 location);
 
 	private:
 
