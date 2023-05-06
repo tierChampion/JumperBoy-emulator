@@ -33,8 +33,8 @@ namespace jmpr {
 
 		if (pair != INPUT_MAP.end()) {
 
-			std::cout << (int)pair->second << std::endl;
-			//_joypad->pressInput(pair->second);
+			//std::cout << "down: " << (int)pair->second << std::endl;
+			_joypad->pressInput(pair->second);
 		}
 	}
 
@@ -47,8 +47,8 @@ namespace jmpr {
 
 		if (pair != INPUT_MAP.end()) {
 
-			std::cout << (int)pair->second << std::endl;
-			//_joypad->releaseInput(pair->second);
+			//std::cout << "up: " << (int)pair->second << std::endl;
+			_joypad->releaseInput(pair->second);
 		}
 	}
 }

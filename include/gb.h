@@ -7,6 +7,7 @@
 #include <joypad.h>
 #include <ram.h>
 #include <io.h>
+#include <debugger.h>
 #include <user_interface.h>
 
 #include <SDL/SDL.h>
@@ -22,6 +23,8 @@ namespace jmpr {
 		static Joypad _joypad;
 		static Ram _ram;
 		static IO _io;
+
+		static Debugger _dbg;
 
 		// Interactive Components
 		static UI _ui;

@@ -26,7 +26,6 @@ namespace jmpr {
 		~UI();
 
 		bool isOpened() { return _opened; }
-		void handleEvents();
+		void handleEvents(bool gamePlaying);
 	};
-
 }

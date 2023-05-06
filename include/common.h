@@ -28,7 +28,11 @@ namespace jmpr {
 	}
 
 	inline u8 reset(u8 byte, u8 pos) {
-		return byte & (0 << pos);
+		return byte & ~(1 << pos);
+	}
+
+	inline u8 setBit(u8 byte, u8 pos, u8 val) {
+		return byte ^ ((-val ^ byte) & (1 << pos));
 	}
 
 	inline u8 hiByte(u16 bytes) {

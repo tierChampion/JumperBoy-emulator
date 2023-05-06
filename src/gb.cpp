@@ -9,6 +9,8 @@ namespace jmpr {
 	Ram GameBoy::_ram = Ram();
 	IO GameBoy::_io = IO(&_joypad);
 
+	Debugger GameBoy::_dbg = Debugger(&_bus);
+
 	UI GameBoy::_ui = UI(_joypad.getInputHandler());
 
 	bool GameBoy::_paused = false;
@@ -20,6 +22,7 @@ namespace jmpr {
 		_cpu.connectBus(&_bus);
 		_bus.connectCPU(&_cpu);
 		_bus.connectRam(&_ram);
+		_bus.connectIO(&_io);
 
 		_running = false;
 		bool quitting = false;
@@ -27,14 +30,16 @@ namespace jmpr {
 		while (_ui.isOpened()) {
 
 			if (_running) {
+
 				_cpu.cycle();
+
+				_dbg.update();
+				_dbg.log();
 
 				_ticks++;
 			}
 
-			_ui.handleEvents();
-
-			delay(100);
+			_ui.handleEvents(_running);
 		}
 
 		return 0;

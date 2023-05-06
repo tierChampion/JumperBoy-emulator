@@ -85,7 +85,7 @@ namespace jmpr {
 		REGADD,
 		REGADD_D8,
 		REG_HLDEC,
-		A16,
+		D16,
 		D8,
 		A8_REG,
 		REG_A8,
@@ -135,12 +135,16 @@ namespace jmpr {
 		Register _reg2;
 
 		u8 _affected_flags;
+
+		friend std::ostream& operator<<(std::ostream& os, const Instruction& instruction);
 	};
 
 	bool is16Bits(Register reg);
 
 	const Instruction* fromOpcode(u8 opcode);
 	const char* instructionName(const Instruction instr);
+
+	// todo: show complete instruction name (with registers affected, etc.)
 }
 
 // Hashing function for the instruction type.

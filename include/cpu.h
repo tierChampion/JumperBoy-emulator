@@ -74,10 +74,17 @@ namespace jmpr {
 		void fetchData();
 		void execute();
 		bool cycle();
+		bool reached(u16 address);
 
 		u8 readInterruptEnabledRegister();
 		void writeInterruptEnabledRegister(u8 data);
+		u8 readInterruptFlagRegister();
 		void executeInterrupt(bool enabled, InterruptType type, u16 location);
+
+		void displayCurrentInstruction() const;
+
+		// Debugging test
+		void testDAA();
 
 	private:
 

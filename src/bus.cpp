@@ -1,5 +1,10 @@
 #include <bus.h>
 
+#include <cpu.h>
+#include <cartridge.h>
+#include <ram.h>
+#include <io.h>
+
 namespace jmpr {
 	/*
 	0000	3FFF	16 KiB ROM bank 00	From cartridge, usually a fixed bank
@@ -24,6 +29,7 @@ namespace jmpr {
 		_cpu = nullptr;
 		_cart = nullptr;
 		_ram = nullptr;
+		_io = nullptr;
 	}
 
 	/**
@@ -59,9 +65,13 @@ namespace jmpr {
 			// Prohibited area
 			return 0;
 		}
+		else if (address == 0xFF0F) {
+			// IF register
+			return _cpu->readInterruptFlagRegister();
+		}
 		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
-			noImpl();
+			return _io->read(address);
 		}
 		else if (between(address, 0xFF80, 0xFFFE)) {
 			// High Ram
@@ -87,7 +97,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
-			noImpl();
+			//noImpl();
 		}
 		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
@@ -109,7 +119,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
-			noImpl();
+			_io->write(address, data);
 		}
 		else if (between(address, 0xFF80, 0xFFFE)) {
 			// High Ram

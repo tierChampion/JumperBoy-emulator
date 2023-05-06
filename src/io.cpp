@@ -79,7 +79,7 @@ namespace jmpr {
 			out = _wram_select;
 		}
 		else {
-			std::cerr << "Error: trying to write to an unknown IO register." << std::endl;
+			printf("Error: trying to read from an unknown IO register: %04X\n", address);
 		}
 
 		return out;
@@ -124,7 +124,8 @@ namespace jmpr {
 			_wram_select = data;
 		}
 		else {
-			std::cerr << "Error: trying to write to an unknown IO register." << std::endl;
+
+			printf("Error: trying to write to an unknown IO register: %04X\n", address);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 #include <instructions.h>
 
+#include <cpu.h>
+
 #include <unordered_map>
 #include <array>
 
@@ -25,7 +27,6 @@ namespace jmpr {
 		{0x0D, {InstrType::DEC, Condition::NONE, Mode::REG, Register::C, Register::NONE, 0b11100000}},
 		{0x0E, {InstrType::LD, Condition::NONE, Mode::REG_D8, Register::C, Register::NONE, 0}},
 		{0x0F, {InstrType::RRCA, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0b11110000}},
-
 		// 1
 		{0x10, {InstrType::STOP, Condition::NONE, Mode::D8, Register::NONE, Register::NONE, 0}},
 		{0x11, {InstrType::LD, Condition::NONE, Mode::REG_D16, Register::DE, Register::NONE, 0}},
@@ -216,32 +217,32 @@ namespace jmpr {
 		// C
 		{0xC0, {InstrType::RET, Condition::NZ, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xC1, {InstrType::POP, Condition::NONE, Mode::REG, Register::BC, Register::NONE, 0}},
-		{0xC2, {InstrType::JP, Condition::NZ, Mode::A16, Register::NONE, Register::NONE, 0}},
-		{0xC3, {InstrType::JP, Condition::NONE, Mode::A16, Register::NONE, Register::NONE, 0}},
-		{0xC4, {InstrType::CALL, Condition::NZ, Mode::A16, Register::NONE, Register::NONE, 0}},
+		{0xC2, {InstrType::JP, Condition::NZ, Mode::D16, Register::NONE, Register::NONE, 0}},
+		{0xC3, {InstrType::JP, Condition::NONE, Mode::D16, Register::NONE, Register::NONE, 0}},
+		{0xC4, {InstrType::CALL, Condition::NZ, Mode::D16, Register::NONE, Register::NONE, 0}},
 		{0xC5, {InstrType::PUSH, Condition::NONE, Mode::REG, Register::BC, Register::NONE, 0}},
 		{0xC6, {InstrType::ADD, Condition::NONE, Mode::REG_D8, Register::A, Register::NONE, 0b11110000}},
 		{0xC7, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xC8, {InstrType::RET, Condition::Z, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xC9, {InstrType::RET, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
-		{0xCA, {InstrType::JP, Condition::Z, Mode::A16, Register::NONE, Register::NONE, 0}},
+		{0xCA, {InstrType::JP, Condition::Z, Mode::D16, Register::NONE, Register::NONE, 0}},
 		{0xCB, {InstrType::PREFIX, Condition::NONE, Mode::D8, Register::NONE, Register::NONE, 0}},
-		{0xCC, {InstrType::CALL, Condition::Z, Mode::A16, Register::NONE, Register::NONE, 0}},
-		{0xCD, {InstrType::CALL, Condition::NONE, Mode::A16, Register::NONE, Register::NONE, 0}},
+		{0xCC, {InstrType::CALL, Condition::Z, Mode::D16, Register::NONE, Register::NONE, 0}},
+		{0xCD, {InstrType::CALL, Condition::NONE, Mode::D16, Register::NONE, Register::NONE, 0}},
 		{0xCE, {InstrType::ADC, Condition::NONE, Mode::REG_D8, Register::A, Register::NONE, 0b11110000}},
 		{0xCF, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		// D
 		{0xD0, {InstrType::RET, Condition::NC, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xD1, {InstrType::POP, Condition::NONE, Mode::REG, Register::DE, Register::NONE, 0}},
-		{0xD2, {InstrType::JP, Condition::NC, Mode::A16, Register::NONE, Register::NONE, 0}},
-		{0xD4, {InstrType::CALL, Condition::NC, Mode::A16, Register::NONE, Register::NONE, 0}},
+		{0xD2, {InstrType::JP, Condition::NC, Mode::D16, Register::NONE, Register::NONE, 0}},
+		{0xD4, {InstrType::CALL, Condition::NC, Mode::D16, Register::NONE, Register::NONE, 0}},
 		{0xD5, {InstrType::PUSH, Condition::NONE, Mode::REG, Register::DE, Register::NONE, 0}},
 		{0xD6, {InstrType::SUB, Condition::NONE, Mode::REG_D8, Register::A, Register::NONE, 0b11110000}},
 		{0xD7, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xD8, {InstrType::RET, Condition::C, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xD9, {InstrType::RETI, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
-		{0xDA, {InstrType::JP, Condition::C, Mode::A16, Register::NONE, Register::NONE, 0}},
-		{0xDC, {InstrType::CALL, Condition::C, Mode::A16, Register::NONE, Register::NONE, 0}},
+		{0xDA, {InstrType::JP, Condition::C, Mode::D16, Register::NONE, Register::NONE, 0}},
+		{0xDC, {InstrType::CALL, Condition::C, Mode::D16, Register::NONE, Register::NONE, 0}},
 		{0xDE, {InstrType::SBC, Condition::NONE, Mode::REG_D8, Register::A, Register::NONE, 0b11110000}},
 		{0xDF, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		// E
@@ -252,7 +253,7 @@ namespace jmpr {
 		{0xE6, {InstrType::AND, Condition::NONE, Mode::D8, Register::NONE, Register::NONE, 0b11110000}},
 		{0xE7, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
 		{0xE8, {InstrType::ADD, Condition::NONE, Mode::REG_D8, Register::SP, Register::NONE, 0b11110000}},
-		{0xE9, {InstrType::JP, Condition::NONE, Mode::REGADD, Register::HL, Register::NONE, 0}},
+		{0xE9, {InstrType::JP, Condition::NONE, Mode::REG, Register::HL, Register::NONE, 0}},
 		{0xEA, {InstrType::LD, Condition::NONE, Mode::A16_REG, Register::NONE, Register::A, 0}},
 		{0xEE, {InstrType::XOR, Condition::NONE, Mode::D8, Register::NONE, Register::NONE, 0b11110000}},
 		{0xEF, {InstrType::RST, Condition::NONE, Mode::NONE, Register::NONE, Register::NONE, 0}},
@@ -347,5 +348,143 @@ namespace jmpr {
 
 	const char* instructionName(const Instruction instr) {
 		return NAME_LOOKUP[int(instr._type)];
+	}
+
+	static const std::array<const char*, 5> COND_LOOKUP = {
+		"",
+		"Z",
+		"NZ",
+		"C",
+		"NC"
+	};
+
+	static const std::array<const char*, 0xF> REG_LOOKUP = {
+		"NONE",
+		"A",
+		"F",
+		"B",
+		"C",
+		"D",
+		"E",
+		"H",
+		"L",
+		"AF",
+		"BC",
+		"DE",
+		"HL",
+		"SP",
+		"PC",
+	};
+
+	void CPU::displayCurrentInstruction() const {
+
+		printf("[%02X (%02X, %02X)] %s", _curr_opcode, loByte(_curr_fetch), hiByte(_curr_fetch),
+			instructionName(*_curr_instr));
+
+		if (_curr_instr->_cond != Condition::NONE) {
+			printf(" <%s>", COND_LOOKUP[(u8)_curr_instr->_cond]);
+		}
+
+		switch (_curr_instr->_mode) {
+
+		case Mode::NONE: break;
+
+		case Mode::REG_D16:
+
+			printf(" %s %04X", REG_LOOKUP[(u8)_curr_instr->_reg1], _curr_fetch);
+			break;
+
+		case Mode::REGADD_REG:
+
+			printf(" $%04X %s", _mem_dest, REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REG:
+
+			printf(" %s", REG_LOOKUP[(u8)_curr_instr->_reg1]);
+			break;
+
+		case Mode::REG_D8:
+
+			printf(" %s %02X", REG_LOOKUP[(u8)_curr_instr->_reg1], _curr_fetch & 0xFF);
+			break;
+
+		case Mode::A16_REG:
+
+			printf(" $%04X %s", _mem_dest, REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REG_REG:
+
+			printf(" %s %s", REG_LOOKUP[(u8)_curr_instr->_reg1], REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REG_REGADD:
+
+			printf(" %s $%04X", REG_LOOKUP[(u8)_curr_instr->_reg1], readRegister(_curr_instr->_reg2));
+			break;
+
+		case Mode::HLINC_REG:
+
+			printf(" $(%04X++) %s", _mem_dest, REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REG_HLINC:
+
+			printf(" %s $(%04X++)", REG_LOOKUP[(u8)_curr_instr->_reg1], readRegister(Register::HL) - 1);
+			break;
+
+		case Mode::HLDEC_REG:
+
+			printf(" $(%04X--) %s", _mem_dest, REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REGADD:
+
+			printf(" $%04X", _mem_dest);
+			break;
+
+		case Mode::REGADD_D8:
+
+			printf(" $%04X %02X", _mem_dest, _curr_fetch & 0xFF);
+			break;
+
+		case Mode::REG_HLDEC:
+
+			printf(" %s $(%04X--)", REG_LOOKUP[(u8)_curr_instr->_reg1], readRegister(Register::HL) + 1);
+			break;
+
+		case Mode::D16:
+
+			printf(" %04X", _curr_fetch);
+			break;
+
+		case Mode::D8:
+
+			printf(" %02X", _curr_fetch & 0xFF);
+			break;
+
+		case Mode::A8_REG:
+
+			printf(" $%02X %s", _mem_dest, REG_LOOKUP[(u8)_curr_instr->_reg2]);
+			break;
+
+		case Mode::REG_A8:
+
+			printf(" %s $%02X", REG_LOOKUP[(u8)_curr_instr->_reg1], _curr_fetch & 0xFF);
+			break;
+
+		case Mode::HL_SPR8:
+
+			printf(" HL $(%04X + %02X)", _SP, _curr_fetch & 0xFF);
+			break;
+
+		case Mode::REG_A16:
+
+			printf(" %s $%04X", REG_LOOKUP[(u8)_curr_instr->_reg1], _curr_fetch);
+			break;
+		}
+
+		printf("\t");
 	}
 }

@@ -40,8 +40,8 @@ namespace jmpr {
 
 		switch (reg) {
 		case Register::A: _registers._A = loByte(data); break;
-		case Register::F: _registers._F = loByte(data); break;
-		case Register::AF: _registers._A = hiByte(data); _registers._F = loByte(data); break;
+		case Register::F: _registers._F = loByte(data) & 0xF0; break;
+		case Register::AF: _registers._A = hiByte(data); _registers._F = loByte(data) & 0xF0; break;
 		case Register::B: _registers._B = loByte(data); break;
 		case Register::C: _registers._C = loByte(data); break;
 		case Register::BC: _registers._B = hiByte(data); _registers._C = loByte(data); break;
@@ -63,16 +63,16 @@ namespace jmpr {
 	void CPU::setFlags(u8 Z, u8 N, u8 H, u8 C) {
 
 		if (Z < 0b10)
-			_registers._F |= Z << 7;
+			_registers._F = setBit(_registers._F, 7, Z);
 
 		if (N < 0b10)
-			_registers._F |= N << 6;
+			_registers._F = setBit(_registers._F, 6, N);
 
 		if (H < 0b10)
-			_registers._H |= H << 5;
+			_registers._F = setBit(_registers._F, 5, H);
 
 		if (C < 0b10)
-			_registers._F |= C << 4;
+			_registers._F = setBit(_registers._F, 4, C);
 	}
 
 	/**
@@ -88,8 +88,8 @@ namespace jmpr {
 	*/
 	bool CPU::checkFlags(Condition cond) const {
 
-		bool Z = _registers._F & 0b10000000;
-		bool C = _registers._C & 0b01000000;
+		bool Z = _registers._F & 0x80;
+		bool C = _registers._F & 0x10;
 
 		switch (cond) {
 		case Condition::NONE: return true;
@@ -153,5 +153,13 @@ namespace jmpr {
 	void CPU::writeInterruptEnabledRegister(u8 data) {
 
 		_inter_handler.writeInterruptEnabled(data);
+	}
+
+	/**
+	* Read the IF register.
+	*/
+	u8 CPU::readInterruptFlagRegister() {
+
+		return _inter_handler.readInterruptFlags();
 	}
 }

@@ -28,7 +28,7 @@ namespace jmpr {
 		SDL_Quit();
 	}
 
-	void UI::handleEvents() {
+	void UI::handleEvents(bool gamePlaying) {
 
 		_curr_input = "";
 
@@ -38,32 +38,44 @@ namespace jmpr {
 
 			case SDL_QUIT: _opened = false; break;
 
-			case SDL_KEYDOWN:
-				_inp_handler->onKeyDown(_curr_event.key); break;
+			case SDL_KEYDOWN: {
 
-			case SDL_KEYUP:
-				_inp_handler->onKeyUp(_curr_event.key); break;
+				if (gamePlaying)
+					_inp_handler->onKeyDown(_curr_event.key);
+				break;
+			}
+
+			case SDL_KEYUP: {
+
+				if (gamePlaying)
+					_inp_handler->onKeyUp(_curr_event.key);
+				break;
+			}
 
 			case SDL_MOUSEBUTTONDOWN: {
 
-				// Input a command to process afterwards.
-				_curr_input = tinyfd_inputBox("Input command",
-					"Enter a command: open_rom, set_controls", "");
+				if (_curr_event.button.button == SDL_BUTTON_LEFT) {
+					// Input a command to process afterwards.
+					_curr_input = tinyfd_inputBox("Input command",
+						"Enter a command: open_rom, set_controls", "");
 
-				if (_curr_input) {
-					_curr_input = tinyfd_openFileDialog(
-						"Select ROM",
-						DIRECTORY_PATH,
-						1,
-						_ROM_FILTER,
-						NULL,
-						0
-					);
+					if (_curr_input) {
+						_curr_input = tinyfd_openFileDialog(
+							"Select ROM",
+							DIRECTORY_PATH,
+							1,
+							_ROM_FILTER,
+							NULL,
+							0
+						);
 
-					GameBoy::insertCartridge(_curr_input);
+						GameBoy::insertCartridge(_curr_input);
+					}
 				}
 
 				break;
+
+
 			}
 			}
 		}

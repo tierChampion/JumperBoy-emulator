@@ -140,7 +140,7 @@ namespace jmpr {
 			GameBoy::cycle(1);
 		}
 
-		bool toStackPointer = _curr_instr->_reg1 == Register::SP;
+		bool toStackPointer = (_curr_instr->_reg1 == Register::SP);
 
 		if (toStackPointer) {
 			val = readRegister(_curr_instr->_reg1) + s8(_curr_fetch);
@@ -156,7 +156,7 @@ namespace jmpr {
 			z = -1;
 			h = (readRegister(_curr_instr->_reg1) & 0xFFF) + (_curr_fetch & 0xFFF) >= 0x1000;
 			c = (readRegister(_curr_instr->_reg1) & 0xFFFF) +
-				(_curr_fetch & 0xFFFF) < readRegister(_curr_instr->_reg1);
+				(_curr_fetch & 0xFFFF) >= 0x10000;
 		}
 		// special case
 		else if (toStackPointer) {
@@ -204,7 +204,7 @@ namespace jmpr {
 
 		if (checkFlags(_curr_instr->_cond)) {
 			// check if it works
-			_PC += (s8)_curr_fetch;
+			_PC += (s8)(_curr_fetch & 0xFF);
 			GameBoy::cycle(1);
 		}
 	}
@@ -228,24 +228,20 @@ namespace jmpr {
 	*/
 	void CPU::DAA() {
 
-		s8 correction = 0;
+		u8 correction = 0;
 		u8 full_carry = 0;
 
 		// Fix BCD decimal if there is a half carry or the value is not legal
-		if ((readFlag(1) && (_registers._A & 0xF) > 0x9) || readFlag(2)) {
+		if ((!readFlag(1) && (_registers._A & 0xF) > 0x9) || readFlag(2)) {
 			correction = 0x6;
 		}
 
-		if ((!readFlag(1) && (_registers._A & 0xF0) > 0x90) || readFlag(3)) {
+		if ((!readFlag(1) && (_registers._A & 0xFF) > 0x99) || readFlag(3)) {
 			correction |= 0x60;
 			full_carry = 1;
 		}
 
-		if (readFlag(1)) {
-			correction *= -1;
-		}
-
-		_registers._A += correction;
+		_registers._A += readFlag(1) ? -correction : correction;
 
 		setFlags(_registers._A == 0, -1, 0, full_carry);
 	}
@@ -370,7 +366,7 @@ namespace jmpr {
 		u8 result = _registers._A - (_curr_fetch & 0xFF);
 		u8 half_res = (_registers._A & 0xF) - (_curr_fetch & 0xF);
 
-		setFlags(_registers._A == 0, 1, half_res > (_registers._A & 0xF), result > _registers._A);
+		setFlags(result == 0, 1, half_res > (_registers._A & 0xF), result > _registers._A);
 	}
 
 	/**
@@ -534,6 +530,8 @@ namespace jmpr {
 	* Load to the high ram.
 	*/
 	void CPU::LDH() {
+
+		u16 test = merge(0xFF, readRegister(Register::C));
 
 		if (_dest_is_mem) {
 

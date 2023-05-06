@@ -24,7 +24,9 @@ namespace jmpr {
 
 	class Joypad {
 
-		u8 _p1;
+		u8 _p1_selection;
+		u8 _p1_input;
+
 		InputHandler _inp_handler;
 
 		InterruptHandler* _int_handler;

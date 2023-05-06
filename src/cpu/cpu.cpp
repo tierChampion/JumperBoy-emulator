@@ -3,6 +3,8 @@
 #include <bus.h>
 #include <ram.h>
 
+#include <SDL/SDL.h>
+
 namespace jmpr {
 
 	CPU::CPU() {
@@ -57,23 +59,29 @@ namespace jmpr {
 		// todo verify that it goes here
 		_inter_handler.checkInterrupts();
 
-		if (!_halted) {
+		if (!_halted && !_stopped) {
 
 			u16 programCounter = _PC;
 
 			fetchOpcode();
 
-			printf("%04X: %s (%02X %02X %02X)",
-				programCounter, instructionName(*_curr_instr), int(_curr_opcode), int(_bus->read(programCounter + 1)),
-				int(_bus->read(programCounter + 2)));
+			//printf("%04X: ", programCounter);
 
 			fetchData();
-			execute();
 
-			printf(" => AF: %02X%02X, BC: %02X%02X, DE: %02X%02X, HL: %02X%02X\n", _registers._A, _registers._F, _registers._B,
-				_registers._C, _registers._D, _registers._E, _registers._H, _registers._L);
+			//displayCurrentInstruction();
+
+			execute();
+			/*
+			printf(" => AF: %02X%02X, BC: %02X%02X, DE: %02X%02X, HL: %02X%02X\n", _registers._A, _registers._F,
+				_registers._B, _registers._C, _registers._D, _registers._E, _registers._H, _registers._L);
+			// */
 		}
 
 		return true;
+	}
+
+	bool CPU::reached(u16 address) {
+		return _PC == address;
 	}
 }
