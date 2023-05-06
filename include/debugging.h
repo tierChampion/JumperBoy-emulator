@@ -22,6 +22,14 @@ namespace jmpr {
 
 		void update();
 		void log();
+
+		/*
+		* Passed tests:
+		* 01-special
+		*
+		* 03-op sp,hl
+		* 04-op r,imm
+		*/
 	};
 
 }

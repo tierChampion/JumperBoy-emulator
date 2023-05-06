@@ -188,7 +188,7 @@ namespace jmpr {
 	*/
 	void CPU::RLA() {
 
-		u8 c = readFlag(3);
+		u8 c = carryFlag();
 
 		u8 rotated_bit = bit(_registers._A, 7);
 
@@ -214,7 +214,7 @@ namespace jmpr {
 	*/
 	void CPU::RRA() {
 
-		u8 c = readFlag(3);
+		u8 c = carryFlag();
 
 		u8 rotated_bit = bit(_registers._A, 0);
 
@@ -232,16 +232,16 @@ namespace jmpr {
 		u8 full_carry = 0;
 
 		// Fix BCD decimal if there is a half carry or the value is not legal
-		if ((!readFlag(1) && (_registers._A & 0xF) > 0x9) || readFlag(2)) {
+		if ((!negationFlag() && loNibble(_registers._A) > 0x9) || halfCarryFlag()) {
 			correction = 0x6;
 		}
 
-		if ((!readFlag(1) && (_registers._A & 0xFF) > 0x99) || readFlag(3)) {
+		if ((!negationFlag() && _registers._A > 0x99) || carryFlag()) {
 			correction |= 0x60;
 			full_carry = 1;
 		}
 
-		_registers._A += readFlag(1) ? -correction : correction;
+		_registers._A += negationFlag() ? -correction : correction;
 
 		setFlags(_registers._A == 0, -1, 0, full_carry);
 	}
@@ -270,7 +270,7 @@ namespace jmpr {
 
 		bool C = checkFlags(_curr_instr->_cond);
 
-		setFlags(-1, 0, 0, !(bool)readFlag(3));
+		setFlags(-1, 0, 0, !(bool)carryFlag());
 	}
 
 	/**
@@ -288,13 +288,17 @@ namespace jmpr {
 	*/
 	void CPU::ADC() {
 
-		_registers._A += (readFlag(3) + _curr_fetch) & 0xFF;
+		u16 add = (carryFlag() + _curr_fetch);
 
-		u8 half_carry = (_registers._A & 0xF) <
-			((_curr_fetch + readFlag(3)) & 0xF);
+		u8 res = (_registers._A + add) & 0xFF;
 
-		u8 full_carry = (_registers._A & 0xFF) <
-			((_curr_fetch + readFlag(3)) & 0xFF);
+		u8 half_carry = ((res & 0xF) < (_registers._A & 0xF)) ||
+			((res & 0xF) == (_registers._A & 0xF) && carryFlag());
+
+		u8 full_carry = (res < _registers._A) ||
+			(res == _registers._A && carryFlag());
+
+		_registers._A = res;
 
 		setFlags(_registers._A == 0, 0, half_carry, full_carry);
 	}
@@ -304,13 +308,11 @@ namespace jmpr {
 	*/
 	void CPU::SUB() {
 
+		u8 half_carry = (_curr_fetch & 0xF) > (_registers._A & 0xF);
+
+		u8 full_carry = (_curr_fetch > _registers._A);
+
 		_registers._A -= _curr_fetch;
-
-		u8 half_carry = (_registers._A & 0xF) >
-			(_curr_fetch & 0xF);
-
-		u8 full_carry = (_registers._A & 0xFF) >
-			(_curr_fetch & 0xFF);
 
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
@@ -320,13 +322,17 @@ namespace jmpr {
 	*/
 	void CPU::SBC() {
 
-		_registers._A -= (readFlag(3) + _curr_fetch) & 0xFF;
+		u16 sub = (carryFlag() + _curr_fetch);
 
-		u8 half_carry = (_registers._A & 0xF) >
-			((_curr_fetch + readFlag(3)) & 0xF);
+		u8 res = (_registers._A - sub) & 0xFF;
 
-		u8 full_carry = (_registers._A & 0xFF) >
-			((_curr_fetch + readFlag(3)) & 0xFF);
+		u8 half_carry = ((_curr_fetch & 0xF) > (_registers._A & 0xF)) ||
+			((_curr_fetch & 0xF) == (_registers._A & 0xF) && carryFlag());
+
+		u8 full_carry = (_curr_fetch > _registers._A) ||
+			(_curr_fetch == _registers._A && carryFlag());
+
+		_registers._A = res;
 
 		setFlags(_registers._A == 0, 1, half_carry, full_carry);
 	}
@@ -636,7 +642,7 @@ namespace jmpr {
 			rotated = bit(data, 7);
 			isZ = data == 0;
 
-			_bus->write(_mem_dest, (data << 1) | readFlag(3));
+			_bus->write(_mem_dest, (data << 1) | carryFlag());
 			GameBoy::cycle(1);
 		}
 		else {
@@ -644,7 +650,7 @@ namespace jmpr {
 			rotated = bit(readRegister(reg), 7);
 			isZ = readRegister(reg) == 0;
 
-			writeRegister(reg, (readRegister(reg) << 1) | readFlag(3));
+			writeRegister(reg, (readRegister(reg) << 1) | carryFlag());
 		}
 
 		setFlags(isZ, 0, 0, rotated);
@@ -667,7 +673,7 @@ namespace jmpr {
 			rotated = bit(data, 0);
 			isZ = data == 0;
 
-			_bus->write(_mem_dest, (data >> 1) | (readFlag(3) << 7));
+			_bus->write(_mem_dest, (data >> 1) | (carryFlag() << 7));
 			GameBoy::cycle(1);
 		}
 		else {
@@ -675,7 +681,7 @@ namespace jmpr {
 			rotated = bit(readRegister(reg), 0);
 			isZ = readRegister(reg) == 0;
 
-			writeRegister(reg, (readRegister(reg) >> 1) | (readFlag(3) << 7));
+			writeRegister(reg, (readRegister(reg) >> 1) | (carryFlag() << 7));
 		}
 
 		setFlags(isZ, 0, 0, rotated);

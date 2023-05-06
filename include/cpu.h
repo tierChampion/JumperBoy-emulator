@@ -67,7 +67,11 @@ namespace jmpr {
 		void writeRegister(Register reg, u16 data);
 
 		void setFlags(u8 Z, u8 N, u8 H, u8 C);
-		u8 readFlag(u8 flag) const;
+		u8 zeroFlag() const;
+		u8 negationFlag() const;
+		u8 halfCarryFlag() const;
+		u8 carryFlag() const;
+
 		bool checkFlags(Condition cond) const;
 
 		void fetchOpcode();
@@ -85,6 +89,8 @@ namespace jmpr {
 
 		// Debugging test
 		void testDAA();
+		void testADC();
+		void testSBC();
 
 	private:
 

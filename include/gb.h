@@ -7,7 +7,7 @@
 #include <joypad.h>
 #include <ram.h>
 #include <io.h>
-#include <debugger.h>
+#include <debugging.h>
 #include <user_interface.h>
 
 #include <SDL/SDL.h>

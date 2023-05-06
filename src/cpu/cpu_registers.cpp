@@ -76,11 +76,31 @@ namespace jmpr {
 	}
 
 	/**
-	* Get the value of the desired flag.
-	* @param flag 0 for Z, 1 for N, 2 for H and 3 for C
+	* Get the value of the Z flag.
 	*/
-	u8 CPU::readFlag(u8 flag) const {
-		return bit(_registers._F, 7 - flag);
+	u8 CPU::zeroFlag() const {
+		return bit(_registers._F, 7);
+	}
+
+	/**
+	* Get the value of the N flag.
+	*/
+	u8 CPU::negationFlag() const {
+		return bit(_registers._F, 6);
+	}
+
+	/**
+	* Get the value of the H flag.
+	*/
+	u8 CPU::halfCarryFlag() const {
+		return bit(_registers._F, 5);
+	}
+
+	/**
+	* Get the value of the C flag.
+	*/
+	u8 CPU::carryFlag() const {
+		return bit(_registers._F, 4);
 	}
 
 	/**
