@@ -82,7 +82,7 @@ namespace jmpr {
 
 		_cgb_flag = header[0x43];
 
-		_new_licensee_code = merge(header[0x44], header[0x45]);
+		_new_licensee_code = merge16(header[0x44], header[0x45]);
 
 		_sgb_flag = header[0x46];
 
@@ -105,7 +105,7 @@ namespace jmpr {
 
 		_valid_sum = (valid_details == _header_checksum);
 
-		_global_checksum = merge(header[0x4E], header[0x4F]);
+		_global_checksum = merge16(header[0x4E], header[0x4F]);
 	}
 
 

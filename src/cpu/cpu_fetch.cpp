@@ -25,7 +25,7 @@ namespace jmpr {
 			u8 hi = _bus->read(_PC + 1);
 			GameBoy::cycle(1);
 
-			_curr_fetch = merge(hi, lo);
+			_curr_fetch = merge16(hi, lo);
 			_PC += 2;
 			break;
 
@@ -40,7 +40,7 @@ namespace jmpr {
 
 			// Special case for the LDH instruction.
 			if (_curr_instr->_reg1 == Register::C) {
-				address = merge(0xFF, address);
+				address = merge16(0xFF, address);
 			}
 
 			_mem_dest = address;
@@ -75,7 +75,7 @@ namespace jmpr {
 
 			_curr_fetch = readRegister(_curr_instr->_reg2);
 
-			_mem_dest = merge(hi, lo);
+			_mem_dest = merge16(hi, lo);
 			_dest_is_mem = true;
 
 			break;
@@ -94,7 +94,7 @@ namespace jmpr {
 
 			// Special case for the LDH instruction.
 			if (_curr_instr->_reg2 == Register::C) {
-				address = merge(0xFF, address);
+				address = merge16(0xFF, address);
 			}
 
 			_curr_fetch = _bus->read(address);
@@ -175,7 +175,7 @@ namespace jmpr {
 			u8 hi = _bus->read(_PC + 1);
 			GameBoy::cycle(1);
 
-			_curr_fetch = merge(hi, lo);
+			_curr_fetch = merge16(hi, lo);
 
 			_PC += 2;
 			break;
@@ -201,7 +201,7 @@ namespace jmpr {
 			_PC++;
 
 			// Required for LDH instruction.
-			address = merge(0xFF, address);
+			address = merge16(0xFF, address);
 
 			_mem_dest = address;
 			GameBoy::cycle(1);
@@ -216,7 +216,7 @@ namespace jmpr {
 			_PC++;
 
 			// Required for LDH instruction.
-			address = merge(0xFF, address);
+			address = merge16(0xFF, address);
 
 			_curr_fetch = _bus->read(address);
 			GameBoy::cycle(1);
@@ -245,7 +245,7 @@ namespace jmpr {
 			_PC += 2;
 
 			// Required for LDH instruction.
-			u16 address = merge(hi, lo);
+			u16 address = merge16(hi, lo);
 
 			_curr_fetch = _bus->read(address);
 			GameBoy::cycle(1);

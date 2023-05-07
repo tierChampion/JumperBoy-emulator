@@ -15,8 +15,12 @@ namespace jmpr {
 	using s8 = int8_t;
 	using s16 = int16_t;
 
-	inline u16 merge(u8 high, u8 low) {
+	inline u16 merge16(u8 high, u8 low) {
 		return (high << 8) | low;
+	}
+
+	inline u8 merge8(u8 high, u8 low) {
+		return ((high & 0xF) << 4) | (low & 0xF);
 	}
 
 	inline u8 bit(u8 byte, u8 pos) {

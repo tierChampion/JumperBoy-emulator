@@ -91,6 +91,7 @@ namespace jmpr {
 		void testDAA();
 		void testADC();
 		void testSBC();
+		void testSRA();
 
 	private:
 

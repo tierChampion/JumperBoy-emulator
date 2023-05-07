@@ -15,7 +15,7 @@ namespace jmpr {
 	}
 
 	u8 Joypad::readP1Register() const {
-		return merge(loNibble(_p1_selection), loNibble(_p1_input));
+		return merge16(loNibble(_p1_selection), loNibble(_p1_input));
 	}
 
 	/**

@@ -73,6 +73,9 @@ namespace jmpr {
 
 			_bus->write(_mem_dest, _curr_fetch + 1);
 			GameBoy::cycle(1);
+
+			setFlags(loByte(_curr_fetch) == 0xFF, 0, loNibble(_curr_fetch) == 0xF, -1);
+			return;
 		}
 		else {
 			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) + 1);
@@ -84,7 +87,7 @@ namespace jmpr {
 			GameBoy::cycle(1);
 		}
 
-		if (!is16 || _dest_is_mem) {
+		if (!is16) {
 			setFlags(readRegister(_curr_instr->_reg1) == 0, 0,
 				(readRegister(_curr_instr->_reg1) & 0xF) == 0, -1);
 		}
@@ -99,6 +102,9 @@ namespace jmpr {
 
 			_bus->write(_mem_dest, _curr_fetch - 1);
 			GameBoy::cycle(1);
+
+			setFlags(loByte(_curr_fetch) == 0x01, 1, loNibble(_curr_fetch) == 0x0, -1);
+			return;
 		}
 		else {
 			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) - 1);
@@ -387,7 +393,7 @@ namespace jmpr {
 			u8 hi = popStack8();
 			GameBoy::cycle(1);
 
-			_PC = merge(hi, lo);
+			_PC = merge16(hi, lo);
 		}
 	}
 
@@ -401,7 +407,7 @@ namespace jmpr {
 		u8 hi = popStack8();
 		GameBoy::cycle(1);
 
-		writeRegister(_curr_instr->_reg1, merge(hi, lo));
+		writeRegister(_curr_instr->_reg1, merge16(hi, lo));
 	}
 
 	/**
@@ -488,7 +494,7 @@ namespace jmpr {
 		}
 
 		// Bit checked / affected
-		_curr_fetch = 2 * ((_curr_opcode & 0x40) >> 8) + ((_curr_opcode & 0x8) >> 3);
+		_curr_fetch = 2 * ((_curr_opcode & 0x30) >> 4) + ((_curr_opcode & 0xF) >= 0x8);
 
 		// RLC
 		if (_curr_opcode < 0x08)
@@ -526,7 +532,7 @@ namespace jmpr {
 		u8 hi = popStack8();
 		GameBoy::cycle(1);
 
-		_PC = merge(hi, lo);
+		_PC = merge16(hi, lo);
 
 		_inter_handler.enableInterrupts();
 	}
@@ -537,7 +543,7 @@ namespace jmpr {
 	*/
 	void CPU::LDH() {
 
-		u16 test = merge(0xFF, readRegister(Register::C));
+		u16 test = merge16(0xFF, readRegister(Register::C));
 
 		if (_dest_is_mem) {
 
@@ -640,7 +646,7 @@ namespace jmpr {
 			GameBoy::cycle(1);
 
 			rotated = bit(data, 7);
-			isZ = data == 0;
+			isZ = (data & 0x7F) == 0 && !carryFlag();
 
 			_bus->write(_mem_dest, (data << 1) | carryFlag());
 			GameBoy::cycle(1);
@@ -648,9 +654,9 @@ namespace jmpr {
 		else {
 
 			rotated = bit(readRegister(reg), 7);
-			isZ = readRegister(reg) == 0;
 
 			writeRegister(reg, (readRegister(reg) << 1) | carryFlag());
+			isZ = readRegister(reg) == 0;
 		}
 
 		setFlags(isZ, 0, 0, rotated);
@@ -671,7 +677,7 @@ namespace jmpr {
 			GameBoy::cycle(1);
 
 			rotated = bit(data, 0);
-			isZ = data == 0;
+			isZ = (data & 0xFE) == 0 && !carryFlag();
 
 			_bus->write(_mem_dest, (data >> 1) | (carryFlag() << 7));
 			GameBoy::cycle(1);
@@ -679,9 +685,9 @@ namespace jmpr {
 		else {
 
 			rotated = bit(readRegister(reg), 0);
-			isZ = readRegister(reg) == 0;
 
 			writeRegister(reg, (readRegister(reg) >> 1) | (carryFlag() << 7));
+			isZ = readRegister(reg) == 0;
 		}
 
 		setFlags(isZ, 0, 0, rotated);
@@ -735,7 +741,9 @@ namespace jmpr {
 			shifted = bit(data, 0);
 			isZ = data < 0x02;
 
-			_bus->write(_mem_dest, (data >> 1) & (data & (1 << 7)));
+			u8 shift = setBit(data >> 1, 7, bit(data, 7));
+
+			_bus->write(_mem_dest, shift);
 			GameBoy::cycle(1);
 		}
 		else {
@@ -743,7 +751,9 @@ namespace jmpr {
 			shifted = bit(readRegister(reg), 0);
 			isZ = readRegister(reg) < 0x02;
 
-			writeRegister(reg, readRegister(reg) >> 1 & (readRegister(reg) & (1 << 7)));
+			u8 shift = setBit(readRegister(reg) >> 1, 7, bit(readRegister(reg), 7));
+
+			writeRegister(reg, shift);
 		}
 
 		setFlags(isZ, 0, 0, shifted);
@@ -766,14 +776,14 @@ namespace jmpr {
 			hi = hiNibble(data);
 			lo = loNibble(data);
 
-			_bus->write(_mem_dest, merge(lo, hi));
+			_bus->write(_mem_dest, merge8(lo, hi));
 			GameBoy::cycle(1);
 		}
 		else {
 			hi = hiNibble(readRegister(reg));
 			lo = loNibble(readRegister(reg));
 
-			writeRegister(reg, merge(lo, hi));
+			writeRegister(reg, merge8(lo, hi));
 		}
 
 		setFlags(hi == 0 && lo == 0, 0, 0, 0);
@@ -826,7 +836,7 @@ namespace jmpr {
 		else {
 			isZ = bit(readRegister(reg), _curr_fetch);
 		}
-		setFlags(isZ == 0, 0, 1, -1);
+		setFlags((isZ == 0), 0, 1, -1);
 	}
 
 
@@ -839,12 +849,12 @@ namespace jmpr {
 
 			u8 data = _bus->read(_mem_dest);
 			GameBoy::cycle(1);
-			_bus->write(_mem_dest, data & ~(1 << _curr_fetch));
+			_bus->write(_mem_dest, reset(data, _curr_fetch));
 			GameBoy::cycle(1);
 		}
 		else {
 
-			writeRegister(reg, readRegister(reg) & ~(1 << _curr_fetch));
+			writeRegister(reg, reset(readRegister(reg), _curr_fetch));
 		}
 	}
 

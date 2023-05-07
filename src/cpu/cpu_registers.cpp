@@ -15,16 +15,16 @@ namespace jmpr {
 		switch (reg) {
 		case Register::A: ret = _registers._A; break;
 		case Register::F: ret = _registers._F; break;
-		case Register::AF: ret = merge(_registers._A, _registers._F); break;
+		case Register::AF: ret = merge16(_registers._A, _registers._F); break;
 		case Register::B: ret = _registers._B; break;
 		case Register::C: ret = _registers._C; break;
-		case Register::BC: ret = merge(_registers._B, _registers._C); break;
+		case Register::BC: ret = merge16(_registers._B, _registers._C); break;
 		case Register::D: ret = _registers._D; break;
 		case Register::E: ret = _registers._E; break;
-		case Register::DE: ret = merge(_registers._D, _registers._E); break;
+		case Register::DE: ret = merge16(_registers._D, _registers._E); break;
 		case Register::H: ret = _registers._H; break;
 		case Register::L: ret = _registers._L; break;
-		case Register::HL: ret = merge(_registers._H, _registers._L); break;
+		case Register::HL: ret = merge16(_registers._H, _registers._L); break;
 		case Register::SP: ret = _SP; break;
 		case Register::PC: ret = _PC; break;
 		}
@@ -156,7 +156,7 @@ namespace jmpr {
 		u8 lo = popStack8();
 		u8 hi = popStack8();
 
-		return merge(hi, lo);
+		return merge16(hi, lo);
 	}
 
 	/**

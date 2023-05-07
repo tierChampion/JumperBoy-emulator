@@ -30,6 +30,11 @@ namespace jmpr {
 		if (_debug_log[0]) {
 			printf("DBG: %s\n", _debug_log);
 		}
+
+		// 10 fails
+		// Bit
+		// Res 2, 3, 4, 5, 6, 7
+		// set 2, 3, 4, 5, 6, 7
 	}
 
 
@@ -59,7 +64,8 @@ namespace jmpr {
 				execute();
 
 				// display result
-				printf("%02X + %02X = %02X (%02X)\n", a_val, add_val, _registers._A, _registers._F);
+				printf("%02X + %02X = %02X (%X, %X, %X, %X)\n", a_val, add_val, _registers._A,
+					zeroFlag(), negationFlag(), halfCarryFlag(), carryFlag());
 
 				if (add_val + 1 == 0x9A) break;
 			}
@@ -96,7 +102,8 @@ namespace jmpr {
 					execute();
 
 					// display result
-					printf("%02X + %02X + <%X> = %02X (%02X)\n", a_val, add_val, carry, _registers._A, _registers._F);
+					printf("%02X + %02X + <%X> = %02X (%X, %X, %X, %X)\n", a_val, add_val, carry, _registers._A,
+						zeroFlag(), negationFlag(), halfCarryFlag(), carryFlag());
 
 					carry ^= 1;
 
@@ -153,5 +160,28 @@ namespace jmpr {
 			a_val++;
 		}
 
+	}
+
+	/**
+	* Used to display all the possible cases of the DAA instruction.
+	*/
+	void CPU::testSRA() {
+
+		u16 a_val;
+
+		for (a_val = 0; a_val <= 0xFF; a_val++) {
+			// load a value into a
+			_curr_instr = fromOpcode(0x3E); // load A <- d8
+			_curr_fetch = a_val;
+			execute();
+			// add another value
+			_curr_instr = fromOpcode(0xCB); // Add A <- d8
+			_curr_fetch = 0x002F;
+			execute();
+
+			// display result
+			printf("<SRA> %02X = %02X (%X, %X, %X, %X)\n", a_val, _registers._A,
+				zeroFlag(), negationFlag(), halfCarryFlag(), carryFlag());
+		}
 	}
 }
