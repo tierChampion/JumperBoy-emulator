@@ -534,7 +534,7 @@ namespace jmpr {
 
 		_PC = merge16(hi, lo);
 
-		_inter_handler.enableInterrupts();
+		_inter_handler.enableInterrupts(true);
 	}
 
 
@@ -561,14 +561,14 @@ namespace jmpr {
 	* Disable the interrupts.
 	*/
 	void CPU::DI() {
-		_inter_handler.enableInterrupts();
+		_inter_handler.enableInterrupts(true); // change for the CGB
 	}
 
 	/**
 	* Enable the interrupts.
 	*/
 	void CPU::EI() {
-		_inter_handler.enableInterrupts();
+		_inter_handler.enableInterrupts(false);
 	}
 
 	/**

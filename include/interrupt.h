@@ -25,6 +25,7 @@ namespace jmpr {
 		CPU* _cpu;
 
 		bool _IME;
+		u8 _IME_schedule;
 		u8 _IE;
 		u8 _IF;
 
@@ -36,8 +37,8 @@ namespace jmpr {
 		InterruptHandler(CPU* cpu);
 
 		// todo with ei and di, takes time to apply
-		void enableInterrupts();
-		void disableInterrupts();
+		void enableInterrupts(bool instant);
+		void disableInterrupts(bool instant);
 
 		u8 readInterruptEnabled() const { return _IE; }
 		void writeInterruptEnabled(u8 data) { _IE = data; }

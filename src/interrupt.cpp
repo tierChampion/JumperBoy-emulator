@@ -12,6 +12,7 @@ namespace jmpr {
 		_cpu = cpu;
 
 		_IME = true;
+		_IME_schedule = 0;
 		_IE = 0x00;
 		_IF = 0xE1;
 
@@ -21,15 +22,30 @@ namespace jmpr {
 	/**
 	* Enable interrupts with the EI or RETI instruction.
 	*/
-	void InterruptHandler::enableInterrupts() {
-		_IME = true;
+	void InterruptHandler::enableInterrupts(bool instant) {
+
+		if (instant) {
+			_IME = true;
+			_IME_schedule = 0x00;
+		}
+		else {
+			_IME = false;
+			_IME_schedule = 0x12;
+		}
 	}
 
 	/**
 	* Disable interrupts with the DI instruction.
 	*/
-	void InterruptHandler::disableInterrupts() {
-		_IME = false;
+	void InterruptHandler::disableInterrupts(bool instant) {
+
+		if (instant) {
+			_IME = false;
+			_IME_schedule = 0x00;
+		}
+		else {
+			_IME_schedule = 0x02;
+		}
 	}
 
 	/**
@@ -79,6 +95,17 @@ namespace jmpr {
 	*/
 	void InterruptHandler::checkInterrupts() {
 
+		if (_IME_schedule > 0) {
+
+			_IME_schedule--;
+
+			if (loNibble(_IME_schedule) == 0) {
+
+				_IME = hiNibble(_IME_schedule);
+				_IME_schedule = 0x00;
+			}
+		}
+
 		for (u8 interrupt = 0; interrupt < 5; interrupt++) {
 
 			if (_IE & _IF & (1 << interrupt)) {
@@ -103,7 +130,7 @@ namespace jmpr {
 	*/
 	void CPU::executeInterrupt(bool enabled, InterruptType type, u16 location) {
 
-		if (_halted && !enabled)
+		if (_halted)
 			GameBoy::cycle(1);
 
 		_halted = false;

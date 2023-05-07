@@ -30,11 +30,6 @@ namespace jmpr {
 		if (_debug_log[0]) {
 			printf("DBG: %s\n", _debug_log);
 		}
-
-		// 10 fails
-		// Bit
-		// Res 2, 3, 4, 5, 6, 7
-		// set 2, 3, 4, 5, 6, 7
 	}
 
 
