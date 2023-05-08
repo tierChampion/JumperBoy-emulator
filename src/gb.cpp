@@ -6,8 +6,9 @@ namespace jmpr {
 	CPU GameBoy::_cpu = CPU();
 	Cartridge GameBoy::_cart = Cartridge();
 	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
+	Timer GameBoy::_timer = Timer(_cpu.getInterruptHandler());
 	Ram GameBoy::_ram = Ram();
-	IO GameBoy::_io = IO(&_joypad);
+	IO GameBoy::_io = IO(&_joypad, &_timer);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus);
 
@@ -35,8 +36,6 @@ namespace jmpr {
 
 				_dbg.update();
 				_dbg.log();
-
-				_ticks++;
 			}
 
 			_ui.handleEvents(_running);
@@ -57,10 +56,18 @@ namespace jmpr {
 		return true;
 	}
 
-	void GameBoy::cycle(int m_cycles) {
+	/**
+	* Run all components other than the cpu for a given number of M-cycles.
+	* One M-cycle is equivalent to 4 clock ticks or 4 T-states.
+	*/
+	void GameBoy::cycle(u8 m_cycles) {
 
-		// TODO...
-		// Run the ppu and the timer / clock, etc...
-		// Everything that is in parallel with the CPU
+		for (u16 t_state = 0; t_state < m_cycles * 4; t_state++) {
+
+			_timer.update();
+			// todo add the ppu and other stuff...
+
+			_ticks++;
+		}
 	}
 }

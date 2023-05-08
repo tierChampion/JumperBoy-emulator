@@ -36,7 +36,6 @@ namespace jmpr {
 		InterruptHandler() {}
 		InterruptHandler(CPU* cpu);
 
-		// todo with ei and di, takes time to apply
 		void enableInterrupts(bool instant);
 		void disableInterrupts(bool instant);
 

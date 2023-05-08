@@ -1,6 +1,7 @@
 #include <io.h>
 
 #include <joypad.h>
+#include <timer.h>
 
 namespace jmpr {
 	/*
@@ -20,7 +21,7 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad) :
+	IO::IO(Joypad* pad, Timer* tim) :
 		_serial_trans{ 0x00, 0x7E },
 		_tim_div{ 0xAB, 0x00, 0x00, 0xF8 },
 		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
@@ -33,6 +34,7 @@ namespace jmpr {
 		_bg_obj_pallets{ 0xFF, 0xFF }
 	{
 		_joypad = pad;
+		_timer = tim;
 
 		_vram_select = 0xFF;
 		_disable_bootrom = 0xFF;

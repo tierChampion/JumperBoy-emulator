@@ -6,18 +6,19 @@ add_executable(JumperBoy
 "../libs/tfd/tinyfiledialogs.cpp" 
 "bus.cpp"
 "cpu/cpu.cpp" 
-"instructions.cpp"
+"cpu/instructions.cpp"
 "gb.cpp"
 "cpu/cpu_fetch.cpp"
 "cpu/cpu_execute.cpp"
 "cpu/cpu_registers.cpp" 
 "ram.cpp" 
 "user_interface.cpp" 
-"io.cpp" 
-"interrupt.cpp" 
-"joypad.cpp" 
-"input_handler.cpp" 
-"cpu/debugging.cpp")
+"io/io.cpp" 
+"cpu/interrupt.cpp" 
+"io/joypad.cpp" 
+"io/input_handler.cpp" 
+"cpu/debugging.cpp" 
+"io/timer.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

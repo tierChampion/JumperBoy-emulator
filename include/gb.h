@@ -5,6 +5,7 @@
 #include <cpu.h>
 #include <cartridge.h>
 #include <joypad.h>
+#include <timer.h>
 #include <ram.h>
 #include <io.h>
 #include <debugging.h>
@@ -21,6 +22,7 @@ namespace jmpr {
 		static CPU _cpu;
 		static Cartridge _cart;
 		static Joypad _joypad;
+		static Timer _timer;
 		static Ram _ram;
 		static IO _io;
 
@@ -40,7 +42,7 @@ namespace jmpr {
 
 		static bool insertCartridge(const char* rom_file);
 
-		static void cycle(int m_cycles);
+		static void cycle(u8 m_cycles);
 
 		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 	};
