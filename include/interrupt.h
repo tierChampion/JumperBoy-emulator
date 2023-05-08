@@ -43,6 +43,7 @@ namespace jmpr {
 		void writeInterruptEnabled(u8 data) { _IE = data; }
 
 		u8 readInterruptFlags() const { return _IF; }
+		void writeInterruptFlags(u8 data) { _IF = data; }
 
 		void checkHaltBug(u16 currentPC);
 		bool haltBugged(u16 currentPC);

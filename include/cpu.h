@@ -83,6 +83,7 @@ namespace jmpr {
 		u8 readInterruptEnabledRegister();
 		void writeInterruptEnabledRegister(u8 data);
 		u8 readInterruptFlagRegister();
+		void writeInterruptFlagRegister(u8 data);
 		void executeInterrupt(bool enabled, InterruptType type, u16 location);
 
 		void displayCurrentInstruction() const;

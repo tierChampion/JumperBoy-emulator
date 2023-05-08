@@ -13,7 +13,6 @@ namespace jmpr {
 		Joypad* _joypad;
 		u8 _serial_trans[2];
 		Timer* _timer;
-		u8 _tim_div[4];
 		u8 _audio[0x16];
 		u8 _wave_patts[0xF];
 		u8 _lcd_stuff[0xC];

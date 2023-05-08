@@ -31,7 +31,8 @@ namespace jmpr {
 	* Compute the output of the DIV-TAC multiplexer.
 	*/
 	u8 Timer::computeOutput() {
-		return ((_div & (TAC_TABLE[_tac & 0x3] >> 1)) == 1) && bit(_tac, 2);
+		bool timerBit = (_div & (TAC_TABLE[_tac & 0x3] >> 1));
+		return timerBit && bit(_tac, 2);
 	}
 
 	/**
@@ -81,25 +82,25 @@ namespace jmpr {
 
 	}
 
-	u8 Timer::read(u16 address) {
+	u8 Timer::read(u8 address) {
 
 		u8 val = 0;
 
 		switch (address) {
-		case 0xFF04: val = loByte(_div); break;
-		case 0xFF05: val = _tima; break;
-		case 0xFF06: val = _tma; break;
-		case 0xFF07: val = _tac; break;
+		case 0x04: val = loByte(_div); break;
+		case 0x05: val = _tima; break;
+		case 0x06: val = _tma; break;
+		case 0x07: val = _tac; break;
 		default: printf("Error: Invalid timer register read.\n");
 		}
 
 		return val;
 	}
 
-	void Timer::write(u16 address, u8 data) {
+	void Timer::write(u8 address, u8 data) {
 
 		switch (address) {
-		case 0xFF04: {
+		case 0x04: {
 
 			_div = 0;
 
@@ -112,7 +113,7 @@ namespace jmpr {
 
 			break;
 		}
-		case 0xFF05: {
+		case 0x05: {
 
 			// If TIMA is not being set to TMA
 			if (!between(_tima_overflow, 4, 1)) {
@@ -120,7 +121,7 @@ namespace jmpr {
 			}
 			break;
 		}
-		case 0xFF06: {
+		case 0x06: {
 
 			_tma = data;
 
@@ -131,7 +132,7 @@ namespace jmpr {
 
 			break;
 		}
-		case 0xFF07: {
+		case 0x07: {
 
 			_tac = data;
 

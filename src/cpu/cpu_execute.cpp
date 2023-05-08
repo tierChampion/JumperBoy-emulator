@@ -455,11 +455,15 @@ namespace jmpr {
 
 		pushStack8(hiByte(_PC));
 		GameBoy::cycle(1);
-		pushStack8(hiByte(_PC));
+		pushStack8(loByte(_PC));
 		GameBoy::cycle(1);
 
 		// todo: to see
-		u8 addr = ((_curr_opcode & 0x30)) | (_curr_opcode & 0x8) << 3;
+		u8 addr = ((_curr_opcode & 0x30)) | (_curr_opcode & 0x8);
+
+		if (_curr_opcode == 0xEF) {
+			printf("misses...\n");
+		}
 
 		_PC = addr;
 	}
@@ -561,7 +565,7 @@ namespace jmpr {
 	* Disable the interrupts.
 	*/
 	void CPU::DI() {
-		_inter_handler.enableInterrupts(true); // change for the CGB
+		_inter_handler.disableInterrupts(true); // change for the CGB
 	}
 
 	/**
@@ -888,7 +892,7 @@ namespace jmpr {
 		{InstrType::RLCA, &CPU::RLCA},
 		{InstrType::ADD, &CPU::ADD},
 		{InstrType::RRCA, &CPU::RRCA},
-		{InstrType::STOP, &CPU::XXX},
+		{InstrType::STOP, &CPU::STOP},
 		{InstrType::RLA, &CPU::RLA},
 		{InstrType::JR, &CPU::JR},
 		{InstrType::RRA, &CPU::RRA},
@@ -896,7 +900,7 @@ namespace jmpr {
 		{InstrType::CPL, &CPU::CPL},
 		{InstrType::SCF, &CPU::SCF},
 		{InstrType::CCF, &CPU::CCF},
-		{InstrType::HALT, &CPU::XXX},
+		{InstrType::HALT, &CPU::HALT},
 		{InstrType::ADC, &CPU::ADC},
 		{InstrType::SUB, &CPU::SUB},
 		{InstrType::SBC, &CPU::SBC},

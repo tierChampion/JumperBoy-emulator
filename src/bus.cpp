@@ -117,6 +117,9 @@ namespace jmpr {
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
 		}
+		else if (address == 0xFF0F) {
+			_cpu->writeInterruptFlagRegister(data);
+		}
 		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
 			_io->write(address, data);

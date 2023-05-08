@@ -182,4 +182,12 @@ namespace jmpr {
 
 		return _inter_handler.readInterruptFlags();
 	}
+
+	/**
+	* Write to the IF register.
+	*/
+	void CPU::writeInterruptFlagRegister(u8 data) {
+
+		_inter_handler.writeInterruptFlags(data);
+	}
 }

@@ -1,5 +1,6 @@
 #include <cpu.h>
 
+#include <gb.h>
 #include <bus.h>
 #include <ram.h>
 
@@ -42,6 +43,7 @@ namespace jmpr {
 	void CPU::fetchOpcode() {
 
 		_curr_opcode = _bus->read(_PC);
+		GameBoy::cycle(1);
 
 		// Halt bug, fails to increment PC
 		if (!_inter_handler.haltBugged(_PC)) {
@@ -65,17 +67,21 @@ namespace jmpr {
 
 			fetchOpcode();
 
-			//printf("%04X: ", programCounter);
+			printf("%04X: ", programCounter);
 
 			fetchData();
 
-			//displayCurrentInstruction();
+			displayCurrentInstruction();
 
 			execute();
-			/*
+			///*
 			printf(" => AF: %02X%02X, BC: %02X%02X, DE: %02X%02X, HL: %02X%02X\n", _registers._A, _registers._F,
 				_registers._B, _registers._C, _registers._D, _registers._E, _registers._H, _registers._L);
 			// */
+		}
+		else {
+
+			GameBoy::cycle(1);
 		}
 
 		return true;

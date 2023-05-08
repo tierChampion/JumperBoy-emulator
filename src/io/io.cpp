@@ -23,7 +23,6 @@ namespace jmpr {
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
 	IO::IO(Joypad* pad, Timer* tim) :
 		_serial_trans{ 0x00, 0x7E },
-		_tim_div{ 0xAB, 0x00, 0x00, 0xF8 },
 		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
 		0xFF, 0x9F, 0xFF, 0xBF, 0xFF, 0x00, 0x00, 0xBF, 0x77, 0xF3, 0xF1 },
 		_wave_patts{ 0x00 },
@@ -53,7 +52,7 @@ namespace jmpr {
 			out = _serial_trans[range - 0x1];
 		}
 		else if (range >= 0x4 && range <= 0x7) {
-			out = _tim_div[range - 0x4];
+			out = _timer->read(address);
 		}
 		else if (range >= 0x10 && range <= 0x26) {
 			out = _audio[range - 0x10];
@@ -98,7 +97,7 @@ namespace jmpr {
 			_serial_trans[range - 0x1] = data;
 		}
 		else if (range >= 0x4 && range <= 0x7) {
-			_tim_div[range - 0x4] = data;
+			_timer->write(range, data);
 		}
 		else if (range >= 0x10 && range <= 0x26) {
 			_audio[range - 0x10] = data;

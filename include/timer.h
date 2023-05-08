@@ -24,8 +24,8 @@ namespace jmpr {
 
 		void update();
 
-		u8 read(u16 address);
-		void write(u16 address, u8 data);
+		u8 read(u8 address);
+		void write(u8 address, u8 data);
 
 	private:
 
