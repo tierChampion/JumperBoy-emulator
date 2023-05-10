@@ -8,7 +8,8 @@ namespace jmpr {
 
 	Timer::Timer(InterruptHandler* interHandler) {
 
-		_div = 0xAB;
+		// AB is the div and E6 is for sync with the internal div
+		_div = 0xABCC;
 		_tima = 0x00;
 		_tma = 0x00;
 		_tac = 0xF8;
@@ -30,8 +31,8 @@ namespace jmpr {
 	/**
 	* Compute the output of the DIV-TAC multiplexer.
 	*/
-	u8 Timer::computeOutput() {
-		bool timerBit = (_div & (TAC_TABLE[_tac & 0x3] >> 1));
+	u8 Timer::computeOutput() const {
+		bool timerBit = (_div & (TAC_TABLE[_tac & 0b11] >> 1));
 		return timerBit && bit(_tac, 2);
 	}
 
@@ -82,12 +83,12 @@ namespace jmpr {
 
 	}
 
-	u8 Timer::read(u8 address) {
+	u8 Timer::read(u8 address) const {
 
 		u8 val = 0;
 
 		switch (address) {
-		case 0x04: val = loByte(_div); break;
+		case 0x04: val = hiByte(_div); break;
 		case 0x05: val = _tima; break;
 		case 0x06: val = _tma; break;
 		case 0x07: val = _tac; break;
@@ -134,7 +135,7 @@ namespace jmpr {
 		}
 		case 0x07: {
 
-			_tac = data;
+			_tac = (data & 0b111) | 0xF8;
 
 			u8 new_output = computeOutput();
 
@@ -148,5 +149,10 @@ namespace jmpr {
 		}
 		default: printf("Error: Invalid timer register write.\n");
 		}
+	}
+
+	void Timer::displayStates() const {
+		printf("<Timer> => DIV: %02X, TIMA: %02X, TMA: %02X, TAC: %02X\n",
+			hiByte(_div), _tima, _tma, _tac);
 	}
 }

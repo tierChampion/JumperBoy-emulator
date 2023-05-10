@@ -10,7 +10,7 @@ namespace jmpr {
 	Ram GameBoy::_ram = Ram();
 	IO GameBoy::_io = IO(&_joypad, &_timer);
 
-	Debugger GameBoy::_dbg = Debugger(&_bus);
+	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
 	UI GameBoy::_ui = UI(_joypad.getInputHandler());
 
@@ -33,6 +33,9 @@ namespace jmpr {
 			if (_running) {
 
 				_cpu.cycle();
+
+				//_dbg.displayCycleSize(_ticks, _cpu.getOpcode());
+				//_timer.displayStates();
 
 				_dbg.update();
 				_dbg.log();
@@ -69,5 +72,9 @@ namespace jmpr {
 
 			_ticks++;
 		}
+
+		//if (_ticks == 256) {
+		//	printf("stop...\n");
+		//}
 	}
 }

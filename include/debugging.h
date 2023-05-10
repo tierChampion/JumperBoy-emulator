@@ -16,15 +16,22 @@ namespace jmpr {
 		char _debug_log[1024];
 		u16 _log_size;
 
+		bool _constant;
+		bool _modified;
+
+		u64 _old_time;
+
 	public:
 
-		Debugger(Bus* bus);
+		Debugger(Bus* bus, bool constant);
 
 		void update();
 		void log();
 
+		void displayCycleSize(u64 currentTime, u8 opcode);
+
 		/*
-		* Passed tests:
+		* Passed all instruction tests:
 		* 01-special
 		* 02-interrupts
 		* 03-op sp,hl
@@ -36,6 +43,9 @@ namespace jmpr {
 		* 09-op r,r
 		* 10-bit ops
 		* 11-op a,(hl)
+		*
+		* Passed other tests:
+		* instr_timing
 		*/
 	};
 

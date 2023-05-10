@@ -3,12 +3,18 @@
 #include <bus.h>
 #include <cpu.h>
 
+#include <array>
+
 namespace jmpr {
 
 
-	Debugger::Debugger(Bus* bus) : _debug_log{ 0 } {
+	Debugger::Debugger(Bus* bus, bool constant) : _debug_log{ 0 } {
 
 		_log_size = 0;
+		_constant = constant;
+		_modified = false;
+
+		_old_time = 0;
 
 		_bus = bus;
 	}
@@ -22,14 +28,53 @@ namespace jmpr {
 			_log_size++;
 
 			_bus->write(0xFF02, 0x00);
+
+			_modified = true;
 		}
 	}
 
 	void Debugger::log() {
 
-		if (_debug_log[0]) {
+		if (_debug_log[0] && (_constant || _modified)) {
 			printf("DBG: %s\n", _debug_log);
+			_modified = false;
 		}
+
+		// timer doesnt work properly (start_timer, stop_timer, or a, ret z)
+	}
+
+	static const std::array<u8, 0x100> OPCODE_LENGTH = {
+		4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4,
+		4, 12, 8, 8, 4, 4, 8, 4, 12, 8, 8, 8, 4, 4, 8, 4,
+		255, 12, 8, 8, 4, 4, 8, 4, 255, 8, 8, 8, 4, 4, 8, 4,
+		255, 12, 8, 8, 12, 12, 12, 4, 255, 8, 8, 8, 4, 4, 8, 4,
+
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		8, 8, 8, 8, 8, 8, 4, 8, 4, 4, 4, 4, 4, 4, 8, 4,
+
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+		4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+
+		255, 12, 255, 16, 255, 16, 8, 16, 255, 16, 255, 4, 255, 24, 8, 16,
+		255, 12, 255, 0, 255, 16, 8, 16, 255, 16, 255, 0, 255, 0, 8, 16,
+		12, 12, 8, 0, 0, 16, 8, 16, 16, 4, 16, 0, 0, 0, 8, 16,
+		12, 12, 8, 4, 0, 16, 8, 16, 12, 8, 16, 4, 0, 0, 8, 16,
+	};
+
+	void Debugger::displayCycleSize(u64 currentTime, u8 opcode) {
+
+		if (OPCODE_LENGTH[opcode] != 0 && OPCODE_LENGTH[opcode] != 255) {
+			if (OPCODE_LENGTH[opcode] != int(currentTime - _old_time)) {
+				printf("Faulty cycle length!\n");
+			}
+		}
+
+		printf("Cycle size: %u (Expected %u) ", int(currentTime - _old_time), OPCODE_LENGTH[opcode]);
+		_old_time = currentTime;
 	}
 
 

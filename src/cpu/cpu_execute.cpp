@@ -38,18 +38,19 @@ namespace jmpr {
 			// 16 bit registers need 2 writes
 			if (is16Bits(_curr_instr->_reg2)) {
 
-				_bus->write16(_mem_dest, _curr_fetch);
+				_bus->write(_mem_dest, loByte(_curr_fetch));
 				GameBoy::cycle(1);
+				_bus->write(_mem_dest + 1, hiByte(_curr_fetch));
 			}
 			else {
 				_bus->write(_mem_dest, _curr_fetch);
 			}
+
+			GameBoy::cycle(1);
 		}
 		else {
 
 			if (_curr_instr->_mode == Mode::HL_SPR8) {
-
-				// todo: check if it works
 
 				u8 half_carry = ((readRegister(_curr_instr->_reg2) & 0xF) >
 					(_curr_fetch & 0xF));
@@ -61,6 +62,10 @@ namespace jmpr {
 			}
 
 			writeRegister(_curr_instr->_reg1, _curr_fetch);
+
+			if (is16Bits(_curr_instr->_reg1) && is16Bits(_curr_instr->_reg2)) {
+				GameBoy::cycle(1);
+			}
 		}
 	}
 
@@ -83,7 +88,7 @@ namespace jmpr {
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (is16) {
+		if (is16 && !_dest_is_mem) {
 			GameBoy::cycle(1);
 		}
 
@@ -112,7 +117,7 @@ namespace jmpr {
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (is16) {
+		if (is16 && !_dest_is_mem) {
 			GameBoy::cycle(1);
 		}
 
@@ -142,8 +147,11 @@ namespace jmpr {
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (is16) {
+		if (_curr_instr->_reg1 == Register::HL) {
 			GameBoy::cycle(1);
+		}
+		else if (_curr_instr->_reg1 == Register::SP) {
+			GameBoy::cycle(2);
 		}
 
 		bool toStackPointer = (_curr_instr->_reg1 == Register::SP);
@@ -388,6 +396,10 @@ namespace jmpr {
 
 		if (checkFlags(_curr_instr->_cond)) {
 
+			if (_curr_instr->_cond != Condition::NONE) {
+				GameBoy::cycle(1);
+			}
+
 			u8 lo = popStack8();
 			GameBoy::cycle(1);
 			u8 hi = popStack8();
@@ -395,6 +407,8 @@ namespace jmpr {
 
 			_PC = merge16(hi, lo);
 		}
+
+		GameBoy::cycle(1);
 	}
 
 	/**
@@ -417,7 +431,10 @@ namespace jmpr {
 
 		if (checkFlags(_curr_instr->_cond)) {
 			_PC = _curr_fetch;
-			GameBoy::cycle(1);
+
+			if (_curr_instr->_reg1 != Register::HL) {
+				GameBoy::cycle(1);
+			}
 		}
 	}
 
@@ -434,6 +451,7 @@ namespace jmpr {
 			GameBoy::cycle(1);
 
 			_PC = _curr_fetch;
+			GameBoy::cycle(1);
 		}
 	}
 
@@ -442,6 +460,7 @@ namespace jmpr {
 	*/
 	void CPU::PUSH() {
 
+		GameBoy::cycle(1);
 		pushStack8(hiByte(_curr_fetch));
 		GameBoy::cycle(1);
 		pushStack8(loByte(_curr_fetch));
@@ -458,14 +477,10 @@ namespace jmpr {
 		pushStack8(loByte(_PC));
 		GameBoy::cycle(1);
 
-		// todo: to see
 		u8 addr = ((_curr_opcode & 0x30)) | (_curr_opcode & 0x8);
 
-		if (_curr_opcode == 0xEF) {
-			printf("misses...\n");
-		}
-
 		_PC = addr;
+		GameBoy::cycle(1);
 	}
 
 	/**
@@ -487,11 +502,10 @@ namespace jmpr {
 		case 4: reg = Register::H; break;
 		case 5: reg = Register::L; break;
 		case 6: {
+
 			reg = Register::HL;
 			_mem_dest = readRegister(reg);
 			_dest_is_mem = true;
-
-			GameBoy::cycle(1);
 			break;
 		}
 		default: reg = Register::A; break;
@@ -523,7 +537,6 @@ namespace jmpr {
 			CB_RES(reg);
 		else
 			CB_SET(reg);
-
 	}
 
 	/**
@@ -537,6 +550,7 @@ namespace jmpr {
 		GameBoy::cycle(1);
 
 		_PC = merge16(hi, lo);
+		GameBoy::cycle(1);
 
 		_inter_handler.enableInterrupts(true);
 	}
@@ -547,18 +561,15 @@ namespace jmpr {
 	*/
 	void CPU::LDH() {
 
-		u16 test = merge16(0xFF, readRegister(Register::C));
-
 		if (_dest_is_mem) {
 
 			_bus->write(_mem_dest, _curr_fetch);
+			GameBoy::cycle(1);
 		}
 		else {
 
 			writeRegister(_curr_instr->_reg1, _curr_fetch);
 		}
-
-		GameBoy::cycle(1);
 	}
 
 	/**

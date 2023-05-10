@@ -29,12 +29,14 @@ namespace jmpr {
 		const char* getLicenseeName() const;
 	};
 
+
 	class Cartridge {
 
 		const char* _filename;
 		u32 _rom_size = 0;
 		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
+		// type
 
 	public:
 

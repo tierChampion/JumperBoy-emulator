@@ -58,7 +58,6 @@ namespace jmpr {
 	*/
 	bool CPU::cycle() {
 
-		// todo verify that it goes here
 		_inter_handler.checkInterrupts();
 
 		if (!_halted && !_stopped) {
@@ -74,6 +73,7 @@ namespace jmpr {
 			displayCurrentInstruction();
 
 			execute();
+
 			///*
 			printf(" => AF: %02X%02X, BC: %02X%02X, DE: %02X%02X, HL: %02X%02X\n", _registers._A, _registers._F,
 				_registers._B, _registers._C, _registers._D, _registers._E, _registers._H, _registers._L);

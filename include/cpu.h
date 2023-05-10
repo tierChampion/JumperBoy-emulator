@@ -79,6 +79,7 @@ namespace jmpr {
 		void execute();
 		bool cycle();
 		bool reached(u16 address);
+		u8 getOpcode() { return _curr_opcode; }
 
 		u8 readInterruptEnabledRegister();
 		void writeInterruptEnabledRegister(u8 data);

@@ -58,7 +58,10 @@ namespace jmpr {
 	*/
 	void Cartridge::write(u16 address, u8 data) {
 
-		noImpl(); // TODO
+		// if no mbc
+		_rom_data.get()[address] = data;
+		//noImpl(); // TODO
+
 	}
 
 	/**

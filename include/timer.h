@@ -22,14 +22,15 @@ namespace jmpr {
 
 		Timer(InterruptHandler* interHandler);
 
+		void displayStates() const;
 		void update();
 
-		u8 read(u8 address);
+		u8 read(u8 address) const;
 		void write(u8 address, u8 data);
 
 	private:
 
-		u8 computeOutput();
+		u8 computeOutput() const;
 		void TIMAOverflowRoutine();
 	};
 }

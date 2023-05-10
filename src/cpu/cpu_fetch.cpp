@@ -18,6 +18,7 @@ namespace jmpr {
 
 
 		case Mode::REG_D16: {
+			// 2 cycles long
 
 			u8 lo = _bus->read(_PC);
 			GameBoy::cycle(1);
@@ -28,17 +29,17 @@ namespace jmpr {
 			_curr_fetch = merge16(hi, lo);
 			_PC += 2;
 			break;
-
 		}
 
 
 		case Mode::REGADD_REG: {
+			// 0 cycles long
 
 			_curr_fetch = readRegister(_curr_instr->_reg2);
 
 			u16 address = readRegister(_curr_instr->_reg1);
 
-			// Special case for the LDH instruction.
+			// Special case for some instruction.
 			if (_curr_instr->_reg1 == Register::C) {
 				address = merge16(0xFF, address);
 			}
@@ -204,7 +205,6 @@ namespace jmpr {
 			address = merge16(0xFF, address);
 
 			_mem_dest = address;
-			GameBoy::cycle(1);
 			_dest_is_mem = true;
 			break;
 		}
