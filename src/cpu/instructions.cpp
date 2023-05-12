@@ -1,6 +1,6 @@
-#include <instructions.h>
+#include <cpu/instructions.h>
 
-#include <cpu.h>
+#include <cpu/cpu.h>
 
 #include <unordered_map>
 #include <array>
@@ -485,6 +485,6 @@ namespace jmpr {
 			break;
 		}
 
-		printf("\t");
+		printf("\n");
 	}
 }

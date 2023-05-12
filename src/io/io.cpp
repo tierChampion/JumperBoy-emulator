@@ -1,7 +1,9 @@
-#include <io.h>
+#include <io/io.h>
 
-#include <joypad.h>
-#include <timer.h>
+#include <io/joypad.h>
+#include <io/timer.h>
+#include <ppu/graphics_state.h>
+#include <ppu/dma.h>
 
 namespace jmpr {
 	/*
@@ -21,7 +23,7 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad, Timer* tim) :
+	IO::IO(Joypad* pad, Timer* tim, GraphicsState* grs, DMA* dma) :
 		_serial_trans{ 0x00, 0x7E },
 		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
 		0xFF, 0x9F, 0xFF, 0xBF, 0xFF, 0x00, 0x00, 0xBF, 0x77, 0xF3, 0xF1 },
@@ -34,6 +36,8 @@ namespace jmpr {
 	{
 		_joypad = pad;
 		_timer = tim;
+		_graphics_state = grs;
+		_dma = dma;
 
 		_vram_select = 0xFF;
 		_disable_bootrom = 0xFF;
@@ -48,20 +52,23 @@ namespace jmpr {
 		if (range == 0x0) {
 			out = _joypad->readP1Register();
 		}
-		else if (range >= 0x1 && range <= 0x2) {
+		else if (between(range, 0x1, 0x2)) {
 			out = _serial_trans[range - 0x1];
 		}
-		else if (range >= 0x4 && range <= 0x7) {
+		else if (between(range, 0x4, 0x7)) {
 			out = _timer->read(address);
 		}
-		else if (range >= 0x10 && range <= 0x26) {
+		else if (between(range, 0x10, 0x26)) {
 			out = _audio[range - 0x10];
 		}
-		else if (range >= 0x30 && range <= 0x3F) {
+		else if (between(range, 0x30, 0x3F)) {
 			out = _wave_patts[range - 0x30];
 		}
-		else if (range >= 0x40 && range <= 0x4B) {
-			out = _lcd_stuff[range - 0x40];
+		else if (range == 0x46) {
+			noImpl(); // dma read
+		}
+		else if (between(range, 0x40, 0x4B)) {
+			out = _graphics_state->read(range);
 		}
 		else if (range == 0x4F) {
 			out = _vram_select;
@@ -69,12 +76,11 @@ namespace jmpr {
 		else if (range == 0x50) {
 			out = _disable_bootrom;
 		}
-		else if (range >= 0x51 && range <= 0x55) {
+		else if (between(range, 0x51, 0x55)) {
 			out = _vram_dma[range - 0x51];
 		}
-		else if (range >= 0x68 && range <= 0x69) {
-			out = _bg_obj_pallets[range - 0x68];
-
+		else if (between(range, 0x68, 0x69)) {
+			out = _bg_obj_pallets[range - 0x68]; // cgb only
 		}
 		else if (range == 0x70) {
 			out = _wram_select;
@@ -93,20 +99,23 @@ namespace jmpr {
 		if (range == 0x0) {
 			_joypad->writeP1Register(data);
 		}
-		else if (range >= 0x1 && range <= 0x2) {
+		else if (between(range, 0x1, 0x2)) {
 			_serial_trans[range - 0x1] = data;
 		}
-		else if (range >= 0x4 && range <= 0x7) {
+		else if (between(range, 0x4, 0x7)) {
 			_timer->write(range, data);
 		}
-		else if (range >= 0x10 && range <= 0x26) {
+		else if (between(range, 0x10, 0x26)) {
 			_audio[range - 0x10] = data;
 		}
-		else if (range >= 0x30 && range <= 0x3F) {
+		else if (between(range, 0x30, 0x3F)) {
 			_wave_patts[range - 0x30] = data;
 		}
-		else if (range >= 0x40 && range <= 0x4B) {
-			_lcd_stuff[range - 0x40] = data;
+		else if (range == 0x46) {
+			_dma->requestDMA(data);
+		}
+		else if (between(range, 0x40, 0x4B)) {
+			_graphics_state->write(range, data);
 		}
 		else if (range == 0x4F) {
 			_vram_select = data;
@@ -114,10 +123,10 @@ namespace jmpr {
 		else if (range == 0x50) {
 			_disable_bootrom = data;
 		}
-		else if (range >= 0x51 && range <= 0x55) {
+		else if (between(range, 0x51, 0x55)) {
 			_vram_dma[range - 0x51] = data;
 		}
-		else if (range >= 0x68 && range <= 0x69) {
+		else if (between(range, 0x68, 0x69)) {
 			_bg_obj_pallets[range - 0x68] = data;
 
 		}

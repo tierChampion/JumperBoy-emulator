@@ -1,6 +1,6 @@
-#include <timer.h>
+#include <io/timer.h>
 
-#include <interrupt.h>
+#include <cpu/interrupt.h>
 
 #include <array>
 

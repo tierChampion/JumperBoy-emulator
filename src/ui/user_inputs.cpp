@@ -1,32 +1,9 @@
-#include <user_interface.h>
+#include <ui/user_interface.h>
 
 #include <gb.h>
 #include <tinyfiledialogs.h>
 
 namespace jmpr {
-
-	UI::UI(InputHandler* inpHandler) {
-
-		// Initialize SDL
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
-			exit(-10);
-		}
-
-		// Creation of the window
-		_window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			256, 256, 0);
-
-		_opened = (_window == NULL ? false : true);
-
-		_inp_handler = inpHandler;
-	}
-
-	UI::~UI() {
-
-		SDL_DestroyWindow(_window);
-		SDL_Quit();
-	}
 
 	void UI::handleEvents(bool gamePlaying) {
 
@@ -74,10 +51,10 @@ namespace jmpr {
 				}
 
 				break;
-
-
 			}
 			}
 		}
 	}
+
+
 }

@@ -1,6 +1,6 @@
-#include <joypad.h>
+#include <io/joypad.h>
 
-#include <interrupt.h>
+#include <cpu/interrupt.h>
 
 namespace jmpr {
 

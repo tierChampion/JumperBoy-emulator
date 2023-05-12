@@ -1,7 +1,7 @@
-#include <debugging.h>
+#include <cpu/debugging.h>
 
 #include <bus.h>
-#include <cpu.h>
+#include <cpu/cpu.h>
 
 #include <array>
 

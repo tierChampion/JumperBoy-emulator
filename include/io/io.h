@@ -6,6 +6,8 @@ namespace jmpr {
 
 	class Joypad;
 	class Timer;
+	class GraphicsState;
+	class DMA;
 
 	// manage the io registers.
 	class IO {
@@ -15,6 +17,8 @@ namespace jmpr {
 		Timer* _timer;
 		u8 _audio[0x16];
 		u8 _wave_patts[0xF];
+		GraphicsState* _graphics_state;
+		DMA* _dma;
 		u8 _lcd_stuff[0xC];
 		u8 _vram_select;
 		u8 _disable_bootrom;
@@ -24,7 +28,7 @@ namespace jmpr {
 
 	public:
 
-		IO(Joypad* pad, Timer* tim);
+		IO(Joypad* pad, Timer* tim, GraphicsState* grs, DMA* dma);
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);

@@ -1,9 +1,10 @@
 #include <bus.h>
 
-#include <cpu.h>
+#include <cpu/cpu.h>
 #include <cartridge.h>
 #include <ram.h>
-#include <io.h>
+#include <ppu/vram.h>
+#include <io/io.h>
 
 namespace jmpr {
 	/*
@@ -29,6 +30,7 @@ namespace jmpr {
 		_cpu = nullptr;
 		_cart = nullptr;
 		_ram = nullptr;
+		_vram = nullptr;
 		_io = nullptr;
 	}
 
@@ -43,7 +45,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
-			noImpl();
+			return _vram->readVRAM(address);
 		}
 		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
@@ -59,7 +61,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
 			// Sprite tables
-			noImpl();
+			return _vram->readOAM(address);
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
@@ -97,7 +99,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
-			//noImpl();
+			_vram->writeVRAM(address, data);
 		}
 		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
@@ -112,7 +114,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
 			// Sprite tables
-			noImpl();
+			_vram->writeOAM(address, data);
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
@@ -132,15 +134,5 @@ namespace jmpr {
 			// Interrupt enabled register
 			_cpu->writeInterruptEnabledRegister(data);
 		}
-	}
-
-	/**
-	* Write 2 bytes of data at the desired address. Gets mapped to the desired address.
-	* @param address Address to write.
-	*/
-	void Bus::write16(u16 address, u16 data) {
-
-		write(address + 1, hiByte(data));
-		write(address, loByte(data));
 	}
 }

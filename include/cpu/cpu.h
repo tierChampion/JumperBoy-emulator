@@ -2,8 +2,8 @@
 
 #include <common.h>
 
-#include <instructions.h>
-#include <interrupt.h>
+#include <cpu/instructions.h>
+#include <cpu/interrupt.h>
 
 #include <unordered_map>
 
@@ -12,7 +12,7 @@ namespace jmpr {
 
 	class GameBoy;
 	class Bus;
-	class Ram;
+	class RAM;
 	class InterruptHandler;
 
 	struct CpuRegisters {

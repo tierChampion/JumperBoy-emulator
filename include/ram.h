@@ -4,7 +4,7 @@
 
 namespace jmpr {
 
-	class Ram {
+	class RAM {
 
 		// From 0xC000 to 0xDFFF
 		u8 _wram[0x2000];

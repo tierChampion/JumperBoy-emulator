@@ -2,7 +2,7 @@
 
 #include <common.h>
 
-#include <input_handler.h>
+#include <io/input_handler.h>
 
 namespace jmpr {
 

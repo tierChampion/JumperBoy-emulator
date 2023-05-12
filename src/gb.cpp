@@ -1,14 +1,18 @@
 #include <gb.h>
 
+#include <thread>
+
 namespace jmpr {
 
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
+	PPU GameBoy::_ppu = PPU();
 	Cartridge GameBoy::_cart = Cartridge();
 	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
 	Timer GameBoy::_timer = Timer(_cpu.getInterruptHandler());
-	Ram GameBoy::_ram = Ram();
-	IO GameBoy::_io = IO(&_joypad, &_timer);
+	RAM GameBoy::_ram = RAM();
+	DMA GameBoy::_dma = DMA(_ppu.getVRAM());
+	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getState(), &_dma);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
@@ -22,14 +26,31 @@ namespace jmpr {
 
 		_cpu.connectBus(&_bus);
 		_bus.connectCPU(&_cpu);
-		_bus.connectRam(&_ram);
+		_bus.connectRAM(&_ram);
+		_bus.connectVRAM(_ppu.getVRAM());
+		_dma.connectBus(&_bus);
 		_bus.connectIO(&_io);
 
 		_running = false;
 		bool quitting = false;
 
+		std::thread cpuThread(&cpuLoop);
+		cpuThread.detach();
+
 		while (_ui.isOpened()) {
 
+			_ui.displayTileData(&_bus);
+			_ui.handleEvents(_running);
+
+			delay(16); // about 50 fps
+		}
+
+		return 0;
+	}
+
+	void GameBoy::cpuLoop() {
+
+		while (_ui.isOpened()) {
 			if (_running) {
 
 				_cpu.cycle();
@@ -37,14 +58,12 @@ namespace jmpr {
 				//_dbg.displayCycleSize(_ticks, _cpu.getOpcode());
 				//_timer.displayStates();
 
-				_dbg.update();
-				_dbg.log();
+				//_dbg.update();
+				//_dbg.log();
 			}
-
-			_ui.handleEvents(_running);
 		}
 
-		return 0;
+		return;
 	}
 
 	bool GameBoy::insertCartridge(const char* rom_file) {
@@ -65,16 +84,16 @@ namespace jmpr {
 	*/
 	void GameBoy::cycle(u8 m_cycles) {
 
-		for (u16 t_state = 0; t_state < m_cycles * 4; t_state++) {
+		for (u8 cycle = 0; cycle < m_cycles; cycle++) {
 
-			_timer.update();
-			// todo add the ppu and other stuff...
+			for (u8 t_state = 0; t_state < 4; t_state++) {
 
-			_ticks++;
+				_timer.update();
+
+				_ticks++;
+			}
+
+			_dma.processDMA();
 		}
-
-		//if (_ticks == 256) {
-		//	printf("stop...\n");
-		//}
 	}
 }

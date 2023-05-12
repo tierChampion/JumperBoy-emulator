@@ -1,6 +1,6 @@
-#include <interrupt.h>
+#include <cpu/interrupt.h>
 
-#include <cpu.h>
+#include <cpu/cpu.h>
 #include <gb.h>
 
 #include <unordered_map>

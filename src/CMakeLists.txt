@@ -12,13 +12,17 @@ add_executable(JumperBoy
 "cpu/cpu_execute.cpp"
 "cpu/cpu_registers.cpp" 
 "ram.cpp" 
-"user_interface.cpp" 
+"ui/user_interface.cpp" 
 "io/io.cpp" 
 "cpu/interrupt.cpp" 
 "io/joypad.cpp" 
 "io/input_handler.cpp" 
 "cpu/debugging.cpp" 
-"io/timer.cpp")
+"io/timer.cpp" 
+"apu/apu.cpp" 
+"ppu/ppu.cpp" 
+"ppu/vram.cpp" 
+"ppu/graphics_state.cpp" "ui/user_inputs.cpp" "ui/user_visuals.cpp" "ppu/dma.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

@@ -1,6 +1,6 @@
-#include <input_handler.h>
+#include <io/input_handler.h>
 
-#include <joypad.h>
+#include <io/joypad.h>
 #include <unordered_map>
 
 namespace jmpr {

@@ -2,14 +2,16 @@
 
 #include <common.h>
 #include <bus.h>
-#include <cpu.h>
+#include <cpu/cpu.h>
+#include <ppu/ppu.h>
 #include <cartridge.h>
-#include <joypad.h>
-#include <timer.h>
+#include <io/joypad.h>
+#include <io/timer.h>
 #include <ram.h>
-#include <io.h>
-#include <debugging.h>
-#include <user_interface.h>
+#include <ppu/dma.h>
+#include <io/io.h>
+#include <cpu/debugging.h>
+#include <ui/user_interface.h>
 
 #include <SDL/SDL.h>
 
@@ -20,10 +22,12 @@ namespace jmpr {
 		// Internal Components
 		static Bus _bus;
 		static CPU _cpu;
+		static PPU _ppu;
 		static Cartridge _cart;
 		static Joypad _joypad;
 		static Timer _timer;
-		static Ram _ram;
+		static RAM _ram;
+		static DMA _dma;
 		static IO _io;
 
 		static Debugger _dbg;
@@ -39,6 +43,8 @@ namespace jmpr {
 	public:
 
 		static int runGameBoy();
+
+		static void cpuLoop();
 
 		static bool insertCartridge(const char* rom_file);
 
