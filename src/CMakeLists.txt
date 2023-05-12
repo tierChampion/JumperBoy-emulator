@@ -22,7 +22,7 @@ add_executable(JumperBoy
 "apu/apu.cpp" 
 "ppu/ppu.cpp" 
 "ppu/vram.cpp" 
-"ppu/graphics_state.cpp" "ui/user_inputs.cpp" "ui/user_visuals.cpp" "ppu/dma.cpp")
+"ppu/lcd.cpp" "ui/user_inputs.cpp" "ui/user_visuals.cpp" "ppu/dma.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

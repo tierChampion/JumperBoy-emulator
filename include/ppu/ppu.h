@@ -1,21 +1,21 @@
 #pragma once
 
 #include <common.h>
-#include <ppu/graphics_state.h>
+#include <ppu/lcd.h>
 #include <ppu/vram.h>
 
 namespace jmpr {
 
 	class PPU {
 
-		GraphicsState _graphics_state;
+		LCD _lcd;
 		VRAM _vram;
 
 	public:
 
 		PPU();
 
-		GraphicsState* getState() { return &_graphics_state; }
+		LCD* getLCD() { return &_lcd; }
 		VRAM* getVRAM() { return &_vram; }
 	};
 }

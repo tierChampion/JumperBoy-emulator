@@ -4,7 +4,7 @@ namespace jmpr {
 
 	PPU::PPU() {
 
-		_graphics_state = GraphicsState();
+		_lcd = LCD();
 		_vram = VRAM();
 	}
 }

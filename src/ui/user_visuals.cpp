@@ -44,7 +44,6 @@ namespace jmpr {
 
 				displaySingleTile(bus, (y * 16) + x, 8 * x * SCALE, 8 * y * SCALE);
 			}
-
 		}
 
 		render();

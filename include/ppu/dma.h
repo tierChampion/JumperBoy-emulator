@@ -21,6 +21,7 @@ namespace jmpr {
 
 		void connectBus(Bus* bus) { _bus = bus; }
 
+		bool inProcess();
 		void requestDMA(u8 source);
 		void processDMA();
 	};

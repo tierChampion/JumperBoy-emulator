@@ -19,7 +19,7 @@ namespace jmpr {
 	*/
 	void CPU::XXX() {
 
-		std::cerr << "Error: Unknown instruction trying to execute." << std::endl;
+		printf("Error: Unknown instruction trying to execute (%02X at %04X)\n", _curr_opcode, _PC);
 		exit(-3);
 	}
 

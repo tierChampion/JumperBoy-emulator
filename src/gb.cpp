@@ -4,6 +4,8 @@
 
 namespace jmpr {
 
+	// #define LOGGING
+
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	PPU GameBoy::_ppu = PPU();
@@ -12,7 +14,7 @@ namespace jmpr {
 	Timer GameBoy::_timer = Timer(_cpu.getInterruptHandler());
 	RAM GameBoy::_ram = RAM();
 	DMA GameBoy::_dma = DMA(_ppu.getVRAM());
-	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getState(), &_dma);
+	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getLCD(), &_dma);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
@@ -29,6 +31,7 @@ namespace jmpr {
 		_bus.connectRAM(&_ram);
 		_bus.connectVRAM(_ppu.getVRAM());
 		_dma.connectBus(&_bus);
+		_bus.connectDMA(&_dma);
 		_bus.connectIO(&_io);
 
 		_running = false;
@@ -54,12 +57,6 @@ namespace jmpr {
 			if (_running) {
 
 				_cpu.cycle();
-
-				//_dbg.displayCycleSize(_ticks, _cpu.getOpcode());
-				//_timer.displayStates();
-
-				//_dbg.update();
-				//_dbg.log();
 			}
 		}
 

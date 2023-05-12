@@ -66,11 +66,13 @@ namespace jmpr {
 
 			fetchOpcode();
 
-			//printf("%04X: ", programCounter);
 
 			fetchData();
 
-			//displayCurrentInstruction();
+#ifdef LOGGING
+			printf("%04X: ", programCounter);
+			displayCurrentInstruction();
+#endif
 
 			execute();
 		}

@@ -2,7 +2,7 @@
 
 #include <io/joypad.h>
 #include <io/timer.h>
-#include <ppu/graphics_state.h>
+#include <ppu/lcd.h>
 #include <ppu/dma.h>
 
 namespace jmpr {
@@ -23,7 +23,7 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad, Timer* tim, GraphicsState* grs, DMA* dma) :
+	IO::IO(Joypad* pad, Timer* tim, LCD* lcd, DMA* dma) :
 		_serial_trans{ 0x00, 0x7E },
 		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
 		0xFF, 0x9F, 0xFF, 0xBF, 0xFF, 0x00, 0x00, 0xBF, 0x77, 0xF3, 0xF1 },
@@ -36,7 +36,7 @@ namespace jmpr {
 	{
 		_joypad = pad;
 		_timer = tim;
-		_graphics_state = grs;
+		_lcd = lcd;
 		_dma = dma;
 
 		_vram_select = 0xFF;
@@ -68,7 +68,7 @@ namespace jmpr {
 			noImpl(); // dma read
 		}
 		else if (between(range, 0x40, 0x4B)) {
-			out = _graphics_state->read(range);
+			out = _lcd->read(range);
 		}
 		else if (range == 0x4F) {
 			out = _vram_select;
@@ -115,7 +115,7 @@ namespace jmpr {
 			_dma->requestDMA(data);
 		}
 		else if (between(range, 0x40, 0x4B)) {
-			_graphics_state->write(range, data);
+			_lcd->write(range, data);
 		}
 		else if (range == 0x4F) {
 			_vram_select = data;

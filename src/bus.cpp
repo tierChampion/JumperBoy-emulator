@@ -4,6 +4,7 @@
 #include <cartridge.h>
 #include <ram.h>
 #include <ppu/vram.h>
+#include <ppu/dma.h>
 #include <io/io.h>
 
 namespace jmpr {
@@ -31,6 +32,7 @@ namespace jmpr {
 		_cart = nullptr;
 		_ram = nullptr;
 		_vram = nullptr;
+		_dma = nullptr;
 		_io = nullptr;
 	}
 
@@ -60,8 +62,13 @@ namespace jmpr {
 			return 0;
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
-			// Sprite tables
-			return _vram->readOAM(address);
+			// Sprite tables (Not accessible when a DMA is running)
+			if (!_dma->inProcess()) {
+				return _vram->readOAM(address);
+			}
+			else {
+				return 0xFF;
+			}
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
@@ -113,8 +120,10 @@ namespace jmpr {
 			// Echo Ram, unused
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
-			// Sprite tables
-			_vram->writeOAM(address, data);
+			// Sprite tables (Not accessible if DMA is running)
+			if (!_dma->inProcess()) {
+				_vram->writeOAM(address, data);
+			}
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
