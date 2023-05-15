@@ -8,6 +8,8 @@
 
 namespace jmpr {
 
+	//#define LOGGING
+
 	CPU::CPU() {
 
 		// Initial DMG register values. See TCAGBD.pdf for more info.
@@ -34,7 +36,6 @@ namespace jmpr {
 
 		_halted = false;
 		_stopped = false;
-		_stepping = false; // todo?
 	}
 
 	/**
@@ -65,7 +66,6 @@ namespace jmpr {
 			u16 programCounter = _PC;
 
 			fetchOpcode();
-
 
 			fetchData();
 

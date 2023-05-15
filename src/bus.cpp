@@ -3,7 +3,7 @@
 #include <cpu/cpu.h>
 #include <cartridge.h>
 #include <ram.h>
-#include <ppu/vram.h>
+#include <ppu/vmem.h>
 #include <ppu/dma.h>
 #include <io/io.h>
 
@@ -32,7 +32,7 @@ namespace jmpr {
 		_cart = nullptr;
 		_ram = nullptr;
 		_vram = nullptr;
-		_dma = nullptr;
+		_oam = nullptr;
 		_io = nullptr;
 	}
 
@@ -47,7 +47,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
-			return _vram->readVRAM(address);
+			return _vram->read(address);
 		}
 		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
@@ -62,13 +62,8 @@ namespace jmpr {
 			return 0;
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
-			// Sprite tables (Not accessible when a DMA is running)
-			if (!_dma->inProcess()) {
-				return _vram->readOAM(address);
-			}
-			else {
-				return 0xFF;
-			}
+			// Sprite tables 
+			return _oam->read(address, false);
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area
@@ -106,7 +101,7 @@ namespace jmpr {
 		}
 		else if (between(address, 0x8000, 0x9FFF)) {
 			// Video Ram
-			_vram->writeVRAM(address, data);
+			_vram->write(address, data);
 		}
 		else if (between(address, 0xA000, 0xBFFF)) {
 			// Cartridge Ram
@@ -120,10 +115,8 @@ namespace jmpr {
 			// Echo Ram, unused
 		}
 		else if (between(address, 0xFE00, 0xFE9F)) {
-			// Sprite tables (Not accessible if DMA is running)
-			if (!_dma->inProcess()) {
-				_vram->writeOAM(address, data);
-			}
+			// Sprite tables 
+			_oam->write(address, data, false);
 		}
 		else if (between(address, 0xFEA0, 0xFEFF)) {
 			// Prohibited area

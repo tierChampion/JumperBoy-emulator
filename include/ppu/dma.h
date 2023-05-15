@@ -5,19 +5,19 @@
 namespace jmpr {
 
 	class Bus;
-	class VRAM;
+	class OAM;
 
 	class DMA {
 
 		Bus* _bus;
-		VRAM* _vram;
+		OAM* _oam;
 
 		u8 _dma;
 		u8 _process_timer;
 
 	public:
 
-		DMA(VRAM* vram);
+		DMA(OAM* oam);
 
 		void connectBus(Bus* bus) { _bus = bus; }
 

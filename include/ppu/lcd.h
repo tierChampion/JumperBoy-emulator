@@ -8,10 +8,14 @@ namespace jmpr {
 		HBLANK,
 		VBLANK,
 		OAM_SCAN,
-		DRAW
+		TRANSFER
 	};
 
+	class InterruptHandler;
+
 	class LCD {
+
+		InterruptHandler* _inter_handler;
 
 		u8 _lcdc;
 		u8 _ly;
@@ -30,12 +34,17 @@ namespace jmpr {
 		u8 _ocps_obpi;
 		u8 _ocpd_obpd;
 
+		friend class PPU;
+
 	public:
 
-		LCD();
+		LCD() {}
+		LCD(InterruptHandler* intHandler);
 
-		u8 read(u8 address);
+		u8 read(u8 address) const;
 		void write(u8 address, u8 data);
+
+		void jumpScanline();
 
 		// lcd control
 		bool lcdEnabled() const;
@@ -45,12 +54,13 @@ namespace jmpr {
 		u16 bgTileMapAreaBegin() const;
 		u8 objSize() const;
 		bool objEnabled() const;
-		u8 bgWindowPriority() const;
+		bool bgWindowPriority() const;
 
 		// stat
 		bool statInterruptTypeEnabled(LCDMode source) const;
-		bool yCompare() const;
+		void yCompare();
 		LCDMode mode() const;
+		void setMode(const LCDMode mode);
 
 		// palettes
 		u32 getBGWindowColor(u8 index) const;

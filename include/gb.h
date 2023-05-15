@@ -45,12 +45,15 @@ namespace jmpr {
 		static int runGameBoy();
 
 		static void cpuLoop();
+		static void uiLoop();
 
 		static bool insertCartridge(const char* rom_file);
 
 		static void cycle(u8 m_cycles);
 
 		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
+
+		static u32 getCurrentTime() { return SDL_GetTicks(); }
 	};
 
 }

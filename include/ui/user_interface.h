@@ -6,16 +6,23 @@
 namespace jmpr {
 
 	class InputHandler;
-	class Bus;
+	class VRAM;
+	class PPU;
+
+	struct VisualContext {
+		SDL_Window* _window;
+		SDL_Renderer* _renderer;
+		SDL_Texture* _texture;
+		SDL_Surface* _surface;
+	};
 
 	class UI {
 
 		bool _opened;
 
-		SDL_Window* _window;
-		SDL_Renderer* _renderer;
-		SDL_Texture* _texture;
-		SDL_Surface* _surface;
+		VisualContext _vc;
+		VisualContext _debug;
+		PPU* _ppu;
 
 		SDL_Event _curr_event;
 		InputHandler* _inp_handler;
@@ -25,20 +32,21 @@ namespace jmpr {
 
 	public:
 
-		UI(InputHandler* inpHandler);
+		UI(PPU* ppu, InputHandler* inpHandler);
 		~UI();
-
-		void render();
 
 		bool isOpened() { return _opened; }
 		void handleEvents(bool gamePlaying);
 
-		void displayTileData(Bus* bus);// switch to bus
+		void renderVideoBuffer();
+		void displayTileData(VRAM* vram);
 
 	private:
 
 		bool initVisuals();
 
-		void displaySingleTile(Bus* bus, u8 tileId, u8 xPos, u8 yPos);
+		void displaySingleTile(VRAM* vram, u16 tileId, u16 xPos, u16 yPos);
+
+		void render(VisualContext context);
 	};
 }

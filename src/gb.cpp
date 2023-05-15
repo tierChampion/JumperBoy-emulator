@@ -4,21 +4,25 @@
 
 namespace jmpr {
 
-	// #define LOGGING
+	// current problems:
+	// mole next to left eye (read from 8000-8fff instead of 8800-97ff for the background tile data)
+	// hair visible (background enable)
+	// footer missing (use 9c00-9fff map and 8800-97ff data)
+	// missing right chin ()
 
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
-	PPU GameBoy::_ppu = PPU();
+	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
 	Cartridge GameBoy::_cart = Cartridge();
 	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
 	Timer GameBoy::_timer = Timer(_cpu.getInterruptHandler());
 	RAM GameBoy::_ram = RAM();
-	DMA GameBoy::_dma = DMA(_ppu.getVRAM());
+	DMA GameBoy::_dma = DMA(_ppu.getOAM());
 	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getLCD(), &_dma);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
-	UI GameBoy::_ui = UI(_joypad.getInputHandler());
+	UI GameBoy::_ui = UI(&_ppu, _joypad.getInputHandler());
 
 	bool GameBoy::_paused = false;
 	bool GameBoy::_running = false;
@@ -26,27 +30,22 @@ namespace jmpr {
 
 	int GameBoy::runGameBoy() {
 
-		_cpu.connectBus(&_bus);
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
 		_bus.connectVRAM(_ppu.getVRAM());
-		_dma.connectBus(&_bus);
-		_bus.connectDMA(&_dma);
+		_bus.connectOAM(_ppu.getOAM());
 		_bus.connectIO(&_io);
+
+		_cpu.connectBus(&_bus);
+		_dma.connectBus(&_bus);
 
 		_running = false;
 		bool quitting = false;
 
 		std::thread cpuThread(&cpuLoop);
+
 		cpuThread.detach();
-
-		while (_ui.isOpened()) {
-
-			_ui.displayTileData(&_bus);
-			_ui.handleEvents(_running);
-
-			delay(16); // about 50 fps
-		}
+		uiLoop();
 
 		return 0;
 	}
@@ -59,8 +58,16 @@ namespace jmpr {
 				_cpu.cycle();
 			}
 		}
+	}
 
-		return;
+	void GameBoy::uiLoop() {
+
+		while (_ui.isOpened()) {
+
+			_ui.displayTileData(_ppu.getVRAM());
+			_ui.renderVideoBuffer();
+			_ui.handleEvents(_running);
+		}
 	}
 
 	bool GameBoy::insertCartridge(const char* rom_file) {
@@ -86,6 +93,7 @@ namespace jmpr {
 			for (u8 t_state = 0; t_state < 4; t_state++) {
 
 				_timer.update();
+				_ppu.update();
 
 				_ticks++;
 			}

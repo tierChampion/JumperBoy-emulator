@@ -54,7 +54,6 @@ namespace jmpr {
 		// Status
 		bool _halted;
 		bool _stopped;
-		bool _stepping;
 
 	public:
 

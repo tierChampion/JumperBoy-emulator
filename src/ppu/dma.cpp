@@ -1,14 +1,14 @@
 #include <ppu/dma.h>
 
 #include <bus.h>
-#include <ppu/vram.h>
+#include <ppu/vmem.h>
 
 namespace jmpr {
 
-	DMA::DMA(VRAM* vram) {
+	DMA::DMA(OAM* oam) {
 
 		_bus = nullptr;
-		_vram = vram;
+		_oam = oam;
 
 		_dma = 0xFF;
 		_process_timer = 0x00;
@@ -20,7 +20,7 @@ namespace jmpr {
 
 	void DMA::requestDMA(u8 source) {
 
-		_dma = source;
+		_dma = source; // MSB of the address to copie to OAM.
 		_process_timer = 0xA0; // process is 160 cpu cycles long
 	}
 
@@ -31,7 +31,7 @@ namespace jmpr {
 			u8 index = 0xA0 - _process_timer;
 			u16 readAddress = (_dma * 0x100) + index;
 
-			_vram->writeOAM(0xFE00 + index, _bus->read(readAddress));
+			_oam->write(0xFE00 + index, _bus->read(readAddress), true);
 
 			_process_timer--;
 		}

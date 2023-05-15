@@ -1,10 +1,14 @@
 #include <ppu/lcd.h>
 
+#include <cpu/interrupt.h>
+
 #include <array>
 
 namespace jmpr {
 
-	LCD::LCD() {
+	LCD::LCD(InterruptHandler* intHandler) {
+
+		_inter_handler = intHandler;
 
 		_lcdc = 0x91;
 		_ly = 0x00;
@@ -27,14 +31,14 @@ namespace jmpr {
 		_ocpd_obpd = 0xFF;
 	}
 
-	u8 LCD::read(u8 address) {
+	u8 LCD::read(u8 address) const {
 
 		switch (address) {
 		case 0x40: return _lcdc; break;
 		case 0x41: return _status; break;
 		case 0x42: return _scy; break;
 		case 0x43: return _scx; break;
-		case 0x44: return _ly++; break; // todo
+		case 0x44: return _ly; break;
 		case 0x45: return _lyc; break;
 		case 0x47: return _bgp; break;
 		case 0x48: return _obp[0]; break;
@@ -62,6 +66,19 @@ namespace jmpr {
 		}
 	}
 
+	void LCD::jumpScanline() {
+
+		_ly++;
+
+		bool equal = (_ly == _lyc);
+		setBit(_status, 2, equal);
+
+		if (equal && bit(_status, 6)) {
+			// request an interrupt
+			_inter_handler->requestInterrupt(InterruptType::STAT);
+		}
+	}
+
 	// LCDC
 
 	bool LCD::lcdEnabled() const {
@@ -85,14 +102,14 @@ namespace jmpr {
 	}
 
 	u8 LCD::objSize() const {
-		return bit(_lcdc, 2);
+		return 1 << (3 + bit(_lcdc, 2));
 	}
 
 	bool LCD::objEnabled() const {
 		return bit(_lcdc, 1);
 	}
 
-	u8 LCD::bgWindowPriority() const {
+	bool LCD::bgWindowPriority() const {
 		return bit(_lcdc, 0);
 	}
 
@@ -101,15 +118,15 @@ namespace jmpr {
 	bool LCD::statInterruptTypeEnabled(LCDMode source) const {
 
 		// Interrupts are globally enabled and for the current mode
-		return bit(_status, 6) & bit(_status, ((u8)source) + 3);
-	}
-
-	bool LCD::yCompare() const {
-		return bit(_status, 2);
+		return bit(_status, ((u8)source) + 3);
 	}
 
 	LCDMode LCD::mode() const {
 		return LCDMode(_status & 0b11);
+	}
+
+	void LCD::setMode(LCDMode mode) {
+		_status = (_status & 0xFC) | ((u8)mode & 0b11);
 	}
 
 	// PALLETS
