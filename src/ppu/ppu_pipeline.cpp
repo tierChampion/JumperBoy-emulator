@@ -32,7 +32,7 @@ namespace jmpr {
 				_lcd.setMode(LCDMode::OAM_SCAN);
 			}
 
-			_line_dots = 0;
+			_line_dots = 0xFFFF;
 		}
 	}
 
@@ -61,7 +61,7 @@ namespace jmpr {
 				_lcd._ly = 0;
 			}
 
-			_line_dots = 0;
+			_line_dots = 0xFFFF;
 		}
 	}
 
@@ -89,20 +89,21 @@ namespace jmpr {
 					_lcd._ly + 16 < spr._ypos + _lcd.objSize()) {
 
 					// Add sprite to the list of visible ones
-					_pt_handler._visible_sprites.push(spr);
+					_pt_handler._visible_sprites.push_back(spr);
 				}
 			}
 		}
 	}
 
-	void PPU::DrawingProcess() {
+	void PPU::TransferProcess() {
 
-		renderingProcess();
+		_pt_handler.pixelTransferProcedure(_vbuffer, _line_dots);
 
-		if (_pt_handler._pushed_x >= X_RESOLUTION) {
+		// The entire visible line was transfered
+		if (_pt_handler.transferComplete()) {
 
 			// reset
-			resetFifo();
+			_pt_handler.resetFifo();
 			_lcd.setMode(LCDMode::HBLANK);
 
 			if (_lcd.statInterruptTypeEnabled(LCDMode::HBLANK)) {

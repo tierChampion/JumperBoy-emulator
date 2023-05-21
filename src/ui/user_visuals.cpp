@@ -11,6 +11,19 @@ namespace jmpr {
 
 	bool UI::initVisuals() {
 
+		u16 debugWidth = 16 * 8 * SCALE + (SCALE * 15);
+		u16 debugHeight = 24 * 8 * SCALE + (SCALE * 23);
+
+		// Creation of the debug VRAM window
+		_debug._window = SDL_CreateWindow("VRAM", SDL_WINDOWPOS_CENTERED + debugWidth / 2,
+			SDL_WINDOWPOS_CENTERED + debugHeight / 2, debugWidth, debugHeight, 0);
+		_debug._renderer = SDL_CreateRenderer(_debug._window, -1, SDL_RENDERER_ACCELERATED);
+		_debug._texture = SDL_CreateTexture(_debug._renderer, SDL_PIXELFORMAT_ABGR8888,
+			SDL_TEXTUREACCESS_STREAMING, debugWidth, debugHeight);
+		_debug._surface = SDL_CreateRGBSurfaceWithFormat(0,
+			debugWidth, debugHeight, 32, SDL_PIXELFORMAT_ABGR8888);
+
+
 		u16 width = X_RESOLUTION * SCALE;
 		u16 height = Y_RESOLUTION * SCALE;
 
@@ -23,17 +36,6 @@ namespace jmpr {
 		_vc._surface = SDL_CreateRGBSurfaceWithFormat(0,
 			width, height, 32, SDL_PIXELFORMAT_ABGR8888);
 
-
-		u16 debugWidth = 16 * 8 * SCALE + (SCALE * 15);
-		u16 debugHeight = 24 * 8 * SCALE + (SCALE * 23);
-
-		_debug._window = SDL_CreateWindow("VRAM", SDL_WINDOWPOS_CENTERED + debugWidth / 2,
-			SDL_WINDOWPOS_CENTERED + debugHeight / 2, debugWidth, debugHeight, 0);
-		_debug._renderer = SDL_CreateRenderer(_debug._window, -1, SDL_RENDERER_ACCELERATED);
-		_debug._texture = SDL_CreateTexture(_debug._renderer, SDL_PIXELFORMAT_ABGR8888,
-			SDL_TEXTUREACCESS_STREAMING, debugWidth, debugHeight);
-		_debug._surface = SDL_CreateRGBSurfaceWithFormat(0,
-			debugWidth, debugHeight, 32, SDL_PIXELFORMAT_ABGR8888);
 
 		return _vc._window != NULL;
 	}

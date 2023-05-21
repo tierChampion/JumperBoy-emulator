@@ -74,9 +74,22 @@ namespace jmpr {
 		setBit(_status, 2, equal);
 
 		if (equal && bit(_status, 6)) {
+
 			// request an interrupt
 			_inter_handler->requestInterrupt(InterruptType::STAT);
 		}
+	}
+
+	u8 LCD::getScanline() const {
+		return _ly;
+	}
+
+	u8 LCD::getBGScrollX() const {
+		return _scx;
+	}
+
+	u8 LCD::getBGScrollY() const {
+		return _scy;
 	}
 
 	// LCDC

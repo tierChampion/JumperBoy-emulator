@@ -26,7 +26,8 @@ add_executable(JumperBoy
 "ui/user_inputs.cpp" 
 "ui/user_visuals.cpp" 
 "ppu/dma.cpp"
-"ppu/ppu_pipeline.cpp" "ppu/ppu_fifo.cpp" "ppu/pixel_transfer.cpp")
+"ppu/ppu_pipeline.cpp"  
+"ppu/pixel_transfer.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

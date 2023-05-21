@@ -24,5 +24,7 @@ namespace jmpr {
 		bool inProcess();
 		void requestDMA(u8 source);
 		void processDMA();
+
+		u8 readDMA() const;
 	};
 }

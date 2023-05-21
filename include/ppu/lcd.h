@@ -4,6 +4,10 @@
 
 namespace jmpr {
 
+#define X_RESOLUTION 160
+#define Y_RESOLUTION 144
+#define FPS 59.7f
+
 	enum class LCDMode {
 		HBLANK,
 		VBLANK,
@@ -44,7 +48,11 @@ namespace jmpr {
 		u8 read(u8 address) const;
 		void write(u8 address, u8 data);
 
+		// positions
 		void jumpScanline();
+		u8 getScanline() const;
+		u8 getBGScrollX() const;
+		u8 getBGScrollY() const;
 
 		// lcd control
 		bool lcdEnabled() const;

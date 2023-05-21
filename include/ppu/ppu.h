@@ -9,15 +9,10 @@
 
 namespace jmpr {
 
-#define X_RESOLUTION 160
-#define Y_RESOLUTION 144
-#define FPS 59.7f
-
-
 	class PPU {
 
 		// Main components
-		std::unique_ptr<u32> _vbuffer;
+		std::shared_ptr<u32> _vbuffer;
 		LCD _lcd;
 		VRAM _vram;
 		OAM _oam;
@@ -52,14 +47,8 @@ namespace jmpr {
 		void HBlankProcess();
 		void VBlankProcess();
 		void OAMScanProcess();
-		void DrawingProcess();
+		void TransferProcess();
 
 		void manageFrameTiming();
-
-		void resetFifo();
-		void renderingProcess();
-		void fetchProcess();
-		bool addProcess();
-		void pushProcess();
 	};
 }

@@ -64,7 +64,7 @@ namespace jmpr {
 
 		while (_ui.isOpened()) {
 
-			_ui.displayTileData(_ppu.getVRAM());
+			//_ui.displayTileData(_ppu.getVRAM());
 			_ui.renderVideoBuffer();
 			_ui.handleEvents(_running);
 		}
@@ -76,6 +76,8 @@ namespace jmpr {
 		if (!_cart.isValid()) return false;
 
 		_bus.connectCartridge(&_cart);
+
+		std::cout << _cart << std::endl;
 
 		_running = true;
 

@@ -12,6 +12,11 @@ namespace jmpr {
 
 		u8 operator[](int i) const;
 		u8& operator[](int i);
+
+		bool noPriority() const;
+		bool isFlippedY() const;
+		bool isFlippedX() const;
+		u8 pallet() const;
 	};
 
 	class LCD;

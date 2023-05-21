@@ -36,6 +36,7 @@ namespace jmpr {
 		u32 _rom_size = 0;
 		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
+		bool hasMBC = false;
 		// type
 
 	public:

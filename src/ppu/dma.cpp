@@ -36,4 +36,8 @@ namespace jmpr {
 			_process_timer--;
 		}
 	}
+
+	u8 DMA::readDMA() const {
+		return _dma;
+	}
 }

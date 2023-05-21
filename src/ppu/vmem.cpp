@@ -4,6 +4,9 @@
 
 namespace jmpr {
 
+
+	// VRAM
+
 	VRAM::VRAM(LCD* lcd) : _vram{ 0 } {
 
 		_lcd = lcd;
@@ -38,7 +41,30 @@ namespace jmpr {
 	}
 
 
+	// Sprites
+
+	bool Sprite::noPriority() const {
+
+		return bit(_attributes, 7);
+	}
+
+	bool Sprite::isFlippedY() const {
+
+		return bit(_attributes, 6);
+	}
+
+	bool Sprite::isFlippedX() const {
+
+		return bit(_attributes, 5);
+	}
+
+	u8 Sprite::pallet() const {
+
+		return bit(_attributes, 4);
+	}
+
 	u8 Sprite::operator[](int i) const {
+
 		if (i == 0) {
 			return _ypos;
 		}
@@ -68,6 +94,9 @@ namespace jmpr {
 		}
 	}
 
+
+	// OAM
+
 	OAM::OAM(LCD* lcd) : _oam{ 0 } {
 
 		_lcd = lcd;
@@ -87,7 +116,7 @@ namespace jmpr {
 
 		u8 mappedAddr = (address - 0xFE00) / 4;
 
-		return (_oam[mappedAddr])[mappedAddr % 4];
+		return (_oam[mappedAddr])[address % 4];
 	}
 
 	void OAM::write(u16 address, u8 data, bool dmaWrite) {
@@ -96,7 +125,7 @@ namespace jmpr {
 
 		u8 mappedAddr = (address - 0xFE00) / 4;
 
-		(_oam[mappedAddr])[mappedAddr % 4] = data;
+		(_oam[mappedAddr])[address % 4] = data;
 	}
 
 	Sprite OAM::ppuRead(u16 spriteId) const {

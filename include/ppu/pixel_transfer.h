@@ -15,15 +15,20 @@ namespace jmpr {
 		PUSH
 	};
 
-	// FIFO
-	struct FifoElem {
-		u32 _col;
-		u8 _pallet;
-		u8 _spr_prio;
-		u8 _bg_prio;
+	struct FetcherElem {
+		u8 id;
+		u8 lo;
+		u8 hi;
 	};
 
 	struct Sprite;
+
+	struct SpriteFetch {
+		u8 id;
+		u8 lo;
+		u8 hi;
+		Sprite* spr;
+	};
 
 	class PixelTransferHandler {
 
@@ -31,17 +36,23 @@ namespace jmpr {
 		VRAM* _vram;
 
 		FifoPhase _phase;
-		std::queue<FifoElem> _bg_fifo;
-		std::queue<FifoElem> _spr_fifo;
-		std::queue<Sprite> _visible_sprites;
+		std::queue<u32> _pixel_fifo;
+		std::vector<Sprite> _visible_sprites;
+
 		u8 _lx; // x on the scanline
 		u8 _pushed_x; // x of the last pixel pushed
-		u8 _fetcher_x;
-		u8 _fifo_x;
-		u8 _map_y;
-		u8 _map_x;
-		u8 _tile_y;
-		u8 _bg_fetch[3];
+		u8 _fetcher_x; // x of the fetcher
+		u8 _fifo_x; // x of the fifo
+
+		u8 _map_y; // y of the current map
+		u8 _map_x; // x of the current map
+
+		u8 _window_y; // y of the window
+
+		u8 _tile_y; // y of the current tile
+
+		FetcherElem _bg_fetch;
+		std::vector<SpriteFetch> _spr_fetch;
 
 		friend class PPU;
 
@@ -50,17 +61,23 @@ namespace jmpr {
 		PixelTransferHandler() {}
 		PixelTransferHandler(LCD* lcd, VRAM* vram);
 
+		bool transferComplete();
+
 		void prepareForTransfer();
 		void resetFifo();
 
-		void renderingProcess();
-		void fetchProcess();
-		bool addProcess();
-		void pushProcess();
+		void pixelTransferProcedure(std::shared_ptr<u32> vbuffer, u16 lineDots);
 
 	private:
 
+		void fetcherProcedure();
 		void tileIdFetch();
 		void tileHalfDataFetch(u8 id);
+		void spriteIdFetch();
+		void spriteHalfDataFetch(u8 id);
+		u32 spriteColorFetch(u8 pos, u32 color, u8 colorId);
+
+		bool pushToFifoProcedure();
+		void pushToVBufferProcedure(std::shared_ptr<u32> vbuffer);
 	};
 }

@@ -58,8 +58,13 @@ namespace jmpr {
 	*/
 	void Cartridge::write(u16 address, u8 data) {
 
-		// if no mbc
-		_rom_data.get()[address] = data;
+		// Cartridges with no MBC don't have any connection to the write pin
+		if (!hasMBC) return;
+
+
+		if (between(address, 0x0000, 0x3FFF)) {
+			_rom_data.get()[address] = data;
+		}
 		//noImpl(); // TODO
 
 	}

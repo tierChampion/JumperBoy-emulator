@@ -65,7 +65,7 @@ namespace jmpr {
 			out = _wave_patts[range - 0x30];
 		}
 		else if (range == 0x46) {
-			noImpl(); // dma read
+			out = _dma->readDMA();
 		}
 		else if (between(range, 0x40, 0x4B)) {
 			out = _lcd->read(range);

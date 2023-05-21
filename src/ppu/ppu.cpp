@@ -6,7 +6,7 @@ namespace jmpr {
 
 	PPU::PPU(InterruptHandler* intHandler) {
 
-		_vbuffer = std::unique_ptr<u32>(new u32[X_RESOLUTION * Y_RESOLUTION]);
+		_vbuffer = std::shared_ptr<u32>(new u32[X_RESOLUTION * Y_RESOLUTION]);
 
 		_lcd = LCD(intHandler);
 		_vram = VRAM(&_lcd);
@@ -26,14 +26,14 @@ namespace jmpr {
 
 	void PPU::update() {
 
-		_line_dots++;
-
 		switch (_lcd.mode()) {
 		case LCDMode::HBLANK: HBlankProcess(); break;
 		case LCDMode::VBLANK: VBlankProcess(); break;
 		case LCDMode::OAM_SCAN: OAMScanProcess(); break;
-		case LCDMode::TRANSFER: DrawingProcess(); break;
+		case LCDMode::TRANSFER: TransferProcess(); break;
 		}
+
+		_line_dots++;
 	}
 
 	bool PPU::pendingRender() const {
