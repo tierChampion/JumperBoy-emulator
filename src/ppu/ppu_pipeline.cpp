@@ -11,9 +11,10 @@ namespace jmpr {
 		if (_line_dots >= 456) {
 
 			_lcd.jumpScanline();
+			_pt_handler.jumpWindowScanline();
 
 			// Next scanlines are no longer visible
-			if (_lcd._ly >= Y_RESOLUTION) {
+			if (_lcd.getScanline() >= Y_RESOLUTION) {
 
 				_lcd.setMode(LCDMode::VBLANK);
 
@@ -53,12 +54,13 @@ namespace jmpr {
 		if (_line_dots >= 456) {
 
 			_lcd.jumpScanline();
+			_pt_handler.jumpWindowScanline();
 
 			// Last VBlank scanline was reached
-			if (_lcd._ly >= 154) {
+			if (_lcd.getScanline() >= 154) {
 
-				_lcd.setMode(LCDMode::OAM_SCAN);
-				_lcd._ly = 0;
+				_lcd.reset();
+				_pt_handler.resetWindow();
 			}
 
 			_line_dots = 0xFFFF;
@@ -85,8 +87,8 @@ namespace jmpr {
 				Sprite spr = _oam.ppuRead(id);
 
 				if (spr._xpos != 0 &&
-					_lcd._ly + 16 >= spr._ypos &&
-					_lcd._ly + 16 < spr._ypos + _lcd.objSize()) {
+					_lcd.getScanline() + 16 >= spr._ypos &&
+					_lcd.getScanline() + 16 < spr._ypos + _lcd.objSize()) {
 
 					// Add sprite to the list of visible ones
 					_pt_handler._visible_sprites.push_back(spr);

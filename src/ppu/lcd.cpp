@@ -31,6 +31,12 @@ namespace jmpr {
 		_ocpd_obpd = 0xFF;
 	}
 
+	void LCD::reset() {
+
+		setMode(LCDMode::OAM_SCAN);
+		_ly = 0;
+	}
+
 	u8 LCD::read(u8 address) const {
 
 		switch (address) {
@@ -92,6 +98,14 @@ namespace jmpr {
 		return _scy;
 	}
 
+	u8 LCD::getWindowX() const {
+		return _wx;
+	}
+
+	u8 LCD::getWindowY() const {
+		return _wy;
+	}
+
 	// LCDC
 
 	bool LCD::lcdEnabled() const {
@@ -142,13 +156,23 @@ namespace jmpr {
 		_status = (_status & 0xFC) | ((u8)mode & 0b11);
 	}
 
-	// PALLETS
+	// PALLETS IN ABGR FORMAT
 
 	inline static const std::array<u32, 4> LCD_PALLET = {
-			0xFF88FF88,
-			0xFF448844,
-			0xFF224422,
-			0xFF002200,
+		/*
+		// Green pallet
+		0xFF0FBC9B,
+		0xFF0FAC8B,
+		0xFF306230,
+		0xFF0F380F,
+		//*/
+		///*
+		// Gray pallet
+		0xFFFFFFFF,
+		0xFFAAAAAA,
+		0xFF555555,
+		0xFF000000,
+		//*/
 	};
 
 	u32 LCD::getBGWindowColor(u8 index) const {

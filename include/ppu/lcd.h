@@ -38,12 +38,12 @@ namespace jmpr {
 		u8 _ocps_obpi;
 		u8 _ocpd_obpd;
 
-		friend class PPU;
-
 	public:
 
 		LCD() {}
 		LCD(InterruptHandler* intHandler);
+
+		void reset();
 
 		u8 read(u8 address) const;
 		void write(u8 address, u8 data);
@@ -53,6 +53,8 @@ namespace jmpr {
 		u8 getScanline() const;
 		u8 getBGScrollX() const;
 		u8 getBGScrollY() const;
+		u8 getWindowX() const;
+		u8 getWindowY() const;
 
 		// lcd control
 		bool lcdEnabled() const;

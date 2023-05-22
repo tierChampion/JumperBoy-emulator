@@ -49,9 +49,9 @@ namespace jmpr {
 
 		u8 _window_y; // y of the window
 
-		u8 _tile_y; // y of the current tile
+		u8 _tile_y; // y in the current tile
 
-		FetcherElem _bg_fetch;
+		FetcherElem _bgw_fetch;
 		std::vector<SpriteFetch> _spr_fetch;
 
 		friend class PPU;
@@ -65,13 +65,17 @@ namespace jmpr {
 
 		void prepareForTransfer();
 		void resetFifo();
+		void resetWindow();
 
 		void pixelTransferProcedure(std::shared_ptr<u32> vbuffer, u16 lineDots);
+
+		void jumpWindowScanline();
 
 	private:
 
 		void fetcherProcedure();
 		void tileIdFetch();
+		void windowTileIdFetch();
 		void tileHalfDataFetch(u8 id);
 		void spriteIdFetch();
 		void spriteHalfDataFetch(u8 id);
@@ -79,5 +83,7 @@ namespace jmpr {
 
 		bool pushToFifoProcedure();
 		void pushToVBufferProcedure(std::shared_ptr<u32> vbuffer);
+
+		bool isWindowVisible() const;
 	};
 }

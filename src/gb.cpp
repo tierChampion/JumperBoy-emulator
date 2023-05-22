@@ -64,7 +64,7 @@ namespace jmpr {
 
 		while (_ui.isOpened()) {
 
-			//_ui.displayTileData(_ppu.getVRAM());
+			_ui.displayTileData(_ppu.getVRAM());
 			_ui.renderVideoBuffer();
 			_ui.handleEvents(_running);
 		}

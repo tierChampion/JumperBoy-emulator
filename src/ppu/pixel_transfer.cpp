@@ -7,8 +7,6 @@
 
 namespace jmpr {
 
-	// todo: check sprites lateral positions. Accepted sprites are always OOB
-
 	PixelTransferHandler::PixelTransferHandler(LCD* lcd, VRAM* vram) {
 
 		_lcd = lcd;
@@ -36,7 +34,7 @@ namespace jmpr {
 		_map_y = 0;
 		_map_x = 0;
 		_tile_y = 0;
-		_bg_fetch = FetcherElem();
+		_bgw_fetch = FetcherElem();
 		_spr_fetch = std::vector<SpriteFetch>();
 	}
 
@@ -47,6 +45,11 @@ namespace jmpr {
 		}
 
 		_visible_sprites.clear();
+	}
+
+	void PixelTransferHandler::resetWindow() {
+
+		_window_y = 0;
 	}
 
 	// Main transfer function
@@ -77,9 +80,14 @@ namespace jmpr {
 		case FifoPhase::GET_TILE:
 
 			tileIdFetch();
+			windowTileIdFetch();
+
 			// fetch sprite id
 			if (doSpriteOperations)
 				spriteIdFetch();
+
+			_fetcher_x += 8;
+			_phase = FifoPhase::GET_TILE_LO;
 
 			break;
 
@@ -90,6 +98,8 @@ namespace jmpr {
 			if (doSpriteOperations)
 				spriteHalfDataFetch(0);
 
+			_phase = FifoPhase::GET_TILE_HI;
+
 			break;
 
 		case FifoPhase::GET_TILE_HI:
@@ -99,6 +109,7 @@ namespace jmpr {
 			if (doSpriteOperations)
 				spriteHalfDataFetch(1);
 
+			_phase = FifoPhase::IDLE;
 			break;
 
 		case FifoPhase::IDLE:
@@ -123,30 +134,47 @@ namespace jmpr {
 		if (_lcd->bgWindowPriority()) {
 
 			// index of the tile to read
-			_bg_fetch.id = _vram->ppuRead(_lcd->bgTileMapAreaBegin() +
+			_bgw_fetch.id = _vram->ppuRead(_lcd->bgTileMapAreaBegin() +
 				(_map_x / 8) + ((_map_y / 8) * 32));
 
 			if (_lcd->tileDataAreaBegin() == 0x8800) {
-				_bg_fetch.id += 0x80;
+				_bgw_fetch.id += 0x80;
 			}
 		}
+	}
 
-		_phase = FifoPhase::GET_TILE_LO;
-		_fetcher_x += 8;
+	void PixelTransferHandler::windowTileIdFetch() {
+
+		if (!isWindowVisible()) return;
+
+		if (_fetcher_x + 7 >= _lcd->getWindowX() &&
+			_fetcher_x + 7 < _lcd->getWindowX() + Y_RESOLUTION + 14 &&
+			_lcd->getScanline() >= _lcd->getWindowY() &&
+			_lcd->getScanline() < _lcd->getWindowY() + X_RESOLUTION) {
+
+			_bgw_fetch.id = _vram->ppuRead(_lcd->windowTileMapAreaBegin() +
+				// X on the window
+				((_fetcher_x + 7 - _lcd->getWindowX()) / 8) +
+				// Y on the window
+				(_window_y / 8) * 32);
+
+			if (_lcd->tileDataAreaBegin() == 0x8800) {
+				_bgw_fetch.id += 0x80;
+			}
+
+		}
 	}
 
 	void PixelTransferHandler::tileHalfDataFetch(u8 id) {
 
 		if (id == 0) {
-			_bg_fetch.lo = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bg_fetch.id * 16)
+			_bgw_fetch.lo = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
 				+ _tile_y);
 		}
 		else if (id == 1) {
-			_bg_fetch.hi = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bg_fetch.id * 16)
+			_bgw_fetch.hi = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
 				+ _tile_y + 1);
 		}
-
-		_phase = FifoPhase((u8)_phase + 1);
 	}
 
 	void PixelTransferHandler::spriteIdFetch() {
@@ -156,7 +184,7 @@ namespace jmpr {
 			Sprite spr = _visible_sprites[s];
 
 			// original: -8
-			u8 xSpr = spr._xpos + (_lcd->getBGScrollX() % 8);
+			u8 xSpr = (spr._xpos - 8) + (_lcd->getBGScrollX() % 8);
 
 			// Is the sprite present in the next 8 pixels
 			if (xSpr + 8 > _fetcher_x && xSpr < _fetcher_x + 8) {
@@ -262,7 +290,7 @@ namespace jmpr {
 
 		for (u8 i = 0; i < 8; i++) {
 
-			u8 colorIndex = (bit(_bg_fetch.hi, 7 - i) << 1) | (bit(_bg_fetch.lo, 7 - i));
+			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
 
 			u32 pixel = _lcd->getBGWindowColor(colorIndex);
 
@@ -303,5 +331,24 @@ namespace jmpr {
 
 			_lx++;
 		}
+	}
+
+	// Window ops
+
+	void PixelTransferHandler::jumpWindowScanline() {
+
+		// Increment window line if currently inside a window
+		if (isWindowVisible() &&
+			_lcd->getScanline() > _lcd->getWindowY() &&
+			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION) {
+			_window_y++;
+		}
+	}
+
+	bool PixelTransferHandler::isWindowVisible() const {
+
+		return _lcd->windowEnabled() &&
+			between(_lcd->getWindowX(), 0, 166) &&
+			between(_lcd->getWindowY(), 0, 143);
 	}
 }
