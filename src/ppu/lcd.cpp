@@ -159,14 +159,14 @@ namespace jmpr {
 	// PALLETS IN ABGR FORMAT
 
 	inline static const std::array<u32, 4> LCD_PALLET = {
-		/*
+		///*
 		// Green pallet
 		0xFF0FBC9B,
 		0xFF0FAC8B,
 		0xFF306230,
 		0xFF0F380F,
 		//*/
-		///*
+		/*
 		// Gray pallet
 		0xFFFFFFFF,
 		0xFFAAAAAA,

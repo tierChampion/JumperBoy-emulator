@@ -4,7 +4,7 @@
 #include <bus.h>
 #include <cpu/cpu.h>
 #include <ppu/ppu.h>
-#include <cartridge.h>
+#include <cartridge/cartridge.h>
 #include <io/joypad.h>
 #include <io/timer.h>
 #include <ram.h>

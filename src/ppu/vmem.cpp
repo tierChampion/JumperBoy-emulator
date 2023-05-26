@@ -18,7 +18,7 @@ namespace jmpr {
 		return (_lcd->mode() == LCDMode::HBLANK ||
 			_lcd->mode() == LCDMode::VBLANK ||
 			_lcd->mode() == LCDMode::OAM_SCAN);
-			*/
+		//	*/
 	}
 
 	u8 VRAM::read(u16 address) const {
@@ -107,7 +107,7 @@ namespace jmpr {
 		/*
 		return (_lcd->mode() == LCDMode::HBLANK ||
 			_lcd->mode() == LCDMode::VBLANK);
-			*/
+		//	*/
 	}
 
 	u8 OAM::read(u16 address, bool dmaRead) const {

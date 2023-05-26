@@ -1,4 +1,7 @@
-#include <cartridge.h>
+#include <cartridge/cartridge.h>
+
+#include <cartridge/mbc.h>
+
 #include <unordered_map>
 #include <fstream>
 
@@ -32,6 +35,8 @@ namespace jmpr {
 
 		_header.formatHeader(&_rom_data.get()[0x100]);
 
+		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_size, _rom_data.get());
+
 		_filename = file;
 
 		stream.close();
@@ -49,7 +54,7 @@ namespace jmpr {
 	*/
 	u8 Cartridge::read(u16 address) const {
 
-		return _rom_data.get()[address];
+		return _mbc->read(address);
 	}
 
 	/**
@@ -59,14 +64,7 @@ namespace jmpr {
 	void Cartridge::write(u16 address, u8 data) {
 
 		// Cartridges with no MBC don't have any connection to the write pin
-		if (!hasMBC) return;
-
-
-		if (between(address, 0x0000, 0x3FFF)) {
-			_rom_data.get()[address] = data;
-		}
-		//noImpl(); // TODO
-
+		_mbc->write(address, data);
 	}
 
 	/**

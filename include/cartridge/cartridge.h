@@ -29,6 +29,7 @@ namespace jmpr {
 		const char* getLicenseeName() const;
 	};
 
+	class MBC;
 
 	class Cartridge {
 
@@ -37,6 +38,7 @@ namespace jmpr {
 		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
 		bool hasMBC = false;
+		MBC* _mbc;
 		// type
 
 	public:

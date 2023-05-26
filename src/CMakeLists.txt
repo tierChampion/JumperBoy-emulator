@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 add_executable(JumperBoy 
 "jumper_boy.cpp" 
-"cartridge.cpp" 
+"cartridge/cartridge.cpp" 
 "../libs/tfd/tinyfiledialogs.cpp" 
 "bus.cpp"
 "cpu/cpu.cpp" 
@@ -27,7 +27,7 @@ add_executable(JumperBoy
 "ui/user_visuals.cpp" 
 "ppu/dma.cpp"
 "ppu/ppu_pipeline.cpp"  
-"ppu/pixel_transfer.cpp")
+"ppu/pixel_transfer.cpp" "cartridge/mbc.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

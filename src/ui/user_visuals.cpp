@@ -7,7 +7,7 @@
 
 namespace jmpr {
 
-#define SCALE 2
+#define SCALE 4
 
 	bool UI::initVisuals() {
 

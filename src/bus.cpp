@@ -1,7 +1,7 @@
 #include <bus.h>
 
 #include <cpu/cpu.h>
-#include <cartridge.h>
+#include <cartridge/cartridge.h>
 #include <ram.h>
 #include <ppu/vmem.h>
 #include <ppu/dma.h>
