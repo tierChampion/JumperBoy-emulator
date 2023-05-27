@@ -85,5 +85,6 @@ namespace jmpr {
 		void pushToVBufferProcedure(std::shared_ptr<u32> vbuffer);
 
 		bool isWindowVisible() const;
+		bool insideWindow() const;
 	};
 }
