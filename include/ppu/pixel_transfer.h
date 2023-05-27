@@ -79,7 +79,7 @@ namespace jmpr {
 		void tileHalfDataFetch(u8 id);
 		void spriteIdFetch();
 		void spriteHalfDataFetch(u8 id);
-		u32 spriteColorFetch(u8 pos, u32 color, u8 colorId);
+		u32 spriteColorFetch(u32 color, u8 colorId);
 
 		bool pushToFifoProcedure();
 		void pushToVBufferProcedure(std::shared_ptr<u32> vbuffer);

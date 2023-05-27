@@ -7,10 +7,11 @@
 
 namespace jmpr {
 
-#define SCALE 4
+#define SCALE 3
 
 	bool UI::initVisuals() {
 
+		///*
 		u16 debugWidth = 16 * 8 * SCALE + (SCALE * 15);
 		u16 debugHeight = 24 * 8 * SCALE + (SCALE * 23);
 
@@ -22,7 +23,7 @@ namespace jmpr {
 			SDL_TEXTUREACCESS_STREAMING, debugWidth, debugHeight);
 		_debug._surface = SDL_CreateRGBSurfaceWithFormat(0,
 			debugWidth, debugHeight, 32, SDL_PIXELFORMAT_ABGR8888);
-
+		//*/
 
 		u16 width = X_RESOLUTION * SCALE;
 		u16 height = Y_RESOLUTION * SCALE;

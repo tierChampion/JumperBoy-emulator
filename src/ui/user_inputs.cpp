@@ -13,7 +13,8 @@ namespace jmpr {
 
 			switch (_curr_event.type) {
 
-			case SDL_QUIT: _opened = false; break;
+			case SDL_QUIT:
+				_opened = false; break;
 
 			case SDL_KEYDOWN: {
 

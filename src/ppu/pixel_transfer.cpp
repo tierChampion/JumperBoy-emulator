@@ -181,17 +181,17 @@ namespace jmpr {
 
 		for (u8 s = 0; s < _visible_sprites.size(); s++) {
 
-			Sprite spr = _visible_sprites[s];
+			Sprite* spr = &_visible_sprites[s];
 
 			// original: -8
-			u8 xSpr = (spr._xpos - 8) + (_lcd->getBGScrollX() % 8);
+			u8 xSpr = (spr->_xpos - 8) + (_lcd->getBGScrollX() % 8);
 
 			// Is the sprite present in the next 8 pixels
 			if (xSpr + 8 > _fetcher_x && xSpr < _fetcher_x + 8) {
 
 				SpriteFetch fetch = SpriteFetch();
-				fetch.id = spr._tile_id;
-				fetch.spr = &_visible_sprites[s];
+				fetch.id = spr->_tile_id;
+				fetch.spr = spr;
 
 				_spr_fetch.push_back(fetch);
 			}
@@ -241,29 +241,31 @@ namespace jmpr {
 	}
 
 	// todo check if it works
-	u32 PixelTransferHandler::spriteColorFetch(u8 pos, u32 color, u8 colorId) {
+	u32 PixelTransferHandler::spriteColorFetch(u32 color, u8 colorId) {
 
 		// find the sprite with the lowest xpos that touches the pixel.
-		u8 pixelPos = _fetcher_x + pos;
-
 		for (u8 i = 0; i < _spr_fetch.size(); i++) {
 
 			SpriteFetch fetch = _spr_fetch[i];
 
 			// X pos in Sprite space
-			u8 sprLinePos = pixelPos - (fetch.spr->_xpos);
+			u8 xSpr = (fetch.spr->_xpos - 8) + (_lcd->getBGScrollX() % 8);
 
 			// check if the sprite touches the pixel
-			if (sprLinePos >= 8) {
-				continue;
-			}
+			if (xSpr + 8 < _fifo_x) continue;
 
-			if (!fetch.spr->isFlippedX()) {
-				sprLinePos = 7 - sprLinePos;
+			u8 offset = _fifo_x - xSpr;
+
+			if (offset > 7) continue;
+
+			u8 b = 7 - offset;
+
+			if (fetch.spr->isFlippedX()) {
+				b = offset;
 			}
 
 			// calculate the color id
-			u8 sprColorId = (bit(fetch.hi, sprLinePos) << 1) | (bit(fetch.lo, sprLinePos));
+			u8 sprColorId = (bit(fetch.hi, b) << 1) | (bit(fetch.lo, b));
 
 			// Transparent color or doesn't have priority
 			if (sprColorId == 0 || (fetch.spr->noPriority() && colorId > 0)) {
@@ -297,10 +299,10 @@ namespace jmpr {
 			// Adapt the color for sprites, window, etc.
 
 			if (!_lcd->lcdEnabled())
-				pixel = 0;
+				pixel = _lcd->getBGWindowColor(0);
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0)
-				pixel = spriteColorFetch(i, pixel, colorIndex);
+				pixel = spriteColorFetch(pixel, colorIndex);
 
 			_pixel_fifo.push(pixel);
 			_fifo_x++;
@@ -339,6 +341,7 @@ namespace jmpr {
 
 		// Increment window line if currently inside a window
 		if (isWindowVisible() &&
+			// window gets cut way too early (letters and hearts are only one tile high.)
 			_lcd->getScanline() > _lcd->getWindowY() &&
 			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION) {
 			_window_y++;
@@ -347,7 +350,7 @@ namespace jmpr {
 
 	bool PixelTransferHandler::isWindowVisible() const {
 
-		return _lcd->windowEnabled() &&
+		return _lcd->windowEnabled() && _lcd->bgWindowPriority() &&
 			between(_lcd->getWindowX(), 0, 166) &&
 			between(_lcd->getWindowY(), 0, 143);
 	}
