@@ -7,6 +7,15 @@
 
 namespace jmpr {
 
+	// 0x0149: how much ram is present on the cartridge in bytes.
+	static const u32 RAM_SIZES[5] = {
+		0,
+		0x800, // Unofficial value. Somtimes used in homebrew
+		0x8000,
+		0x20000,
+		0x10000
+	};
+
 	/**
 	* Load a cartridge from a binary file.
 	* @param file Path of the file containing the game
@@ -35,11 +44,19 @@ namespace jmpr {
 
 		_header.formatHeader(&_rom_data.get()[0x100]);
 
-		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_size, _rom_data.get());
-
 		_filename = file;
 
+		std::string strFile = std::string(_filename);
+
+		_savename = (strFile.substr(0, strFile.find(".gb")) + ".sav");
+
 		stream.close();
+
+		std::cout << *this << std::endl;
+
+		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_size, _rom_data.get(), RAM_SIZES[_header._ram_size]);
+
+		_mbc->loadSave(_savename.c_str());
 
 		if (!isValid()) {
 			std::cerr << "Error: The provided ROM (" << _header._title << ") isn't valid." << std::endl;
@@ -63,8 +80,15 @@ namespace jmpr {
 	*/
 	void Cartridge::write(u16 address, u8 data) {
 
-		// Cartridges with no MBC don't have any connection to the write pin
 		_mbc->write(address, data);
+	}
+
+	void Cartridge::handleSaves() const {
+
+		if (_mbc->hasSavePending()) {
+
+			_mbc->save(_savename.c_str());
+		}
 	}
 
 	/**
@@ -178,15 +202,6 @@ namespace jmpr {
 	u32 CartridgeHeader::getRomSize() const {
 		return 0x8000 * (1 << _rom_size);
 	}
-
-	// 0x0149: how much ram is present on the cartridge in bytes.
-	static const u32 RAM_SIZES[5] = {
-		0,
-		0x800, // Unofficial value. Somtimes used in homebrew
-		0x8000,
-		0x20000,
-		0x10000
-	};
 
 	// 0x014A: where the game is intended to be sold.
 	static const char* DESTINATION_CODES[2] = {

@@ -7,11 +7,11 @@
 
 namespace jmpr {
 
-#define SCALE 3
+#define SCALE 4
 
 	bool UI::initVisuals() {
 
-		///*
+		/*
 		u16 debugWidth = 16 * 8 * SCALE + (SCALE * 15);
 		u16 debugHeight = 24 * 8 * SCALE + (SCALE * 23);
 
@@ -50,6 +50,8 @@ namespace jmpr {
 	}
 
 	void UI::displayTileData(VRAM* vram) {
+
+		if (!_debug._window) return;
 
 		SDL_Rect rect;
 		rect.x = 0;

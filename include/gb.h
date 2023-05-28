@@ -54,6 +54,8 @@ namespace jmpr {
 		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 
 		static u32 getCurrentTime() { return SDL_GetTicks(); }
+
+		static void requestSaveHandling() { _cart.handleSaves(); }
 	};
 
 }

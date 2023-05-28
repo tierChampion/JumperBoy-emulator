@@ -2,6 +2,7 @@
 // -1: Cartridge opening fail
 // -2: Cartridge content fail
 // -3: Instruction fail
+// -9: Saves fail
 // -10: SDL fail
 
 #include <gb.h>

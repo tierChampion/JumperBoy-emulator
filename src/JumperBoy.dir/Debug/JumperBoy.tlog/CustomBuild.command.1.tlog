@@ -1,0 +1,10 @@
+^C:\USERS\THIER\C++\PROJECTS\JUMPERBOY\SRC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thier/C++/projects/JumperBoy -BC:/Users/thier/C++/projects/JumperBoy --check-stamp-file C:/Users/thier/C++/projects/JumperBoy/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

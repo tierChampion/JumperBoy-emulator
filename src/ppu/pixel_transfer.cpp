@@ -59,7 +59,7 @@ namespace jmpr {
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
 		_map_x = _fetcher_x + _lcd->getBGScrollX();
 		// (Height of the scanline) mod 8 * 2 Bytes/Line.
-		_tile_y = ((_lcd->getScanline() + _lcd->getBGScrollY()) & 0b111) * 2;
+		_tile_y = ((_lcd->getScanline() + _lcd->getBGScrollY()) % 8) * 2;
 
 		// One fetch for every two pushes
 		if ((lineDots & 1) == 0) {
@@ -179,7 +179,6 @@ namespace jmpr {
 
 			Sprite* spr = &_visible_sprites[s];
 
-			// original: -8
 			u8 xSpr = (spr->_xpos - 8) + (_lcd->getBGScrollX() % 8);
 
 			// Is the sprite present in the next 8 pixels
@@ -282,7 +281,7 @@ namespace jmpr {
 		if (_pixel_fifo.size() > 8) return false;
 
 		// adjust the x for scrolling 
-		int x = _fetcher_x - (8 - (_lcd->getBGScrollX() & 0b111));
+		int x = _fetcher_x - (8 - getCurrentScroll());
 
 		if (x < 0) return false;
 
@@ -320,7 +319,7 @@ namespace jmpr {
 			_pixel_fifo.pop();
 
 			// Only render if pixel is visible with the scroll
-			if (_lx >= (_lcd->getBGScrollX() & 0b111)) {
+			if (_lx >= getCurrentScroll()) {
 
 				vbuffer.get()[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
 
@@ -342,6 +341,11 @@ namespace jmpr {
 			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION) {
 			_window_y++;
 		}
+	}
+
+	u8 PixelTransferHandler::getCurrentScroll() const {
+
+		return insideWindow() ? 0 : (_lcd->getBGScrollX() % 8);
 	}
 
 	bool PixelTransferHandler::isWindowVisible() const {

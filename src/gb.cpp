@@ -4,12 +4,6 @@
 
 namespace jmpr {
 
-	// current problems:
-	// mole next to left eye (read from 8000-8fff instead of 8800-97ff for the background tile data)
-	// hair visible (background enable)
-	// footer missing (use 9c00-9fff map and 8800-97ff data)
-	// missing right chin ()
-
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
@@ -76,8 +70,6 @@ namespace jmpr {
 		if (!_cart.isValid()) return false;
 
 		_bus.connectCartridge(&_cart);
-
-		std::cout << _cart << std::endl;
 
 		_running = true;
 

@@ -33,11 +33,11 @@ namespace jmpr {
 
 	class Cartridge {
 
-		const char* _filename;
+		std::string _filename;
+		std::string _savename;
 		u32 _rom_size = 0;
 		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
-		bool hasMBC = false;
 		MBC* _mbc;
 		// type
 
@@ -50,6 +50,8 @@ namespace jmpr {
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);
+
+		void handleSaves() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge);
 	};

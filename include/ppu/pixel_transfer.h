@@ -73,6 +73,8 @@ namespace jmpr {
 
 	private:
 
+		// Fetching
+
 		void fetcherProcedure();
 		void tileIdFetch();
 		void windowTileIdFetch();
@@ -81,9 +83,15 @@ namespace jmpr {
 		void spriteHalfDataFetch(u8 id);
 		u32 spriteColorFetch(u32 color, u8 colorId);
 
+
+		// Pushing
+
 		bool pushToFifoProcedure();
 		void pushToVBufferProcedure(std::shared_ptr<u32> vbuffer);
 
+
+		// Window status
+		u8 getCurrentScroll() const;
 		bool isWindowVisible() const;
 		bool insideWindow() const;
 	};

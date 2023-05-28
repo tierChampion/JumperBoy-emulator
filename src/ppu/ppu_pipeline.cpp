@@ -26,6 +26,7 @@ namespace jmpr {
 
 				_curr_frame++;
 				_frame_ready = true;
+				GameBoy::requestSaveHandling();
 				manageFrameTiming();
 			}
 			else {
