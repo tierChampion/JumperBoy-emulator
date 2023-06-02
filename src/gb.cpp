@@ -4,6 +4,14 @@
 
 namespace jmpr {
 
+	/**
+	* TODO in the future:
+	* APU
+	* CGB functionnalities ?
+	* More MBCs ?
+	* SGB functionnalities ?
+	*/
+
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
