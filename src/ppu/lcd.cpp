@@ -8,7 +8,7 @@ namespace jmpr {
 
 	LCD::LCD(InterruptHandler* intHandler) {
 
-		_inter_handler = intHandler;
+		_it_handler = intHandler;
 
 		_lcdc = 0x91;
 		_ly = 0x00;
@@ -82,7 +82,7 @@ namespace jmpr {
 		if (equal && bit(_status, 6)) {
 
 			// request an interrupt
-			_inter_handler->requestInterrupt(InterruptType::STAT);
+			_it_handler->requestInterrupt(InterruptType::STAT);
 		}
 	}
 

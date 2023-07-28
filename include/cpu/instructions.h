@@ -16,7 +16,7 @@ namespace jmpr {
 		RLCA,		// Rotate bits left
 		ADD,		// Addition
 		RRCA,		// Rotate bits right
-		STOP,		// ?
+		STOP,		// Stop CPU until joypad interrupt
 		RLA,		// Rotate bits left through carry
 		JR,			// Jump to a relative address
 		RRA,		// Rotate bits right through carry
@@ -24,7 +24,7 @@ namespace jmpr {
 		CPL,		// Negate the accumulator
 		SCF,		// Set the carry flag
 		CCF,		// Negate the carry flag
-		HALT,		// ?
+		HALT,		// Stop CPU until next interrupt
 		ADC,		// Addition with carry
 		SUB,		// Substraction
 		SBC,		// Substraction with carry
@@ -143,8 +143,6 @@ namespace jmpr {
 
 	const Instruction* fromOpcode(u8 opcode);
 	const char* instructionName(const Instruction instr);
-
-	// todo: show complete instruction name (with registers affected, etc.)
 }
 
 // Hashing function for the instruction type.

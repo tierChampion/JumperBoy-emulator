@@ -39,7 +39,6 @@ namespace jmpr {
 		std::unique_ptr<u8> _rom_data;
 		CartridgeHeader _header;
 		MBC* _mbc;
-		// type
 
 	public:
 

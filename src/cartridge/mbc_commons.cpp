@@ -79,19 +79,27 @@ namespace jmpr {
 
 	void MBC::loadSave(const char* path) {
 
+		if (!_has_battery) return;
+
 		std::ifstream inSave(path, std::ios::binary);
 
-		if (!inSave) {
-			std::cerr << "Failed to open the save file" << std::endl;
-			exit(-9);
+		if (inSave) {
+
+			for (u8 i = 0; i < _ram_banks.size(); i++) {
+
+				inSave.read(reinterpret_cast<char*>(_ram_banks[i].get()), 0x2000);
+			}
+
+			inSave.close();
 		}
+		else {
 
-		for (u8 i = 0; i < _ram_banks.size(); i++) {
+			std::cout << "No save file was found. Creating a new save file." << std::endl;
 
-			inSave.read(reinterpret_cast<char*>(_ram_banks[i].get()), 0x2000);
+			std::ofstream outSave(path, std::ios::binary);
+
+			outSave.close();
 		}
-
-		inSave.close();
 	}
 
 	// No MBC

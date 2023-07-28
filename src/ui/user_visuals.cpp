@@ -41,7 +41,13 @@ namespace jmpr {
 		return _vc._window != NULL;
 	}
 
-	void UI::render(VisualContext context) {
+	void UI::render() {
+
+		displayTileData();
+		renderVideoBuffer();
+	}
+
+	void UI::renderInContext(VisualContext context) {
 
 		SDL_UpdateTexture(context._texture, NULL, context._surface->pixels, context._surface->pitch);
 		SDL_RenderClear(context._renderer);
@@ -49,7 +55,7 @@ namespace jmpr {
 		SDL_RenderPresent(context._renderer);
 	}
 
-	void UI::displayTileData(VRAM* vram) {
+	void UI::displayTileData() {
 
 		if (!_debug._window) return;
 
@@ -66,15 +72,15 @@ namespace jmpr {
 		for (u16 y = 0; y < 24; y++) {
 			for (u16 x = 0; x < 16; x++) {
 
-				displaySingleTile(vram, (y * 16) + x, x * tileDim, y * tileDim);
+				displaySingleTile((y * 16) + x, x * tileDim, y * tileDim);
 			}
 		}
 
-		render(_debug);
+		renderInContext(_debug);
 	}
 
-	inline static const std::array<u32, 4> PALLET = {
-		/*
+	inline static const std::array<u32, 8> PALLET = {
+		///*
 		// Green pallet
 		0xFF0FBC9B,
 		0xFF0FAC8B,
@@ -90,13 +96,13 @@ namespace jmpr {
 		//*/
 	};
 
-	void UI::displaySingleTile(VRAM* vram, u16 tileId, u16 xPos, u16 yPos) {
+	void UI::displaySingleTile(u16 tileId, u16 xPos, u16 yPos) {
 
 		u8 data[16];
 
 		// read tile data
 		for (u8 i = 0; i < 16; i++) {
-			data[i] = vram->ppuRead(0x8000 + (16 * tileId) + i);
+			data[i] = _ppu->getVRAM()->ppuRead(0x8000 + (16 * tileId) + i);
 		}
 
 		SDL_Rect rect;
@@ -145,6 +151,6 @@ namespace jmpr {
 			rect.y += SCALE;
 		}
 
-		render(_vc);
+		renderInContext(_vc);
 	}
 }

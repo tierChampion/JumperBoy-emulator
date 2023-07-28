@@ -1,12 +1,13 @@
 #include <io/timer.h>
 
+#include <apu/apu.h>
 #include <cpu/interrupt.h>
 
 #include <array>
 
 namespace jmpr {
 
-	Timer::Timer(InterruptHandler* interHandler) {
+	Timer::Timer(APU* apu, InterruptHandler* interHandler) {
 
 		// AB is the div and E6 is for sync with the internal div
 		_div = 0xABCC;
@@ -17,7 +18,8 @@ namespace jmpr {
 		_old_output = computeOutput();
 		_tima_overflow = 0x00;
 
-		_inter_handler = interHandler;
+		_apu = apu;
+		_it_handler = interHandler;
 	}
 
 	// Frequency of the clock depending on the TAC register.
@@ -37,6 +39,13 @@ namespace jmpr {
 	}
 
 	/**
+	* Compute the output of the DIV-APU counter.
+	*/
+	u8 Timer::computeDivApuOutput() const {
+		return (_div & 0x2000) > 0; // adapt to double speed (0x4000)
+	}
+
+	/**
 	* Update the timer for 1 clock.
 	*/
 	void Timer::update() {
@@ -46,8 +55,9 @@ namespace jmpr {
 		TIMAOverflowRoutine();
 
 		u8 new_output = computeOutput();
+		u8 new_divapu = computeDivApuOutput();
 
-		// Increment TIMA register
+		// Increment TIMA register when falling edge
 		if ((_old_output == 1) && (new_output == 0)) {
 
 			_tima++;
@@ -62,7 +72,10 @@ namespace jmpr {
 			}
 		}
 
+		_apu->update(_div_apu_output, new_divapu);
+
 		_old_output = new_output;
+		_div_apu_output = new_divapu;
 	}
 
 	/**
@@ -77,7 +90,7 @@ namespace jmpr {
 
 			if (_tima_overflow == 4 && _tima == 0) {
 				_tima = _tma;
-				_inter_handler->requestInterrupt(InterruptType::TIMER);
+				_it_handler->requestInterrupt(InterruptType::TIMER);
 			}
 		}
 
@@ -110,7 +123,11 @@ namespace jmpr {
 				_tima++;
 			}
 
+			// TODO: apu falling edge check
+			_apu->update(_div_apu_output, 0);
+
 			_old_output = 0;
+			_div_apu_output = 0;
 
 			break;
 		}

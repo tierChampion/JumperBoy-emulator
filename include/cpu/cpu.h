@@ -49,7 +49,7 @@ namespace jmpr {
 		bool _dest_is_mem;
 
 		// Interrupts
-		InterruptHandler _inter_handler;
+		InterruptHandler _it_handler;
 
 		// Status
 		bool _halted;
@@ -60,7 +60,8 @@ namespace jmpr {
 		CPU();
 
 		void connectBus(Bus* bus) { _bus = bus; }
-		InterruptHandler* getInterruptHandler() { return &_inter_handler; }
+
+		InterruptHandler* getInterruptHandler() { return &_it_handler; }
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);

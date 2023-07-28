@@ -28,6 +28,7 @@ namespace jmpr {
 
 	public:
 
+		IO() {}
 		IO(Joypad* pad, Timer* tim, LCD* grs, DMA* dma);
 
 		u8 read(u16 address) const;

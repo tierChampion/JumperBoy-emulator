@@ -17,6 +17,7 @@ namespace jmpr {
 
 	public:
 
+		DMA() {}
 		DMA(OAM* oam);
 
 		void connectBus(Bus* bus) { _bus = bus; }

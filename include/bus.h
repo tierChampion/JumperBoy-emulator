@@ -7,8 +7,7 @@ namespace jmpr {
 	class CPU;
 	class Cartridge;
 	class RAM;
-	class VRAM;
-	class OAM;
+	class PPU;
 	class IO;
 
 	class Bus {
@@ -16,8 +15,7 @@ namespace jmpr {
 		CPU* _cpu;
 		Cartridge* _cart;
 		RAM* _ram;
-		VRAM* _vram;
-		OAM* _oam;
+		PPU* _ppu;
 		IO* _io;
 
 	public:
@@ -27,8 +25,7 @@ namespace jmpr {
 		void connectCPU(CPU* cpu) { _cpu = cpu; }
 		void connectCartridge(Cartridge* cart) { _cart = cart; }
 		void connectRAM(RAM* ram) { _ram = ram; }
-		void connectVRAM(VRAM* vram) { _vram = vram; }
-		void connectOAM(OAM* oam) { _oam = oam; }
+		void connectPPU(PPU* ppu) { _ppu = ppu; }
 		void connectIO(IO* io) { _io = io; }
 
 		u8 read(u16 address);

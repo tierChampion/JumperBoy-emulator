@@ -294,7 +294,7 @@ namespace jmpr {
 		_halted = true;
 
 		// halt bug
-		_inter_handler.checkHaltBug(_PC);
+		_it_handler.checkHaltBug(_PC);
 	}
 
 	/**
@@ -552,7 +552,7 @@ namespace jmpr {
 		_PC = merge16(hi, lo);
 		GameBoy::cycle(1);
 
-		_inter_handler.enableInterrupts(true);
+		_it_handler.enableInterrupts(true);
 	}
 
 
@@ -576,14 +576,14 @@ namespace jmpr {
 	* Disable the interrupts.
 	*/
 	void CPU::DI() {
-		_inter_handler.disableInterrupts(true); // change for the CGB
+		_it_handler.disableInterrupts(true); // change for the CGB
 	}
 
 	/**
 	* Enable the interrupts.
 	*/
 	void CPU::EI() {
-		_inter_handler.enableInterrupts(false);
+		_it_handler.enableInterrupts(false);
 	}
 
 	/**

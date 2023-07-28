@@ -15,9 +15,10 @@ namespace jmpr {
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
+	APU GameBoy::_apu = APU();
 	Cartridge GameBoy::_cart = Cartridge();
 	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
-	Timer GameBoy::_timer = Timer(_cpu.getInterruptHandler());
+	Timer GameBoy::_timer = Timer(&_apu, _cpu.getInterruptHandler());
 	RAM GameBoy::_ram = RAM();
 	DMA GameBoy::_dma = DMA(_ppu.getOAM());
 	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getLCD(), &_dma);
@@ -32,17 +33,8 @@ namespace jmpr {
 
 	int GameBoy::runGameBoy() {
 
-		_bus.connectCPU(&_cpu);
-		_bus.connectRAM(&_ram);
-		_bus.connectVRAM(_ppu.getVRAM());
-		_bus.connectOAM(_ppu.getOAM());
-		_bus.connectIO(&_io);
-
-		_cpu.connectBus(&_bus);
-		_dma.connectBus(&_bus);
-
+		reset();
 		_running = false;
-		bool quitting = false;
 
 		std::thread cpuThread(&cpuLoop);
 
@@ -50,6 +42,21 @@ namespace jmpr {
 		uiLoop();
 
 		return 0;
+	}
+
+	void GameBoy::reset() {
+
+		_paused = false;
+		_running = false;
+		_ticks = 0;
+
+		_bus.connectCPU(&_cpu);
+		_bus.connectRAM(&_ram);
+		_bus.connectPPU(&_ppu);
+		_bus.connectIO(&_io);
+
+		_cpu.connectBus(&_bus);
+		_dma.connectBus(&_bus);
 	}
 
 	void GameBoy::cpuLoop() {
@@ -66,13 +73,17 @@ namespace jmpr {
 
 		while (_ui.isOpened()) {
 
-			_ui.displayTileData(_ppu.getVRAM());
-			_ui.renderVideoBuffer();
+			_ui.render();
 			_ui.handleEvents(_running);
 		}
 	}
 
 	bool GameBoy::insertCartridge(const char* rom_file) {
+
+		_running = false;
+
+		reset();
+
 		_cart = Cartridge(rom_file);
 
 		if (!_cart.isValid()) return false;
@@ -80,6 +91,7 @@ namespace jmpr {
 		_bus.connectCartridge(&_cart);
 
 		_running = true;
+		_ticks = 0;
 
 		return true;
 	}

@@ -2,39 +2,43 @@
 
 #include <io/joypad.h>
 #include <unordered_map>
+#include <fstream>
 
 namespace jmpr {
+
+	static const std::unordered_map<std::string, JoypadInput> JOYPAD_INPUT_LOOKUP = {
+		{"RIGHT", JoypadInput::RIGHT},
+		{"LEFT", JoypadInput::LEFT},
+		{"UP", JoypadInput::UP},
+		{"DOWN", JoypadInput::DOWN},
+		{"A", JoypadInput::A},
+		{"B", JoypadInput::B},
+		{"SELECT", JoypadInput::SELECT},
+		{"START", JoypadInput::START}
+	};
+
+	JoypadInput fromName(std::string inputName) {
+
+		return JOYPAD_INPUT_LOOKUP.at(inputName);
+	}
 
 	InputHandler::InputHandler(Joypad* joypad) {
 
 		_joypad = joypad;
+
+		std::ifstream stream(std::string(DIRECTORY_PATH) + std::string(CONTROLS_FILE));
+		_input_map = nlohmann::json::parse(stream);
+
+		stream.close();
 	}
-
-
-	// todo temporary, make it modifiable.
-	// add another possible layout with a joypad
-	static const std::unordered_map<SDL_Scancode, JoypadInput> INPUT_MAP = {
-		{SDL_SCANCODE_W, JoypadInput::UP},
-		{SDL_SCANCODE_S, JoypadInput::DOWN},
-		{SDL_SCANCODE_A, JoypadInput::LEFT},
-		{SDL_SCANCODE_D, JoypadInput::RIGHT},
-		{SDL_SCANCODE_H, JoypadInput::A},
-		{SDL_SCANCODE_J, JoypadInput::B},
-		{SDL_SCANCODE_N, JoypadInput::SELECT},
-		{SDL_SCANCODE_M, JoypadInput::START},
-	};
 
 	void InputHandler::onKeyDown(const SDL_KeyboardEvent event) {
 
 		if (event.repeat != 0) return;
 
-		// check if the input is mapped to a gameboy input
-		auto pair = INPUT_MAP.find(event.keysym.scancode);
+		if (_input_map.contains(SDL_GetKeyName(event.keysym.sym))) {
 
-		if (pair != INPUT_MAP.end()) {
-
-			//std::cout << "down: " << (int)pair->second << std::endl;
-			_joypad->pressInput(pair->second);
+			_joypad->pressInput(fromName(_input_map[SDL_GetKeyName(event.keysym.sym)]));
 		}
 	}
 
@@ -42,13 +46,9 @@ namespace jmpr {
 
 		if (event.repeat != 0) return;
 
-		// check if the input is mapped to a gameboy input
-		auto pair = INPUT_MAP.find(event.keysym.scancode);
+		if (_input_map.contains(SDL_GetKeyName(event.keysym.sym))) {
 
-		if (pair != INPUT_MAP.end()) {
-
-			//std::cout << "up: " << (int)pair->second << std::endl;
-			_joypad->releaseInput(pair->second);
+			_joypad->releaseInput(fromName(_input_map[SDL_GetKeyName(event.keysym.sym)]));
 		}
 	}
 }

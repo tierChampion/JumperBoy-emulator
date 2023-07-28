@@ -12,7 +12,7 @@ namespace jmpr {
 		_vram = VRAM(&_lcd);
 		_oam = OAM(&_lcd);
 
-		_inter_handler = intHandler;
+		_it_handler = intHandler;
 
 		_line_dots = 0;
 		_curr_frame = 0;

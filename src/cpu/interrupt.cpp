@@ -8,8 +8,7 @@
 
 namespace jmpr {
 
-	InterruptHandler::InterruptHandler(CPU* cpu) {
-		_cpu = cpu;
+	InterruptHandler::InterruptHandler() {
 
 		_IME = true;
 		_IME_schedule = 0;
@@ -19,6 +18,18 @@ namespace jmpr {
 		_bug_status = HaltBugStatus();
 	}
 
+	InterruptHandler::InterruptHandler(CPU* cpu) {
+
+		_cpu = cpu;
+
+		_IME = true;
+		_IME_schedule = 0;
+		_IE = 0x00;
+		_IF = 0xE1;
+
+		_bug_status = HaltBugStatus();
+	}
+	
 	/**
 	* Enable interrupts with the EI or RETI instruction.
 	*/

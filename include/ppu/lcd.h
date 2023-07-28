@@ -19,7 +19,7 @@ namespace jmpr {
 
 	class LCD {
 
-		InterruptHandler* _inter_handler;
+		InterruptHandler* _it_handler;
 
 		u8 _lcdc;
 		u8 _ly;

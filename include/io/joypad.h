@@ -33,6 +33,7 @@ namespace jmpr {
 
 	public:
 
+		Joypad() {}
 		Joypad(InterruptHandler* handler);
 
 		InputHandler* getInputHandler() { return &_inp_handler; }

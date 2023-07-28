@@ -4,6 +4,7 @@
 
 namespace jmpr {
 
+	class APU;
 	class InterruptHandler;
 
 	class Timer {
@@ -14,13 +15,16 @@ namespace jmpr {
 		u8 _tac;
 
 		u8 _old_output;
+		u8 _div_apu_output;
 		u8 _tima_overflow;
 
-		InterruptHandler* _inter_handler;
+		APU* _apu;
+		InterruptHandler* _it_handler;
 
 	public:
 
-		Timer(InterruptHandler* interHandler);
+		Timer() {}
+		Timer(APU* apu, InterruptHandler* interHandler);
 
 		void displayStates() const;
 		void update();
@@ -31,6 +35,7 @@ namespace jmpr {
 	private:
 
 		u8 computeOutput() const;
+		u8 computeDivApuOutput() const;
 		void TIMAOverflowRoutine();
 	};
 }

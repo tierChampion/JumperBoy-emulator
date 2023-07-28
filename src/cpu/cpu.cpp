@@ -32,7 +32,7 @@ namespace jmpr {
 
 		_bus = nullptr;
 
-		_inter_handler = InterruptHandler(this);
+		_it_handler = InterruptHandler(this);
 
 		_halted = false;
 		_stopped = false;
@@ -47,7 +47,7 @@ namespace jmpr {
 		GameBoy::cycle(1);
 
 		// Halt bug, fails to increment PC
-		if (!_inter_handler.haltBugged(_PC)) {
+		if (!_it_handler.haltBugged(_PC)) {
 			_PC++;
 		}
 
@@ -59,7 +59,7 @@ namespace jmpr {
 	*/
 	bool CPU::cycle() {
 
-		_inter_handler.checkInterrupts();
+		_it_handler.checkInterrupts();
 
 		if (!_halted && !_stopped) {
 

@@ -164,7 +164,7 @@ namespace jmpr {
 	*/
 	u8 CPU::readInterruptEnabledRegister() {
 
-		return _inter_handler.readInterruptEnabled();
+		return _it_handler.readInterruptEnabled();
 	}
 
 	/**
@@ -172,7 +172,7 @@ namespace jmpr {
 	*/
 	void CPU::writeInterruptEnabledRegister(u8 data) {
 
-		_inter_handler.writeInterruptEnabled(data);
+		_it_handler.writeInterruptEnabled(data);
 	}
 
 	/**
@@ -180,7 +180,7 @@ namespace jmpr {
 	*/
 	u8 CPU::readInterruptFlagRegister() {
 
-		return _inter_handler.readInterruptFlags();
+		return _it_handler.readInterruptFlags();
 	}
 
 	/**
@@ -188,6 +188,6 @@ namespace jmpr {
 	*/
 	void CPU::writeInterruptFlagRegister(u8 data) {
 
-		_inter_handler.writeInterruptFlags(data);
+		_it_handler.writeInterruptFlags(data);
 	}
 }

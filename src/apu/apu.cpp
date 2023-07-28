@@ -1,6 +1,15 @@
 #include <apu/apu.h>
 
+#include <array>
+
 namespace jmpr {
+
+	static const std::array<u8, 32> DUTY_CYCLES = {
+		0, 1, 1, 1, 1, 1, 1, 1, // 12.5% low
+		0, 0, 1, 1, 1, 1, 1, 1, // 25% low
+		0, 0, 0, 0, 1, 1, 1, 1, // 50% low
+		0, 0, 0, 0, 0, 0, 1, 1  // 75% low
+	};
 
 	APU::APU() : _waveRAM{ 0 } {
 
@@ -13,67 +22,45 @@ namespace jmpr {
 
 		_left_vol = 0b000;
 		_right_vol = 0b000;
+	}
 
-		_registers._NR10 = 0x80;
-		_registers._NR11 = 0xBF;
-		_registers._NR12 = 0x3F;
-		_registers._NR13 = 0xFF;
-		_registers._NR14 = 0xBF;
+	void APU::update(u8 oldEdge, u8 newEdge) {
 
-		_registers._NR21 = 0x3F;
-		_registers._NR22 = 0x00;
-		_registers._NR23 = 0xFF;
-		_registers._NR24 = 0xBF;
+		if (oldEdge == 1 && newEdge == 0) {
 
-		_registers._NR30 = 0x7F;
-		_registers._NR31 = 0xFF;
-		_registers._NR32 = 0x9F;
-		_registers._NR33 = 0xFF;
-		_registers._NR34 = 0xBF;
+			_div_apu++;
 
-		_registers._NR41 = 0xFF;
-		_registers._NR42 = 0x00;
-		_registers._NR43 = 0x00;
-		_registers._NR44 = 0xBF;
+			// every 2, sound length
+			if ((_div_apu & 1) == 0) {
 
-		_registers._NR50 = 0x77;
-		_registers._NR51 = 0xF3;
-		_registers._NR52 = 0xF1;
+				for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
+					_channels[c].update();
+				}
+			}
+
+			// every 4, ch1 freq sweep
+			// every 8, envelope sweep
+		}
+	}
+
+	void AudioChannel::update() {
+
+		if (_gen_power && _len_enabled) {
+
+			_len_timer++;
+
+			if (_len_timer == _timer_end) {
+
+				_len_timer == _timer_begin;
+				_gen_power = false;
+			}
+		}
 	}
 
 	// fix read write for specific bit accesibility
 	// todo for later
 
 	u8 APU::read(u8 address) {
-
-		switch (address) {
-
-		case 0x10: return _registers._NR10; break;
-		case 0x11: return _registers._NR11; break;
-		case 0x12: return _registers._NR12; break;
-		case 0x13: return _registers._NR13; break;
-		case 0x14: return _registers._NR14; break;
-
-		case 0x16: return _registers._NR21; break;
-		case 0x17: return _registers._NR22; break;
-		case 0x18: return _registers._NR23; break;
-		case 0x19: return _registers._NR24; break;
-
-		case 0x1A: return _registers._NR30; break;
-		case 0x1B: return _registers._NR31; break;
-		case 0x1C: return _registers._NR32; break;
-		case 0x1D: return _registers._NR33; break;
-		case 0x1E: return _registers._NR34; break;
-
-		case 0x20: return _registers._NR41; break;
-		case 0x21: return _registers._NR42; break;
-		case 0x22: return _registers._NR43; break;
-		case 0x23: return _registers._NR44; break;
-
-		case 0x24: return _registers._NR50; break;
-		case 0x25: return _registers._NR51; break;
-		case 0x26: return _registers._NR52; break;
-		}
 
 		if (between(address, 0x30, 0x3F))
 			return _waveRAM[address - 0x30];
@@ -82,35 +69,6 @@ namespace jmpr {
 	}
 
 	void APU::write(u8 address, u8 data) {
-
-		switch (address) {
-
-		case 0x10: _registers._NR10 = data; break;
-		case 0x11: _registers._NR11 = data; break;
-		case 0x12: _registers._NR12 = data; break;
-		case 0x13: _registers._NR13 = data; break;
-		case 0x14: _registers._NR14 = data; break;
-
-		case 0x16: _registers._NR21 = data; break;
-		case 0x17: _registers._NR22 = data; break;
-		case 0x18: _registers._NR23 = data; break;
-		case 0x19: _registers._NR24 = data; break;
-
-		case 0x1A: _registers._NR30 = data; break;
-		case 0x1B: _registers._NR31 = data; break;
-		case 0x1C: _registers._NR32 = data; break;
-		case 0x1D: _registers._NR33 = data; break;
-		case 0x1E: _registers._NR34 = data; break;
-
-		case 0x20: _registers._NR41 = data; break;
-		case 0x21: _registers._NR42 = data; break;
-		case 0x22: _registers._NR43 = data; break;
-		case 0x23: _registers._NR44 = data; break;
-
-		case 0x24: _registers._NR50 = data; break;
-		case 0x25: _registers._NR51 = data; break;
-		case 0x26: _registers._NR52 = data; break;
-		}
 
 		if (between(address, 0x30, 0x3F))
 			_waveRAM[address - 0x30] = data;
@@ -132,7 +90,6 @@ namespace jmpr {
 		u8 powerStatus = bit(newPower, 7);
 
 		_apu_power = (powerStatus > 0);
-		_registers._NR52 = setBit(_registers._NR52, 7, powerStatus);
 
 		// Power OFF
 		if (!_apu_power) {

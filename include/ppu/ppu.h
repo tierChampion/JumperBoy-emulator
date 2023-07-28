@@ -26,10 +26,11 @@ namespace jmpr {
 		PixelTransferHandler _pt_handler;
 
 		// Interrupts
-		InterruptHandler* _inter_handler;
+		InterruptHandler* _it_handler;
 
 	public:
 
+		PPU() {}
 		PPU(InterruptHandler* intHandler);
 
 		LCD* getLCD() { return &_lcd; }

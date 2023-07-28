@@ -8,10 +8,10 @@
 namespace jmpr {
 
 
-	Debugger::Debugger(Bus* bus, bool constant) : _debug_log{ 0 } {
+	Debugger::Debugger(Bus* bus, bool continuous) : _debug_log{ 0 } {
 
 		_log_size = 0;
-		_constant = constant;
+		_continuous = continuous;
 		_modified = false;
 
 		_old_time = 0;
@@ -35,7 +35,7 @@ namespace jmpr {
 
 	void Debugger::log() {
 
-		if (_debug_log[0] && (_constant || _modified)) {
+		if (_debug_log[0] && (_continuous || _modified)) {
 			printf("DBG: %s\n", _debug_log);
 			_modified = false;
 		}

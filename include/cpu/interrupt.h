@@ -33,7 +33,7 @@ namespace jmpr {
 
 	public:
 
-		InterruptHandler() {}
+		InterruptHandler();
 		InterruptHandler(CPU* cpu);
 
 		void enableInterrupts(bool instant);

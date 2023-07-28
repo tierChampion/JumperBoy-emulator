@@ -4,6 +4,7 @@
 #include <bus.h>
 #include <cpu/cpu.h>
 #include <ppu/ppu.h>
+#include <apu/apu.h>
 #include <cartridge/cartridge.h>
 #include <io/joypad.h>
 #include <io/timer.h>
@@ -23,12 +24,14 @@ namespace jmpr {
 		static Bus _bus;
 		static CPU _cpu;
 		static PPU _ppu;
+		static APU _apu;
 		static Cartridge _cart;
 		static Joypad _joypad;
 		static Timer _timer;
 		static RAM _ram;
 		static DMA _dma;
 		static IO _io;
+		static InterruptHandler _it_handler;
 
 		static Debugger _dbg;
 
@@ -44,6 +47,8 @@ namespace jmpr {
 
 		static int runGameBoy();
 
+		static void reset();
+
 		static void cpuLoop();
 		static void uiLoop();
 
@@ -57,5 +62,4 @@ namespace jmpr {
 
 		static void requestSaveHandling() { _cart.handleSaves(); }
 	};
-
 }

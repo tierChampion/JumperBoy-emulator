@@ -38,15 +38,16 @@ namespace jmpr {
 		bool isOpened() { return _opened; }
 		void handleEvents(bool gamePlaying);
 
-		void renderVideoBuffer();
-		void displayTileData(VRAM* vram);
+		void render();
 
 	private:
 
 		bool initVisuals();
 
-		void displaySingleTile(VRAM* vram, u16 tileId, u16 xPos, u16 yPos);
+		void renderVideoBuffer();
+		void displayTileData();
+		void displaySingleTile(u16 tileId, u16 xPos, u16 yPos);
 
-		void render(VisualContext context);
+		void renderInContext(VisualContext context);
 	};
 }

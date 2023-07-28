@@ -18,10 +18,10 @@ namespace jmpr {
 
 				_lcd.setMode(LCDMode::VBLANK);
 
-				_inter_handler->requestInterrupt(InterruptType::VBLANK);
+				_it_handler->requestInterrupt(InterruptType::VBLANK);
 
 				if (_lcd.statInterruptTypeEnabled(LCDMode::VBLANK)) {
-					_inter_handler->requestInterrupt(InterruptType::STAT);
+					_it_handler->requestInterrupt(InterruptType::STAT);
 				}
 
 				_curr_frame++;
@@ -110,7 +110,7 @@ namespace jmpr {
 			_lcd.setMode(LCDMode::HBLANK);
 
 			if (_lcd.statInterruptTypeEnabled(LCDMode::HBLANK)) {
-				_inter_handler->requestInterrupt(InterruptType::STAT);
+				_it_handler->requestInterrupt(InterruptType::STAT);
 			}
 		}
 	}

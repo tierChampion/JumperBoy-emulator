@@ -16,14 +16,15 @@ namespace jmpr {
 		char _debug_log[1024];
 		u16 _log_size;
 
-		bool _constant;
+		bool _continuous;
 		bool _modified;
 
 		u64 _old_time;
 
 	public:
 
-		Debugger(Bus* bus, bool constant);
+		Debugger() {}
+		Debugger(Bus* bus, bool continuous);
 
 		void update();
 		void log();
