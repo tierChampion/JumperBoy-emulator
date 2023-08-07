@@ -47,7 +47,8 @@ namespace jmpr {
 
 		static int runGameBoy();
 
-		static void reset();
+		static void connectComponents();
+		static void reboot();
 
 		static void cpuLoop();
 		static void uiLoop();

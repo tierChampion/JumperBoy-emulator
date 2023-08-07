@@ -12,6 +12,8 @@ namespace jmpr {
 		_vram = VRAM(&_lcd);
 		_oam = OAM(&_lcd);
 
+		_pt_handler = PixelTransferHandler(&_lcd, &_vram);
+
 		_it_handler = intHandler;
 
 		_line_dots = 0;
@@ -19,7 +21,19 @@ namespace jmpr {
 		_last_frame_time = 0;
 		_frame_ready = false;
 
-		_pt_handler = PixelTransferHandler(&_lcd, &_vram);
+		_lcd.setMode(LCDMode::OAM_SCAN);
+	}
+
+	void PPU::reboot() {
+
+		_lcd.reboot();
+
+		_line_dots = 0;
+		_curr_frame = 0;
+		_last_frame_time = 0;
+		_frame_ready = false;
+
+		_pt_handler.reboot();
 
 		_lcd.setMode(LCDMode::OAM_SCAN);
 	}

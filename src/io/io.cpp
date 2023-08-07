@@ -2,6 +2,7 @@
 
 #include <io/joypad.h>
 #include <io/timer.h>
+#include <apu/apu.h>
 #include <ppu/lcd.h>
 #include <ppu/dma.h>
 
@@ -23,19 +24,14 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad, Timer* tim, LCD* lcd, DMA* dma) :
+	IO::IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, DMA* dma) :
 		_serial_trans{ 0x00, 0x7E },
-		_audio{ 0x80, 0xBF, 0xF3, 0xFF, 0xBF, 0x3F, 0x00, 0xFF, 0xBF, 0x7F,
-		0xFF, 0x9F, 0xFF, 0xBF, 0xFF, 0x00, 0x00, 0xBF, 0x77, 0xF3, 0xF1 },
-		_wave_patts{ 0x00 },
-		_lcd_stuff{ 0x91, 0x85, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFC,
-		0x00, 0x00, // weird, unknown state
-		0x00, 0x00 },
 		_vram_dma{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
 		_bg_obj_pallets{ 0xFF, 0xFF }
 	{
 		_joypad = pad;
 		_timer = tim;
+		_apu = apu;
 		_lcd = lcd;
 		_dma = dma;
 
@@ -58,11 +54,8 @@ namespace jmpr {
 		else if (between(range, 0x4, 0x7)) {
 			out = _timer->read(address);
 		}
-		else if (between(range, 0x10, 0x26)) {
-			out = _audio[range - 0x10];
-		}
-		else if (between(range, 0x30, 0x3F)) {
-			out = _wave_patts[range - 0x30];
+		else if (between(range, 0x10, 0x3F)) {
+			out = _apu->read(address);
 		}
 		else if (range == 0x46) {
 			out = _dma->readDMA();
@@ -105,11 +98,8 @@ namespace jmpr {
 		else if (between(range, 0x4, 0x7)) {
 			_timer->write(range, data);
 		}
-		else if (between(range, 0x10, 0x26)) {
-			_audio[range - 0x10] = data;
-		}
-		else if (between(range, 0x30, 0x3F)) {
-			_wave_patts[range - 0x30] = data;
+		else if (between(range, 0x10, 0x3F)) {
+			_apu->write(range, data);
 		}
 		else if (range == 0x46) {
 			_dma->requestDMA(data);

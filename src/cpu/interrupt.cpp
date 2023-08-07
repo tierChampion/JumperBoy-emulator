@@ -10,26 +10,33 @@ namespace jmpr {
 
 	InterruptHandler::InterruptHandler() {
 
-		_IME = true;
-		_IME_schedule = 0;
-		_IE = 0x00;
-		_IF = 0xE1;
-
 		_bug_status = HaltBugStatus();
+
+		reboot();
 	}
 
 	InterruptHandler::InterruptHandler(CPU* cpu) {
 
 		_cpu = cpu;
+		_bug_status = HaltBugStatus();
+
+		reboot();
+	}
+
+	/**
+	* Reboot the Interrupt Handler and resets the registers to their initial values.
+	*/
+	void InterruptHandler::reboot() {
 
 		_IME = true;
-		_IME_schedule = 0;
+		_IME_schedule = true;
 		_IE = 0x00;
 		_IF = 0xE1;
 
-		_bug_status = HaltBugStatus();
+		_bug_status._bugged = false;
+		_bug_status._bug_address = 0x0000;
 	}
-	
+
 	/**
 	* Enable interrupts with the EI or RETI instruction.
 	*/

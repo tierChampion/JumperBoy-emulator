@@ -10,6 +10,14 @@ namespace jmpr {
 	Timer::Timer(APU* apu, InterruptHandler* interHandler) {
 
 		// AB is the div and E6 is for sync with the internal div
+		reboot();
+
+		_apu = apu;
+		_it_handler = interHandler;
+	}
+
+	void Timer::reboot() {
+
 		_div = 0xABCC;
 		_tima = 0x00;
 		_tma = 0x00;
@@ -17,9 +25,6 @@ namespace jmpr {
 
 		_old_output = computeOutput();
 		_tima_overflow = 0x00;
-
-		_apu = apu;
-		_it_handler = interHandler;
 	}
 
 	// Frequency of the clock depending on the TAC register.

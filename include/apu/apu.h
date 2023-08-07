@@ -44,6 +44,8 @@ namespace jmpr {
 
 		APU();
 
+		void reboot();
+
 		u8 read(u8 address);
 		void write(u8 address, u8 data);
 

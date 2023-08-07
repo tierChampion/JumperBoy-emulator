@@ -15,7 +15,31 @@ namespace jmpr {
 		_pixel_fifo = std::queue<u32>();
 		_visible_sprites = std::vector<Sprite>();
 
+		_bgw_fetch = FetcherElem();
+		_spr_fetch = std::vector<SpriteFetch>();
+
 		prepareForTransfer();
+	}
+
+	void PixelTransferHandler::reboot() {
+
+		_phase = FifoPhase::GET_TILE;
+		_lx = 0;
+		_pushed_x = 0;
+		_fifo_x = 0;
+		_fetcher_x = 0;
+		_map_y = 0;
+		_map_x = 0;
+		_tile_y = 0;
+
+		_pixel_fifo = {};
+
+		_spr_fetch.clear();
+		_visible_sprites.clear();
+
+		_bgw_fetch.id = 0x0000;
+		_bgw_fetch.lo = 0x0000;
+		_bgw_fetch.hi = 0x0000;
 	}
 
 	bool PixelTransferHandler::transferComplete() {
@@ -34,15 +58,19 @@ namespace jmpr {
 		_map_y = 0;
 		_map_x = 0;
 		_tile_y = 0;
-		_bgw_fetch = FetcherElem();
-		_spr_fetch = std::vector<SpriteFetch>();
+
+		//_pixel_fifo = {};
+
+		//_visible_sprites.clear();
+
+		_bgw_fetch.id = 0x0000;
+		_bgw_fetch.lo = 0x0000;
+		_bgw_fetch.hi = 0x0000;
 	}
 
 	void PixelTransferHandler::resetFifo() {
 
-		while (_pixel_fifo.size() > 0) {
-			_pixel_fifo.pop();
-		}
+		_pixel_fifo = {};
 
 		_visible_sprites.clear();
 	}

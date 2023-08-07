@@ -36,6 +36,8 @@ namespace jmpr {
 		InterruptHandler();
 		InterruptHandler(CPU* cpu);
 
+		void reboot();
+
 		void enableInterrupts(bool instant);
 		void disableInterrupts(bool instant);
 

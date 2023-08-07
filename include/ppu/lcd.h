@@ -43,6 +43,7 @@ namespace jmpr {
 		LCD() {}
 		LCD(InterruptHandler* intHandler);
 
+		void reboot();
 		void reset();
 
 		u8 read(u8 address) const;

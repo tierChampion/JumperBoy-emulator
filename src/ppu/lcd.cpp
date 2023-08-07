@@ -10,6 +10,11 @@ namespace jmpr {
 
 		_it_handler = intHandler;
 
+		reboot();
+	}
+
+	void LCD::reboot() {
+
 		_lcdc = 0x91;
 		_ly = 0x00;
 		_lyc = 0x00;
@@ -24,13 +29,15 @@ namespace jmpr {
 		_obp[0] = 0xFF;
 		_obp[1] = 0xFF;
 
-		// gbc only registers... 
 		_bcps_bgpi = 0xFF;
 		_bcpd_bgpd = 0xFF;
 		_ocps_obpi = 0xFF;
 		_ocpd_obpd = 0xFF;
 	}
 
+	/**
+	* Resetting of the line and drawing states. Used when starting a new frame.
+	*/
 	void LCD::reset() {
 
 		setMode(LCDMode::OAM_SCAN);

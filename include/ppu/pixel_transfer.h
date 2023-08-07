@@ -61,6 +61,8 @@ namespace jmpr {
 		PixelTransferHandler() {}
 		PixelTransferHandler(LCD* lcd, VRAM* vram);
 
+		void reboot();
+
 		bool transferComplete();
 
 		void prepareForTransfer();

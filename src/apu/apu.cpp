@@ -24,6 +24,11 @@ namespace jmpr {
 		_right_vol = 0b000;
 	}
 
+	void APU::reboot() {
+
+		// todo
+	}
+
 	void APU::update(u8 oldEdge, u8 newEdge) {
 
 		if (oldEdge == 1 && newEdge == 0) {

@@ -20,6 +20,8 @@ namespace jmpr {
 		DMA() {}
 		DMA(OAM* oam);
 
+		void reboot();
+
 		void connectBus(Bus* bus) { _bus = bus; }
 
 		bool inProcess();

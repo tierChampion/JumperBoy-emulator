@@ -21,7 +21,7 @@ namespace jmpr {
 	Timer GameBoy::_timer = Timer(&_apu, _cpu.getInterruptHandler());
 	RAM GameBoy::_ram = RAM();
 	DMA GameBoy::_dma = DMA(_ppu.getOAM());
-	IO GameBoy::_io = IO(&_joypad, &_timer, _ppu.getLCD(), &_dma);
+	IO GameBoy::_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_dma);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
@@ -33,7 +33,11 @@ namespace jmpr {
 
 	int GameBoy::runGameBoy() {
 
-		reset();
+		_paused = false;
+		_running = false;
+		_ticks = 0;
+
+		connectComponents();
 		_running = false;
 
 		std::thread cpuThread(&cpuLoop);
@@ -44,11 +48,7 @@ namespace jmpr {
 		return 0;
 	}
 
-	void GameBoy::reset() {
-
-		_paused = false;
-		_running = false;
-		_ticks = 0;
+	void GameBoy::connectComponents() {
 
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
@@ -57,6 +57,17 @@ namespace jmpr {
 
 		_cpu.connectBus(&_bus);
 		_dma.connectBus(&_bus);
+	}
+
+	void GameBoy::reboot() {
+
+		_cpu.reboot();
+		_ppu.reboot();
+		_apu.reboot();
+		_joypad.reboot();
+		_timer.reboot();
+		_dma.reboot();
+		// io
 	}
 
 	void GameBoy::cpuLoop() {
@@ -82,7 +93,7 @@ namespace jmpr {
 
 		_running = false;
 
-		reset();
+		reboot();
 
 		_cart = Cartridge(rom_file);
 

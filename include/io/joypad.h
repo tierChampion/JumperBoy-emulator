@@ -36,6 +36,8 @@ namespace jmpr {
 		Joypad() {}
 		Joypad(InterruptHandler* handler);
 
+		void reboot();
+
 		InputHandler* getInputHandler() { return &_inp_handler; }
 
 		u8 readP1Register() const;

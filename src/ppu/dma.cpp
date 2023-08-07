@@ -10,6 +10,11 @@ namespace jmpr {
 		_bus = nullptr;
 		_oam = oam;
 
+		reboot();
+	}
+
+	void DMA::reboot() {
+
 		_dma = 0xFF;
 		_process_timer = 0x00;
 	}

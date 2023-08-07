@@ -33,6 +33,8 @@ namespace jmpr {
 		PPU() {}
 		PPU(InterruptHandler* intHandler);
 
+		void reboot();
+
 		LCD* getLCD() { return &_lcd; }
 		VRAM* getVRAM() { return &_vram; }
 		OAM* getOAM() { return &_oam; }

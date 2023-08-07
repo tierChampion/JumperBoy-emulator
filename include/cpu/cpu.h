@@ -59,6 +59,8 @@ namespace jmpr {
 
 		CPU();
 
+		void reboot();
+
 		void connectBus(Bus* bus) { _bus = bus; }
 
 		InterruptHandler* getInterruptHandler() { return &_it_handler; }

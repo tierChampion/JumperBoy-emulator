@@ -12,6 +12,17 @@ namespace jmpr {
 
 	CPU::CPU() {
 
+		_bus = nullptr;
+		_it_handler = InterruptHandler(this);
+
+		reboot();
+	}
+
+	/**
+	* Reboot the CPU and resets the registers to their initial values.
+	*/
+	void CPU::reboot() {
+
 		// Initial DMG register values. See TCAGBD.pdf for more info.
 		_registers._A = 0x01;
 		_registers._F = 0xB0;
@@ -24,18 +35,18 @@ namespace jmpr {
 		_SP = 0xFFFE;
 		_PC = 0x100;
 
+		// Fetching states
 		_curr_fetch = 0x0000;
 		_mem_dest = 0x0000;
 		_dest_is_mem = false;
 		_curr_opcode = 0x00;
 		_curr_instr = nullptr;
 
-		_bus = nullptr;
-
-		_it_handler = InterruptHandler(this);
-
+		// Cycling state
 		_halted = false;
 		_stopped = false;
+
+		_it_handler.reboot();
 	}
 
 	/**

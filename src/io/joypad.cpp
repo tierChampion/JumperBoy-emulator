@@ -6,12 +6,17 @@ namespace jmpr {
 
 	Joypad::Joypad(InterruptHandler* handler) {
 
-		_p1_selection = 0xFC;
-		_p1_input = 0xFF;
+		reboot();
 
 		_inp_handler = InputHandler(this);
 
 		_int_handler = handler;
+	}
+
+	void Joypad::reboot() {
+
+		_p1_selection = 0xFC;
+		_p1_input = 0xFF;
 	}
 
 	u8 Joypad::readP1Register() const {

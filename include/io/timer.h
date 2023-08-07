@@ -26,6 +26,8 @@ namespace jmpr {
 		Timer() {}
 		Timer(APU* apu, InterruptHandler* interHandler);
 
+		void reboot();
+
 		void displayStates() const;
 		void update();
 
