@@ -23,7 +23,7 @@ namespace jmpr {
 		_tma = 0x00;
 		_tac = 0xF8;
 
-		_old_output = computeOutput();
+		_edge = computeEdge();
 		_tima_overflow = 0x00;
 	}
 
@@ -38,16 +38,46 @@ namespace jmpr {
 	/**
 	* Compute the output of the DIV-TAC multiplexer.
 	*/
-	u8 Timer::computeOutput() const {
+	u8 Timer::computeEdge() const {
 		bool timerBit = (_div & (TAC_TABLE[_tac & 0b11] >> 1));
-		return timerBit && bit(_tac, 2);
+		return u8(timerBit && bit(_tac, 2));
+	}
+
+	bool Timer::checkFallingEdge() {
+
+		u8 newEdge = computeEdge();
+
+		if (_edge == 1 && newEdge == 0) {
+			_edge = 0;
+
+			return true;
+		}
+
+		_edge = newEdge;
+
+		return false;
 	}
 
 	/**
 	* Compute the output of the DIV-APU counter.
 	*/
-	u8 Timer::computeDivApuOutput() const {
+	u8 Timer::computeDivApuEdge() const {
 		return (_div & 0x2000) > 0; // adapt to double speed (0x4000)
+	}
+
+	bool Timer::checkDivApuEdge() {
+
+		u8 newEdge = computeDivApuEdge();
+
+		if (_div_apu_edge == 1 && newEdge == 0) {
+			_div_apu_edge = 0;
+
+			return true;
+		}
+
+		_div_apu_edge = newEdge;
+
+		return false;
 	}
 
 	/**
@@ -59,11 +89,8 @@ namespace jmpr {
 
 		TIMAOverflowRoutine();
 
-		u8 new_output = computeOutput();
-		u8 new_divapu = computeDivApuOutput();
-
 		// Increment TIMA register when falling edge
-		if ((_old_output == 1) && (new_output == 0)) {
+		if (checkFallingEdge()) {
 
 			_tima++;
 
@@ -77,10 +104,7 @@ namespace jmpr {
 			}
 		}
 
-		_apu->update(_div_apu_output, new_divapu);
-
-		_old_output = new_output;
-		_div_apu_output = new_divapu;
+		_apu->updateEffects(checkDivApuEdge());
 	}
 
 	/**
@@ -98,7 +122,6 @@ namespace jmpr {
 				_it_handler->requestInterrupt(InterruptType::TIMER);
 			}
 		}
-
 	}
 
 	u8 Timer::read(u8 address) const {
@@ -124,15 +147,15 @@ namespace jmpr {
 			_div = 0;
 
 			// TIMA can get increased in certain cases
-			if (_old_output == 1) {
+			if (_edge == 1) {
 				_tima++;
 			}
 
 			// TODO: apu falling edge check
-			_apu->update(_div_apu_output, 0);
+			_apu->updateEffects(checkDivApuEdge());
 
-			_old_output = 0;
-			_div_apu_output = 0;
+			_edge = 0;
+			_div_apu_edge = 0;
 
 			break;
 		}
@@ -159,13 +182,9 @@ namespace jmpr {
 
 			_tac = (data & 0b111) | 0xF8;
 
-			u8 new_output = computeOutput();
-
-			if ((_old_output == 1) && (new_output == 0)) {
+			if (checkFallingEdge()) {
 				_tima++;
 			}
-
-			_old_output = new_output;
 
 			break;
 		}

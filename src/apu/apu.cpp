@@ -1,27 +1,24 @@
 #include <apu/apu.h>
 
-#include <array>
-
 namespace jmpr {
 
-	static const std::array<u8, 32> DUTY_CYCLES = {
-		0, 1, 1, 1, 1, 1, 1, 1, // 12.5% low
-		0, 0, 1, 1, 1, 1, 1, 1, // 25% low
-		0, 0, 0, 0, 1, 1, 1, 1, // 50% low
-		0, 0, 0, 0, 0, 0, 1, 1  // 75% low
-	};
+	// NR50 77 (volume of 7 in both outputs)
+	// NR51 F3 (all channels in both, except channel 4 only in left output)
+	// NR52 F1 (apu on, channel 1 on)
 
 	APU::APU() : _waveRAM{ 0 } {
 
 		_apu_power = true;
 
-		_channels[0] = AudioChannel(true, 0b11);
-		_channels[1] = AudioChannel(true, 0b11);
-		_channels[2] = AudioChannel(true, 0b10);
-		_channels[3] = AudioChannel(true, 0b10);
+		_channels[0] = AudioChannelState(true, 0b11);
+		_channels[1] = AudioChannelState(true, 0b11);
+		_channels[2] = AudioChannelState(true, 0b10);
+		_channels[3] = AudioChannelState(true, 0b10);
 
-		_left_vol = 0b000;
-		_right_vol = 0b000;
+		_left_vol = 0b111;
+		_right_vol = 0b111;
+
+		// vol2
 	}
 
 	void APU::reboot() {
@@ -29,36 +26,39 @@ namespace jmpr {
 		// todo
 	}
 
-	void APU::update(u8 oldEdge, u8 newEdge) {
+	void APU::updateEffects(bool fallingEdge) {
 
-		if (oldEdge == 1 && newEdge == 0) {
+		if (fallingEdge) {
 
 			_div_apu++;
 
 			// every 2, sound length
-			if ((_div_apu & 1) == 0) {
+			if ((_div_apu & 0b1) == 0) {
 
-				for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-					_channels[c].update();
-				}
 			}
 
 			// every 4, ch1 freq sweep
+			if ((_div_apu & 0b11) == 0) {
+
+			}
+
 			// every 8, envelope sweep
+			if ((_div_apu & 0b111) == 0) {
+
+			}
 		}
 	}
 
-	void AudioChannel::update() {
+	void APU::updateChannels() {
 
-		if (_gen_power && _len_enabled) {
+		// every m cycle
 
-			_len_timer++;
+		_ch2_period_pointer--;
 
-			if (_len_timer == _timer_end) {
+		if (_ch2_period_pointer == 0) {
 
-				_len_timer == _timer_begin;
-				_gen_power = false;
-			}
+			_ch2_duty_pointer = (_ch2_duty_pointer + 1) % 8;
+			_ch2_period_pointer = 0x800 - _ch2_period_timer;
 		}
 	}
 
@@ -79,18 +79,20 @@ namespace jmpr {
 			_waveRAM[address - 0x30] = data;
 	}
 
+	// NR52
+
 	u8 APU::getAPUPower() const {
 
 		u8 result = (_apu_power << 7) | 0b01110000;
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-			result |= _channels[c]._gen_power << c;
+			result |= _channels[c]._active << c;
 		}
 
 		return result;
 	}
 
-	void APU::handleAPUPower(u8 newPower) {
+	void APU::updateAPUPower(u8 newPower) {
 
 		u8 powerStatus = bit(newPower, 7);
 
@@ -99,19 +101,11 @@ namespace jmpr {
 		// Power OFF
 		if (!_apu_power) {
 
-			// todo: set all registers to 0.
-
-
+			// todo: set every single registers in the apu to 0.
 		}
 	}
 
-	void APU::updateChannelPanning(u8 newPanning) {
-
-		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-
-			_channels[c]._panning = (bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1) | (bit(newPanning, c));
-		}
-	}
+	// NR51
 
 	u8 APU::getPanning() const {
 
@@ -119,11 +113,22 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			result |= (bit(_channels[c]._panning, 1) << (AUDIO_CHANNEL_COUNT + c)) | (bit(_channels[c]._panning, 0) << c);
+			result |= (bit(_channels[c]._left, 1) << (AUDIO_CHANNEL_COUNT + c)) | (bit(_channels[c]._right, 0) << c);
 		}
 
 		return result;
 	}
+
+	void APU::updateChannelPanning(u8 newPanning) {
+
+		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
+
+			_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
+			_channels[c]._right = bit(newPanning, c);
+		}
+	}
+
+	// NR50
 
 	void APU::updateMasterVolume(u8 newVol) {
 

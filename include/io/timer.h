@@ -14,8 +14,8 @@ namespace jmpr {
 		u8 _tma;
 		u8 _tac;
 
-		u8 _old_output;
-		u8 _div_apu_output;
+		u8 _edge;
+		u8 _div_apu_edge;
 		u8 _tima_overflow;
 
 		APU* _apu;
@@ -36,8 +36,10 @@ namespace jmpr {
 
 	private:
 
-		u8 computeOutput() const;
-		u8 computeDivApuOutput() const;
+		u8 computeEdge() const;
+		bool checkFallingEdge();
+		bool checkDivApuEdge();
+		u8 computeDivApuEdge() const;
 		void TIMAOverflowRoutine();
 	};
 }
