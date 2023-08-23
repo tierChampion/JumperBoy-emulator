@@ -7,22 +7,20 @@ namespace jmpr {
 	*/
 	void APU::generateSample() {
 
-		float sample2 = generateChannel2();
+		std::array<float, 2> sample2 = _channel2.sample();
+		// add other channels...
 
-		// add other channels
+		sample2[0] *= _left_vol + 1;
+		sample2[1] *= _right_vol + 1;
 
-		float leftSample = _channels[1]._left * sample2;
-		float rightSample = _channels[1]._right * sample2;
+#define GLOBAL_VOLUME 0.3f
 
-		leftSample *= _left_vol + 1;
-		rightSample *= _right_vol + 1;
-
-		_samples[_sample_pointer++] = leftSample;
-		_samples[_sample_pointer++] = rightSample;
+		_samples[_sample_pointer++] = (sample2[0] / 8.0f) * GLOBAL_VOLUME;
+		_samples[_sample_pointer++] = (sample2[1] / 8.0f) * GLOBAL_VOLUME;
 
 		if (_sample_pointer == MAX_SAMPLES) {
 
-			// TODO: DISPATCH TO SDL
+			SDL_QueueAudio(_audio_id, _samples, MAX_SAMPLES * sizeof(float));
 
 			_sample_pointer = 0;
 		}

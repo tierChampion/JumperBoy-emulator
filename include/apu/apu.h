@@ -2,45 +2,41 @@
 
 #include <common.h>
 
+#include <apu/square_channel.h>
+
+#include <SDL/SDL.h>
+
 namespace jmpr {
 
 #define AUDIO_CHANNEL_COUNT 4
 
 	// desired sample rate of output
-#define SAMPLE_RATE 44100 // 48000
-	// every 95 t-states, collect one audio sample
-#define SAMPLE_GATERING 96 // 88
+#define SAMPLE_RATE 48000 
+	// every about 87 t-states, collect one audio sample
+#define SAMPLE_GATERING 87.38133333333333f 
 	// max number of samples kept by the apu before being flushed to sdl
-#define MAX_SAMPLES 1024
-
-	struct AudioChannelState {
-
-		bool _active;
-		bool _dac;
-		bool _left;
-		bool _right;
-	};
+#define MAX_SAMPLES 2048
 
 	class APU {
 
-		bool _apu_power;
+		// sdl stuff
+		SDL_AudioDeviceID _audio_id;
+		SDL_AudioSpec _audio_specs;
 
-		u8 _samples[2 * MAX_SAMPLES];
+		float _samples[MAX_SAMPLES];
 		u16 _sample_pointer;
+		u8 _sample_counter;
 
+		bool _apu_power;
 		u8 _div_apu;
-
-		AudioChannelState _channels[AUDIO_CHANNEL_COUNT];
 
 		u8 _left_vol;
 		u8 _right_vol;
 
+		AudioChannelState _channels[AUDIO_CHANNEL_COUNT];
+
 		// CH2
-		u8 _ch2_duty;
-		u8 _ch2_duty_pointer; // where in the cycle you are. increments everytime the period timer goes to 0
-		u8 _ch2_vol;
-		u16 _ch2_period_timer; // length of a single step of duty cycles. decrements every m_cycle
-		u16 _ch2_period_pointer;
+		SquareChannel _channel2;
 
 		u8 _waveRAM[0x10];
 
@@ -48,6 +44,7 @@ namespace jmpr {
 	public:
 
 		APU();
+		~APU();
 
 		void reboot();
 
@@ -76,20 +73,17 @@ namespace jmpr {
 		void updateMasterVolume(u8 newVol);
 		u8 getMasterVolume() const;
 
-		// CH2
+		// CH1
+		void initChannel1();
 
-		void initChannel2();
+		// CH3
+		void initChannel3();
 
-		void writeChannel2(u8 address, u8 data);
-		u8 readChannel2(u8 address);
+		// CH4
+		void initChannel4();
 
-		void writeChannel2Lengths(u8 newLength);
-		u8 readChannel2Duty() const;
-		void writeChannel2Volume(u8 newVolume);
-		u8 readChannel2Volume() const;
-		void writeChannel2PeriodControl(u8 selection, u8 newPeriodControl);
-		u8 readChannel2Control() const;
 
-		float generateChannel2() const;
+
+		void test();
 	};
 }

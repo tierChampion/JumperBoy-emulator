@@ -8,17 +8,43 @@ namespace jmpr {
 
 	APU::APU() : _waveRAM{ 0 } {
 
-		_apu_power = true;
+		// Initialize SDL Audio
+		if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+			std::cerr << "Couldn't initialize SDL Audio: " << SDL_GetError() << std::endl;
+			exit(-10);
+		}
 
-		_channels[0] = AudioChannelState(true, 0b11);
-		_channels[1] = AudioChannelState(true, 0b11);
-		_channels[2] = AudioChannelState(true, 0b10);
-		_channels[3] = AudioChannelState(true, 0b10);
+		_audio_specs = SDL_AudioSpec();
+		SDL_zero(_audio_specs);
+		_audio_specs.freq = SAMPLE_RATE;
+		_audio_specs.format = AUDIO_F32;
+		_audio_specs.channels = 2;
+		_audio_specs.samples = MAX_SAMPLES;
+		_audio_specs.callback = nullptr;
+
+		_audio_id = SDL_OpenAudioDevice(NULL, 0, &_audio_specs, nullptr, 0);
+
+		SDL_PauseAudioDevice(_audio_id, 0);
+
+		_sample_pointer = 0;
+		_sample_counter = 0;
+
+		_apu_power = true;
 
 		_left_vol = 0b111;
 		_right_vol = 0b111;
 
-		// vol2
+		initChannel1();
+
+		_channel2 = SquareChannel();
+
+		initChannel3();
+		initChannel4();
+	}
+
+	APU::~APU() {
+
+		SDL_CloseAudioDevice(_audio_id);
 	}
 
 	void APU::reboot() {
@@ -53,21 +79,41 @@ namespace jmpr {
 
 		// every m cycle
 
-		_ch2_period_pointer--;
+		_sample_counter++;
+		_channel2.update();
 
-		if (_ch2_period_pointer == 0) {
+		/*/
+		_ch2_timer--;
+
+		if (_ch2_timer == 0) {
 
 			_ch2_duty_pointer = (_ch2_duty_pointer + 1) % 8;
-			_ch2_period_pointer = 0x800 - _ch2_period_timer;
+			_ch2_timer = (0x800 - _ch2_freq) * 4;
 		}
+		*/
+
+		// generate a sample
+		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer) {
+
+			generateSample();
+			_sample_counter = 0;
+		}
+
 	}
 
-	// fix read write for specific bit accesibility
-	// todo for later
+	// TODO, link read write to channel2
 
 	u8 APU::read(u8 address) {
 
-		if (between(address, 0x30, 0x3F))
+		if (between(address, 0x16, 0x19))
+			return _channel2.read(address);// readChannel2(address);
+		else if (address == 0x24)
+			return getMasterVolume();
+		else if (address == 0x25)
+			return getPanning();
+		else if (address == 0x26)
+			return getAPUPower();
+		else if (between(address, 0x30, 0x3F))
 			return _waveRAM[address - 0x30];
 
 		return 0xFF;
@@ -75,18 +121,32 @@ namespace jmpr {
 
 	void APU::write(u8 address, u8 data) {
 
-		if (between(address, 0x30, 0x3F))
+		if (between(address, 0x16, 0x19))
+			_channel2.write(address, data);// writeChannel2(address, data);
+		else if (address == 0x24)
+			updateMasterVolume(data);
+		else if (address == 0x25)
+			updateChannelPanning(data);
+		else if (address == 0x26)
+			updateAPUPower(data);
+		else if (between(address, 0x30, 0x3F))
 			_waveRAM[address - 0x30] = data;
 	}
 
 	// NR52
 
+	// TODO change for object channels
 	u8 APU::getAPUPower() const {
 
 		u8 result = (_apu_power << 7) | 0b01110000;
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-			result |= _channels[c]._active << c;
+			if (c != 1) {
+				result |= _channels[c]._active << c;
+			}
+			else {
+				result |= _channel2.isActive() << 2;
+			}
 		}
 
 		return result;
@@ -107,13 +167,19 @@ namespace jmpr {
 
 	// NR51
 
+	// TODO change for channels
 	u8 APU::getPanning() const {
 
 		u8 result = 0;
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			result |= (bit(_channels[c]._left, 1) << (AUDIO_CHANNEL_COUNT + c)) | (bit(_channels[c]._right, 0) << c);
+			if (c != 1) {
+				result |= (_channels[c]._left << (AUDIO_CHANNEL_COUNT + c)) | (_channels[c]._right << c);
+			}
+			else {
+				result |= (_channel2.outputsLeft() << 5) | (_channel2.outputsRight() << 1);
+			}
 		}
 
 		return result;
@@ -123,8 +189,13 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
-			_channels[c]._right = bit(newPanning, c);
+			if (c != 1) {
+				_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
+				_channels[c]._right = bit(newPanning, c);
+			}
+			else {
+				_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
+			}
 		}
 	}
 

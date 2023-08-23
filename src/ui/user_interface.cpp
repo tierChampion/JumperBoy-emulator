@@ -7,9 +7,9 @@ namespace jmpr {
 
 	UI::UI(PPU* ppu, InputHandler* inpHandler) {
 
-		// Initialize SDL
+		// Initialize SDL Video
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
+			std::cerr << "Couldn't initialize SDL Video: " << SDL_GetError() << std::endl;
 			exit(-10);
 		}
 

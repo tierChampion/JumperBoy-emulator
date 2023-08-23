@@ -45,6 +45,8 @@ namespace jmpr {
 		cpuThread.detach();
 		uiLoop();
 
+		SDL_Quit();
+
 		return 0;
 	}
 
@@ -119,6 +121,7 @@ namespace jmpr {
 
 				_timer.update();
 				_ppu.update();
+				_apu.updateChannels();
 
 				_ticks++;
 			}
