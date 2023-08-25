@@ -32,7 +32,7 @@ add_executable(JumperBoy
 "ui/user_visuals.cpp" 
 "ui/user_inputs.cpp" 
 "../libs/tfd/tinyfiledialogs.cpp" 
- "apu/apu_channel1.cpp" "apu/apu_channel3.cpp" "apu/apu_channel4.cpp" "apu/channel.cpp" "apu/square_channel.cpp")
+  "apu/apu_channel3.cpp" "apu/apu_channel4.cpp" "apu/channel.cpp" "apu/square_channel.cpp")
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 

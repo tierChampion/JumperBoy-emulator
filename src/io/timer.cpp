@@ -104,7 +104,8 @@ namespace jmpr {
 			}
 		}
 
-		_apu->updateEffects(checkDivApuEdge());
+		if (checkDivApuEdge())
+			_apu->updateEffects();
 	}
 
 	/**
@@ -152,7 +153,8 @@ namespace jmpr {
 			}
 
 			// TODO: apu falling edge check
-			_apu->updateEffects(checkDivApuEdge());
+			if (checkDivApuEdge())
+				_apu->updateEffects();
 
 			_edge = 0;
 			_div_apu_edge = 0;

@@ -27,18 +27,15 @@ namespace jmpr {
 
 	UI GameBoy::_ui = UI(&_ppu, _joypad.getInputHandler());
 
-	bool GameBoy::_paused = false;
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
 
 	int GameBoy::runGameBoy() {
 
-		_paused = false;
 		_running = false;
 		_ticks = 0;
 
 		connectComponents();
-		_running = false;
 
 		std::thread cpuThread(&cpuLoop);
 
@@ -93,8 +90,6 @@ namespace jmpr {
 
 	bool GameBoy::insertCartridge(const char* rom_file) {
 
-		_running = false;
-
 		reboot();
 
 		_cart = Cartridge(rom_file);
@@ -103,7 +98,6 @@ namespace jmpr {
 
 		_bus.connectCartridge(&_cart);
 
-		_running = true;
 		_ticks = 0;
 
 		return true;
@@ -121,7 +115,7 @@ namespace jmpr {
 
 				_timer.update();
 				_ppu.update();
-				_apu.updateChannels();
+				_apu.update();
 
 				_ticks++;
 			}

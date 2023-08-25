@@ -39,7 +39,6 @@ namespace jmpr {
 		static UI _ui;
 
 		// States
-		static bool _paused;
 		static bool _running;
 		static u64 _ticks;
 
@@ -56,6 +55,9 @@ namespace jmpr {
 		static bool insertCartridge(const char* rom_file);
 
 		static void cycle(u8 m_cycles);
+
+		static void pause() { _running = false; }
+		static void resume() { _running = true; }
 
 		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 

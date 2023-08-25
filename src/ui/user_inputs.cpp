@@ -34,6 +34,9 @@ namespace jmpr {
 
 				if (_curr_event.button.button == SDL_BUTTON_LEFT) {
 					// Input a command to process afterwards.
+
+					GameBoy::pause();
+
 					_curr_input = tinyfd_inputBox("Input command",
 						"Enter a command: open_rom, set_controls", "");
 
@@ -48,7 +51,10 @@ namespace jmpr {
 						);
 
 						GameBoy::insertCartridge(_curr_input);
+
 					}
+
+					GameBoy::resume();
 				}
 
 				break;

@@ -36,6 +36,7 @@ namespace jmpr {
 		AudioChannelState _channels[AUDIO_CHANNEL_COUNT];
 
 		// CH2
+		SquareChannel _channel1;
 		SquareChannel _channel2;
 
 		u8 _waveRAM[0x10];
@@ -51,11 +52,10 @@ namespace jmpr {
 		u8 read(u8 address);
 		void write(u8 address, u8 data);
 
-		// div apu updates FIX LATER TO RREMOVE EDGES AND KEEP IT IN THE TIMER.
-		void updateEffects(bool fallingEdge);
+		void updateEffects();
 
 		// regular timer updates
-		void updateChannels();
+		void update();
 
 		void generateSample();
 
@@ -72,9 +72,6 @@ namespace jmpr {
 		// NR50
 		void updateMasterVolume(u8 newVol);
 		u8 getMasterVolume() const;
-
-		// CH1
-		void initChannel1();
 
 		// CH3
 		void initChannel3();

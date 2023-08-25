@@ -10,6 +10,7 @@ namespace jmpr {
 
 		bool _active;
 		bool _dac;
+		bool _length;
 		bool _left;
 		bool _right;
 	};
@@ -19,6 +20,9 @@ namespace jmpr {
 	protected:
 
 		AudioChannelState _state;
+		std::array<float, 2> _out;
+
+		u8 _length_timer;
 
 	public:
 
@@ -27,6 +31,9 @@ namespace jmpr {
 		virtual void reset() = 0;
 
 		virtual void update() = 0;
+		void updateLengthTimer();
+
+		virtual void updateEnvelope() = 0;
 
 		virtual void write(u8 address, u8 data) = 0;
 		virtual u8 read(u8 address) const = 0;

@@ -2,18 +2,28 @@
 
 namespace jmpr {
 
-	SquareChannel::SquareChannel() : AudioChannel() {
+	SquareChannel::SquareChannel(bool activate, u8 addressSpaceStart) : AudioChannel() {
 
-		_duty = 0;
-		_duty_step = 0; // where in the cycle you are. increments everytime the period timer goes to 0
-		_vol = 0;
-		_freq = 0; // length of a single step of duty cycles. decrements every m_cycle
+		_duty = (activate ? 0b10 : 0b00);
+		_duty_step = 0;
+
+		_base_vol = (activate ? 0xF : 0);
+		_vol = _base_vol;
+		_rising_envelope = false;
+		_envelope_pace = 0b11;
+		_envelope_step = 0;
+
+		_freq = 0;
 		_timer = 0x800 * 4;
 
 		_out = std::array<float, 2>();
 
+		_state._active = activate;
+		_state._dac = activate;
 		_state._left = true;
 		_state._right = true;
+
+		_addr_start = addressSpaceStart;
 	}
 
 	void SquareChannel::reset() {}
@@ -22,8 +32,6 @@ namespace jmpr {
 
 		_timer--;
 
-		// todo enveloppe, sweep, length timer, etc...
-
 		if (_timer == 0) {
 
 			_duty_step = (_duty_step + 1) % 8;
@@ -31,44 +39,90 @@ namespace jmpr {
 		}
 	}
 
-	// switch address later for channel 1 support
+	void SquareChannel::updateEnvelope() {
+
+		if (_envelope_pace > 0) {
+
+			_envelope_step++;
+
+			if (_envelope_step == _envelope_pace) {
+
+				if ((_rising_envelope && _vol < 0xF) || (!_rising_envelope && _vol > 0))
+					_vol += (_rising_envelope ? 1 : -1);
+
+				_envelope_step = 0;
+			}
+		}
+	}
 
 	void SquareChannel::write(u8 address, u8 data) {
 
-		switch (address) {
-		case 0x16: writeChannel2Lengths(data); break;
-		case 0x17: writeChannel2Volume(data); break;
-		case 0x18: writeChannel2PeriodControl(0, data); break;
-		case 0x19: writeChannel2PeriodControl(1, data); break;
+		if (address == _addr_start) {
+			writeSweep(data);
+		}
+		else if (address == _addr_start + 1) {
+			writeLengths(data);
+		}
+		else if (address == _addr_start + 2) {
+			writeVolume(data);
+		}
+		else if (address == _addr_start + 3) {
+			writePeriodControl(0, data);
+		}
+		else if (address == _addr_start + 4) {
+			writePeriodControl(1, data);
 		}
 	}
 
 	u8 SquareChannel::read(u8 address) const {
 
-		switch (address) {
-		case 0x16: return readChannel2Duty(); break;
-		case 0x17: return readChannel2Volume(); break;
-		case 0x19: return readChannel2Control(); break;
+		u8 out = 0xFF;
+
+		if (address == _addr_start) {
+			out = readSweep();
+		}
+		else if (address == _addr_start + 1) {
+			out = readDuty();
+		}
+		else if (address == _addr_start + 2) {
+			out = readVolume();
+		}
+		else if (address == _addr_start + 4) {
+			out = readControl();
 		}
 
-		return 0xFF;
+		return out;
 	}
 
 	/*
-	* Write to the length register (NRx1).
+	* Write to the sweep register (NRx0).
 	*
-	* todo: length timer is not yet implemented
+	* todo
 	*/
-	void SquareChannel::writeChannel2Lengths(u8 newLength) {
+	void SquareChannel::writeSweep(u8 newSweep) {}
+
+	/*
+	* Read the sweep register (NRx0).
+	*
+	* todo
+	*/
+	u8 SquareChannel::readSweep() const { return 0xFF; }
+
+	/*
+	* Write to the length register (NRx1).
+	*/
+	void SquareChannel::writeLengths(u8 newLength) {
 
 		_duty = (newLength & 0b11000000) >> 6;
 		_duty_step = 0;
+
+		_length_timer = (newLength & 0b111111);
 	}
 
 	/*
 	* Read the length register (NRx1).
 	*/
-	u8 SquareChannel::readChannel2Duty() const {
+	u8 SquareChannel::readDuty() const {
 
 		return (_duty << 6) | 0b111111;
 	}
@@ -78,15 +132,18 @@ namespace jmpr {
 	*
 	* todo: envelope is not yet implemented and dac closing might need mods.
 	*/
-	void SquareChannel::writeChannel2Volume(u8 newVolume) {
+	void SquareChannel::writeVolume(u8 newVolume) {
 
-		_vol = hiNibble(newVolume);
+		_base_vol = hiNibble(newVolume);
+
+		_rising_envelope = bit(newVolume, 3);
+		_envelope_pace = (newVolume & 0b111);
+		_envelope_step = 0;
 
 		// dac turned off, channel turned off
 		if ((newVolume & 0b11110000) == 0) {
 
 			_state._dac = false;
-			// todo bunch of other stuff
 			_state._active = false;
 		}
 		else _state._dac = true;
@@ -97,9 +154,9 @@ namespace jmpr {
 	*
 	* todo: envelope is not yet implemented
 	*/
-	u8 SquareChannel::readChannel2Volume() const {
+	u8 SquareChannel::readVolume() const {
 
-		return (_vol << 5) | 0b11111;
+		return (_base_vol << 4) | (_rising_envelope << 3) | (_envelope_pace);
 	}
 
 	/*
@@ -107,7 +164,7 @@ namespace jmpr {
 	*
 	* todo: sound length is not yet implemented
 	*/
-	void SquareChannel::writeChannel2PeriodControl(u8 selection, u8 newPeriodControl) {
+	void SquareChannel::writePeriodControl(u8 selection, u8 newPeriodControl) {
 
 		// NRx3
 		if (selection == 0) {
@@ -122,11 +179,15 @@ namespace jmpr {
 			_freq = ((newPeriodControl & 0b111) << 8) | (_freq & 0xFF);
 			_timer = (0x800 - _freq) * 4;
 
+			_state._length = bit(newPeriodControl, 6);
+
 			// retriggering
 			if (bit(newPeriodControl, 7) && _state._dac) {
 
-				// set the volume change, dac state
 				_state._active = true;
+
+				_vol = _base_vol;
+				_envelope_step = 0;
 			}
 		}
 	}
@@ -136,9 +197,9 @@ namespace jmpr {
 	*
 	* todo: sound length is not yet implemented
 	*/
-	u8 SquareChannel::readChannel2Control() const {
+	u8 SquareChannel::readControl() const {
 
-		return 0;
+		return _state._length;
 	}
 
 	static const std::array<u8, 32> PULSE_DUTY_CYCLES = {

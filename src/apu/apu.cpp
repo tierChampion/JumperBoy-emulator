@@ -34,9 +34,8 @@ namespace jmpr {
 		_left_vol = 0b111;
 		_right_vol = 0b111;
 
-		initChannel1();
-
-		_channel2 = SquareChannel();
+		_channel1 = SquareChannel(true, 0x10);
+		_channel2 = SquareChannel(false, 0x15);
 
 		initChannel3();
 		initChannel4();
@@ -52,45 +51,34 @@ namespace jmpr {
 		// todo
 	}
 
-	void APU::updateEffects(bool fallingEdge) {
+	void APU::updateEffects() {
 
-		if (fallingEdge) {
+		_div_apu = (_div_apu + 1) % 8;
 
-			_div_apu++;
+		if (_div_apu % 2 == 0) {
+			// length
+			_channel1.updateLengthTimer();
+			_channel2.updateLengthTimer();
 
-			// every 2, sound length
-			if ((_div_apu & 0b1) == 0) {
+			if (_div_apu % 4 == 0) {
+				// sweep
 
-			}
-
-			// every 4, ch1 freq sweep
-			if ((_div_apu & 0b11) == 0) {
-
-			}
-
-			// every 8, envelope sweep
-			if ((_div_apu & 0b111) == 0) {
-
+				if (_div_apu % 8 == 0) {
+					// enveloppe
+					_channel1.updateEnvelope();
+					_channel2.updateEnvelope();
+				}
 			}
 		}
 	}
 
-	void APU::updateChannels() {
+	void APU::update() {
 
 		// every m cycle
 
 		_sample_counter++;
+		_channel1.update();
 		_channel2.update();
-
-		/*/
-		_ch2_timer--;
-
-		if (_ch2_timer == 0) {
-
-			_ch2_duty_pointer = (_ch2_duty_pointer + 1) % 8;
-			_ch2_timer = (0x800 - _ch2_freq) * 4;
-		}
-		*/
 
 		// generate a sample
 		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer) {
@@ -98,15 +86,14 @@ namespace jmpr {
 			generateSample();
 			_sample_counter = 0;
 		}
-
 	}
-
-	// TODO, link read write to channel2
 
 	u8 APU::read(u8 address) {
 
-		if (between(address, 0x16, 0x19))
-			return _channel2.read(address);// readChannel2(address);
+		if (between(address, 0x10, 0x15))
+			return _channel1.read(address);
+		else if (between(address, 0x16, 0x19))
+			return _channel2.read(address);
 		else if (address == 0x24)
 			return getMasterVolume();
 		else if (address == 0x25)
@@ -121,8 +108,10 @@ namespace jmpr {
 
 	void APU::write(u8 address, u8 data) {
 
+		if (between(address, 0x10, 0x15))
+			_channel1.write(address, data);
 		if (between(address, 0x16, 0x19))
-			_channel2.write(address, data);// writeChannel2(address, data);
+			_channel2.write(address, data);
 		else if (address == 0x24)
 			updateMasterVolume(data);
 		else if (address == 0x25)
@@ -141,11 +130,14 @@ namespace jmpr {
 		u8 result = (_apu_power << 7) | 0b01110000;
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-			if (c != 1) {
+			if (c > 1) {
 				result |= _channels[c]._active << c;
 			}
-			else {
-				result |= _channel2.isActive() << 2;
+			else if (c == 0) {
+				result |= _channel1.isActive();
+			}
+			else if (c == 1) {
+				result |= _channel2.isActive() << 1;
 			}
 		}
 
@@ -174,10 +166,13 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			if (c != 1) {
+			if (c > 1) {
 				result |= (_channels[c]._left << (AUDIO_CHANNEL_COUNT + c)) | (_channels[c]._right << c);
 			}
-			else {
+			else if (c == 0) {
+				result |= (_channel1.outputsLeft() << 4) | (_channel2.outputsRight());
+			}
+			else if (c == 1) {
 				result |= (_channel2.outputsLeft() << 5) | (_channel2.outputsRight() << 1);
 			}
 		}
@@ -189,11 +184,14 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			if (c != 1) {
+			if (c > 1) {
 				_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
 				_channels[c]._right = bit(newPanning, c);
 			}
-			else {
+			else if (c == 0) {
+				_channel1.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
+			}
+			else if (c == 1) {
 				_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
 			}
 		}
