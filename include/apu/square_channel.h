@@ -7,7 +7,7 @@ namespace jmpr {
 	class SquareChannel : public AudioChannel {
 
 		u8 _duty;
-		u8 _duty_step; // where in the cycle you are. increments everytime the period timer goes to 0
+		u8 _duty_step; 
 
 		u8 _base_vol;
 		bool _rising_envelope;
@@ -15,7 +15,7 @@ namespace jmpr {
 		u8 _envelope_step;
 		u8 _vol;
 
-		u16 _freq; // length of a single step of duty cycles. decrements every m_cycle
+		u16 _freq; 
 		u16 _timer;
 
 		u8 _addr_start;

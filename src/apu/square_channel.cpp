@@ -39,6 +39,9 @@ namespace jmpr {
 		}
 	}
 
+	/**
+	* Update the envelope effect, which might change the volume.
+	*/
 	void SquareChannel::updateEnvelope() {
 
 		if (_envelope_pace > 0) {
@@ -209,6 +212,9 @@ namespace jmpr {
 			0, 1, 1, 1, 1, 1, 0, 0  // 75% low
 	};
 
+	/**
+	* Compute the current volume of the channel.
+	*/
 	std::array<float, 2> SquareChannel::sample() {
 
 		_out[0] = 0;
@@ -221,7 +227,7 @@ namespace jmpr {
 
 			u8 digitalSignal = signal * _vol;
 
-			float analogSignal = -(digitalSignal / 7.5f) + 1;
+			float analogSignal = -(2 * digitalSignal / 16.0f) + 1;
 
 			_out[0] = analogSignal * _state._left;
 			_out[1] = analogSignal * _state._right;

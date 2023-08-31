@@ -3,6 +3,7 @@
 #include <common.h>
 
 #include <apu/square_channel.h>
+#include <apu/noise_channel.h>
 
 #include <SDL/SDL.h>
 
@@ -35,12 +36,12 @@ namespace jmpr {
 
 		AudioChannelState _channels[AUDIO_CHANNEL_COUNT];
 
-		// CH2
 		SquareChannel _channel1;
 		SquareChannel _channel2;
 
-		u8 _waveRAM[0x10];
+		NoiseChannel _channel4;
 
+		u8 _waveRAM[0x10];
 
 	public:
 

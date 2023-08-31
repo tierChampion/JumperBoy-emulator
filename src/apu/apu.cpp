@@ -38,7 +38,9 @@ namespace jmpr {
 		_channel2 = SquareChannel(false, 0x15);
 
 		initChannel3();
+
 		initChannel4();
+		_channel4 = NoiseChannel(0x20);
 	}
 
 	APU::~APU() {
@@ -59,6 +61,7 @@ namespace jmpr {
 			// length
 			_channel1.updateLengthTimer();
 			_channel2.updateLengthTimer();
+			_channel4.updateLengthTimer();
 
 			if (_div_apu % 4 == 0) {
 				// sweep
@@ -67,6 +70,7 @@ namespace jmpr {
 					// enveloppe
 					_channel1.updateEnvelope();
 					_channel2.updateEnvelope();
+					_channel4.updateEnvelope();
 				}
 			}
 		}
@@ -79,6 +83,7 @@ namespace jmpr {
 		_sample_counter++;
 		_channel1.update();
 		_channel2.update();
+		_channel4.update();
 
 		// generate a sample
 		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer) {
@@ -94,6 +99,9 @@ namespace jmpr {
 			return _channel1.read(address);
 		else if (between(address, 0x16, 0x19))
 			return _channel2.read(address);
+		// channel3
+		else if (between(address, 0x20, 0x23))
+			return _channel4.read(address);
 		else if (address == 0x24)
 			return getMasterVolume();
 		else if (address == 0x25)
@@ -112,6 +120,9 @@ namespace jmpr {
 			_channel1.write(address, data);
 		if (between(address, 0x16, 0x19))
 			_channel2.write(address, data);
+		// channel3
+		if (between(address, 0x20, 0x23))
+			_channel4.write(address, data);
 		else if (address == 0x24)
 			updateMasterVolume(data);
 		else if (address == 0x25)
@@ -130,7 +141,7 @@ namespace jmpr {
 		u8 result = (_apu_power << 7) | 0b01110000;
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-			if (c > 1) {
+			if (c == 2) {
 				result |= _channels[c]._active << c;
 			}
 			else if (c == 0) {
@@ -138,6 +149,9 @@ namespace jmpr {
 			}
 			else if (c == 1) {
 				result |= _channel2.isActive() << 1;
+			}
+			else if (c == 3) {
+				result |= _channel4.isActive() << 3;
 			}
 		}
 
@@ -166,7 +180,7 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			if (c > 1) {
+			if (c == 2) {
 				result |= (_channels[c]._left << (AUDIO_CHANNEL_COUNT + c)) | (_channels[c]._right << c);
 			}
 			else if (c == 0) {
@@ -174,6 +188,10 @@ namespace jmpr {
 			}
 			else if (c == 1) {
 				result |= (_channel2.outputsLeft() << 5) | (_channel2.outputsRight() << 1);
+			}
+			else if (c == 3) {
+
+				result |= (_channel4.outputsLeft() << 7) | (_channel4.outputsRight() << 3);
 			}
 		}
 
@@ -184,7 +202,7 @@ namespace jmpr {
 
 		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
 
-			if (c > 1) {
+			if (c == 2) {
 				_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
 				_channels[c]._right = bit(newPanning, c);
 			}
@@ -193,6 +211,9 @@ namespace jmpr {
 			}
 			else if (c == 1) {
 				_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
+			}
+			else if (c == 3) {
+				_channel4.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
 			}
 		}
 	}
