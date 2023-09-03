@@ -29,7 +29,7 @@ namespace jmpr {
 
 		if (_timer == 0) {
 
-			u8 shifted = bit(_lfsr, 0) ^ bit(_lfsr, 1);
+			u8 shifted = (bit(_lfsr, 0) == bit(_lfsr, 1));
 
 			// Copy of the shifted bit to the 15th and/or 7th bit
 			_lfsr |= (shifted << 15);
@@ -211,7 +211,7 @@ namespace jmpr {
 			float analogSignal = -(2 * digitalSignal / 16.0f) + 1;
 
 			_out[0] = analogSignal * _state._left;
-			_out[0] = analogSignal * _state._right;
+			_out[1] = analogSignal * _state._right;
 		}
 
 		return _out;

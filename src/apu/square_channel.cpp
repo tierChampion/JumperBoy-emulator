@@ -202,7 +202,7 @@ namespace jmpr {
 	*/
 	u8 SquareChannel::readControl() const {
 
-		return _state._length;
+		return 0xBF | ((u8)_state._length << 6);
 	}
 
 	static const std::array<u8, 32> PULSE_DUTY_CYCLES = {
@@ -231,8 +231,6 @@ namespace jmpr {
 
 			_out[0] = analogSignal * _state._left;
 			_out[1] = analogSignal * _state._right;
-
-			return _out;
 		}
 
 		return _out;

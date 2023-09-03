@@ -6,7 +6,7 @@ namespace jmpr {
 	// NR51 F3 (all channels in both, except channel 4 only in left output)
 	// NR52 F1 (apu on, channel 1 on)
 
-	APU::APU() : _waveRAM{ 0 } {
+	APU::APU() {
 
 		// Initialize SDL Audio
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -36,10 +36,7 @@ namespace jmpr {
 
 		_channel1 = SquareChannel(true, 0x10);
 		_channel2 = SquareChannel(false, 0x15);
-
-		initChannel3();
-
-		initChannel4();
+		_channel3 = WaveChannel(0x1A);
 		_channel4 = NoiseChannel(0x20);
 	}
 
@@ -61,6 +58,7 @@ namespace jmpr {
 			// length
 			_channel1.updateLengthTimer();
 			_channel2.updateLengthTimer();
+			_channel3.updateLengthTimer();
 			_channel4.updateLengthTimer();
 
 			if (_div_apu % 4 == 0) {
@@ -78,11 +76,10 @@ namespace jmpr {
 
 	void APU::update() {
 
-		// every m cycle
-
 		_sample_counter++;
 		_channel1.update();
 		_channel2.update();
+		_channel3.update();
 		_channel4.update();
 
 		// generate a sample
@@ -99,7 +96,8 @@ namespace jmpr {
 			return _channel1.read(address);
 		else if (between(address, 0x16, 0x19))
 			return _channel2.read(address);
-		// channel3
+		else if (between(address, 0x1A, 0x1F))
+			return _channel3.read(address);
 		else if (between(address, 0x20, 0x23))
 			return _channel4.read(address);
 		else if (address == 0x24)
@@ -109,7 +107,7 @@ namespace jmpr {
 		else if (address == 0x26)
 			return getAPUPower();
 		else if (between(address, 0x30, 0x3F))
-			return _waveRAM[address - 0x30];
+			return _channel3.readRAM(address);
 
 		return 0xFF;
 	}
@@ -120,7 +118,8 @@ namespace jmpr {
 			_channel1.write(address, data);
 		if (between(address, 0x16, 0x19))
 			_channel2.write(address, data);
-		// channel3
+		if (between(address, 0x1A, 0x1F))
+			_channel3.write(address, data);
 		if (between(address, 0x20, 0x23))
 			_channel4.write(address, data);
 		else if (address == 0x24)
@@ -130,7 +129,7 @@ namespace jmpr {
 		else if (address == 0x26)
 			updateAPUPower(data);
 		else if (between(address, 0x30, 0x3F))
-			_waveRAM[address - 0x30] = data;
+			_channel3.writeToRAM(address, data);
 	}
 
 	// NR52
@@ -138,22 +137,12 @@ namespace jmpr {
 	// TODO change for object channels
 	u8 APU::getAPUPower() const {
 
-		u8 result = (_apu_power << 7) | 0b01110000;
+		u8 result = (_apu_power << 7) | 0x70;
 
-		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-			if (c == 2) {
-				result |= _channels[c]._active << c;
-			}
-			else if (c == 0) {
-				result |= _channel1.isActive();
-			}
-			else if (c == 1) {
-				result |= _channel2.isActive() << 1;
-			}
-			else if (c == 3) {
-				result |= _channel4.isActive() << 3;
-			}
-		}
+		result |= _channel1.isActive();
+		result |= _channel2.isActive() << 1;
+		result |= _channel3.isActive() << 2;
+		result |= _channel4.isActive() << 3;
 
 		return result;
 	}
@@ -178,44 +167,20 @@ namespace jmpr {
 
 		u8 result = 0;
 
-		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-
-			if (c == 2) {
-				result |= (_channels[c]._left << (AUDIO_CHANNEL_COUNT + c)) | (_channels[c]._right << c);
-			}
-			else if (c == 0) {
-				result |= (_channel1.outputsLeft() << 4) | (_channel2.outputsRight());
-			}
-			else if (c == 1) {
-				result |= (_channel2.outputsLeft() << 5) | (_channel2.outputsRight() << 1);
-			}
-			else if (c == 3) {
-
-				result |= (_channel4.outputsLeft() << 7) | (_channel4.outputsRight() << 3);
-			}
-		}
+		result |= (_channel1.outputsLeft() << AUDIO_CHANNEL_COUNT) | (_channel2.outputsRight());
+		result |= (_channel2.outputsLeft() << AUDIO_CHANNEL_COUNT + 1) | (_channel2.outputsRight() << 1);
+		result |= (_channel3.outputsLeft() << AUDIO_CHANNEL_COUNT + 2) | (_channel3.outputsRight() << 2);
+		result |= (_channel4.outputsLeft() << AUDIO_CHANNEL_COUNT + 3) | (_channel4.outputsRight() << 3);
 
 		return result;
 	}
 
 	void APU::updateChannelPanning(u8 newPanning) {
 
-		for (u8 c = 0; c < AUDIO_CHANNEL_COUNT; c++) {
-
-			if (c == 2) {
-				_channels[c]._left = bit(newPanning, AUDIO_CHANNEL_COUNT + c) << 1;
-				_channels[c]._right = bit(newPanning, c);
-			}
-			else if (c == 0) {
-				_channel1.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
-			}
-			else if (c == 1) {
-				_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
-			}
-			else if (c == 3) {
-				_channel4.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + c), bit(newPanning, c));
-			}
-		}
+		_channel1.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT), bit(newPanning, 0));
+		_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 1), bit(newPanning, 1));
+		_channel3.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 2), bit(newPanning, 2));
+		_channel4.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 3), bit(newPanning, 3));
 	}
 
 	// NR50
