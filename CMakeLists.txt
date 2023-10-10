@@ -19,7 +19,9 @@ endif()
 
 add_definitions(-DDIRECTORY_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 set(SDL2_DIR "libs/SDL2")
+endif()
 set(TFD_DIR "libs/tfd")
 set(JSON_DIR "libs/json")
 

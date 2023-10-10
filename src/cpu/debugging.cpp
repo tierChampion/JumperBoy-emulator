@@ -39,8 +39,6 @@ namespace jmpr {
 			printf("DBG: %s\n", _debug_log);
 			_modified = false;
 		}
-
-		// timer doesnt work properly (start_timer, stop_timer, or a, ret z)
 	}
 
 	static const std::array<u8, 0x100> OPCODE_LENGTH = {
@@ -147,7 +145,7 @@ namespace jmpr {
 
 					carry ^= 1;
 
-					_sleep(1);
+					simpleSleep();
 				}
 
 				add_val++;
@@ -191,7 +189,7 @@ namespace jmpr {
 
 					carry ^= 1;
 
-					_sleep(1);
+					simpleSleep();
 				}
 
 				sub_val++;
