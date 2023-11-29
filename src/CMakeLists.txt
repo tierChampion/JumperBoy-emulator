@@ -43,6 +43,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-  target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
+  target_link_libraries(JumperBoy ${SDL2_LIBRARIES} SDL2main)
 
 endif()
