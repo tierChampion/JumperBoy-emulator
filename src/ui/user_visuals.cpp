@@ -31,7 +31,7 @@ namespace jmpr {
 		// Creation of the main window
 		_vc._window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			width, height, 0);
-		_vc._renderer = SDL_CreateRenderer(_vc._window, -1, SDL_RENDERER_ACCELERATED);
+		_vc._renderer = SDL_CreateRenderer(_vc._window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		_vc._texture = SDL_CreateTexture(_vc._renderer, SDL_PIXELFORMAT_ABGR8888,
 			SDL_TEXTUREACCESS_STREAMING, width, height);
 		_vc._surface = SDL_CreateRGBSurfaceWithFormat(0,

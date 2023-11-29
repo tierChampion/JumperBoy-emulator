@@ -2,15 +2,16 @@
 
 #include <thread>
 
-namespace jmpr {
+namespace jmpr
+{
 
 	/**
-	* TODO in the future:
-	* APU
-	* CGB functionnalities ?
-	* More MBCs ?
-	* SGB functionnalities ?
-	*/
+	 * TODO in the future:
+	 * APU
+	 * CGB functionnalities ?
+	 * More MBCs ?
+	 * SGB functionnalities ?
+	 */
 
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
@@ -30,7 +31,8 @@ namespace jmpr {
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
 
-	int GameBoy::runGameBoy() {
+	int GameBoy::runGameBoy()
+	{
 
 		_running = false;
 		_ticks = 0;
@@ -47,7 +49,8 @@ namespace jmpr {
 		return 0;
 	}
 
-	void GameBoy::connectComponents() {
+	void GameBoy::connectComponents()
+	{
 
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
@@ -58,7 +61,8 @@ namespace jmpr {
 		_dma.connectBus(&_bus);
 	}
 
-	void GameBoy::reboot() {
+	void GameBoy::reboot()
+	{
 
 		_cpu.reboot();
 		_ppu.reboot();
@@ -69,32 +73,56 @@ namespace jmpr {
 		// io
 	}
 
-	void GameBoy::cpuLoop() {
+	void GameBoy::cpuLoop()
+	{
 
-		while (_ui.isOpened()) {
-			if (_running) {
-
+		while (_ui.isOpened())
+		{
+			if (_running)
+			{
 				_cpu.cycle();
+			}
+			else
+			{
+				SDL_Delay(1000);
 			}
 		}
 	}
 
-	void GameBoy::uiLoop() {
+	void GameBoy::uiLoop()
+	{
 
-		while (_ui.isOpened()) {
+		u32 lastFrameTime = GameBoy::getCurrentTime();
 
-			_ui.render();
+		while (_ui.isOpened())
+		{
+			if (_running)
+				_ui.render();
+
 			_ui.handleEvents(_running);
+
+			SDL_Delay(10);
+
+			u32 frameEnd = GameBoy::getCurrentTime();
+			u32 frameLength = frameEnd - lastFrameTime;
+
+			if (frameLength < (1000.0f / FPS))
+			{
+				GameBoy::delay((1000.0f / FPS) - frameLength);
+			}
+
+			lastFrameTime = GameBoy::getCurrentTime();
 		}
 	}
 
-	bool GameBoy::insertCartridge(const char* rom_file) {
-
+	bool GameBoy::insertCartridge(const char *rom_file)
+	{
 		reboot();
 
 		_cart = Cartridge(rom_file);
 
-		if (!_cart.isValid()) return false;
+		if (!_cart.isValid())
+			return false;
 
 		_bus.connectCartridge(&_cart);
 
@@ -104,15 +132,17 @@ namespace jmpr {
 	}
 
 	/**
-	* Run all components other than the cpu for a given number of M-cycles.
-	* One M-cycle is equivalent to 4 clock ticks or 4 T-states.
-	*/
-	void GameBoy::cycle(u8 m_cycles) {
+	 * Run all components other than the cpu for a given number of M-cycles.
+	 * One M-cycle is equivalent to 4 clock ticks or 4 T-states.
+	 */
+	void GameBoy::cycle(u8 m_cycles)
+	{
 
-		for (u8 cycle = 0; cycle < m_cycles; cycle++) {
+		for (u8 cycle = 0; cycle < m_cycles; cycle++)
+		{
 
-			for (u8 t_state = 0; t_state < 4; t_state++) {
-
+			for (u8 t_state = 0; t_state < 4; t_state++)
+			{
 				_timer.update();
 				_ppu.update();
 				_apu.update();
