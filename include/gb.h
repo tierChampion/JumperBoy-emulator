@@ -14,7 +14,7 @@
 #include <cpu/debugging.h>
 #include <ui/user_interface.h>
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 namespace jmpr {
 

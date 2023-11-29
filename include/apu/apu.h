@@ -6,7 +6,7 @@
 #include <apu/wave_channel.h>
 #include <apu/noise_channel.h>
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 namespace jmpr {
 

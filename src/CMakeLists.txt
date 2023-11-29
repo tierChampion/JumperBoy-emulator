@@ -37,5 +37,12 @@ add_executable(JumperBoy
 "../libs/tfd/tinyfiledialogs.cpp" 
   )
 
-target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
+  target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
+
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+  target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
+
+endif()

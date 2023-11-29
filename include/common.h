@@ -2,6 +2,8 @@
 
 #include <cinttypes>
 #include <iostream>
+#include <memory>
+#include <unistd.h>
 
 namespace jmpr {
 
@@ -64,4 +66,10 @@ namespace jmpr {
 	}
 
 #define noImpl() notImplemented(__FILE__, __LINE__)
+
+#ifdef _WIN32
+#define simpleSleep() _sleep(1)
+#elif defined(__linux__)
+#define simpleSleep() usleep(1)
+#endif
 }
