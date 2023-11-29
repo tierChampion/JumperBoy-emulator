@@ -2,10 +2,6 @@
 
 namespace jmpr {
 
-	// NR50 77 (volume of 7 in both outputs)
-	// NR51 F3 (all channels in both, except channel 4 only in left output)
-	// NR52 F1 (apu on, channel 1 on)
-
 	APU::APU() {
 
 		// Initialize SDL Audio
@@ -134,7 +130,6 @@ namespace jmpr {
 
 	// NR52
 
-	// TODO change for object channels
 	u8 APU::getAPUPower() const {
 
 		u8 result = (_apu_power << 7) | 0x70;
@@ -162,7 +157,6 @@ namespace jmpr {
 
 	// NR51
 
-	// TODO change for channels
 	u8 APU::getPanning() const {
 
 		u8 result = 0;

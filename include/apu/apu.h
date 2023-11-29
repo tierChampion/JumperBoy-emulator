@@ -70,10 +70,5 @@ namespace jmpr {
 		// NR50
 		void updateMasterVolume(u8 newVol);
 		u8 getMasterVolume() const;
-
-		// CH3
-		void initChannel3();
-
-		void test();
 	};
 }

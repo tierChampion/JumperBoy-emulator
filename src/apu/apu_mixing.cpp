@@ -20,8 +20,8 @@ namespace jmpr {
 
 #define GLOBAL_VOLUME 0.05f
 
-		_samples[_sample_pointer++] = (sample[0] / (4 * 8.0f)) * GLOBAL_VOLUME;
-		_samples[_sample_pointer++] = (sample[1] / (4 * 8.0f)) * GLOBAL_VOLUME;
+		_samples[_sample_pointer++] = (sample[0] / (AUDIO_CHANNEL_COUNT * 8.0f)) * GLOBAL_VOLUME;
+		_samples[_sample_pointer++] = (sample[1] / (AUDIO_CHANNEL_COUNT * 8.0f)) * GLOBAL_VOLUME;
 
 		if (_sample_pointer == MAX_SAMPLES) {
 

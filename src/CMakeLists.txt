@@ -26,17 +26,16 @@ add_executable(JumperBoy
 "ppu/lcd.cpp" 
 "ppu/dma.cpp"
 "apu/apu.cpp" 
-
+"apu/channel.cpp" 
+"apu/square_channel.cpp" 
+"apu/wave_channel.cpp"
+"apu/noise_channel.cpp" 
 "apu/apu_mixing.cpp"
 "ui/user_interface.cpp" 
 "ui/user_visuals.cpp" 
 "ui/user_inputs.cpp" 
 "../libs/tfd/tinyfiledialogs.cpp" 
-   
-  "apu/channel.cpp" 
-  "apu/square_channel.cpp" 
-  "apu/noise_channel.cpp" 
-  "apu/wave_channel.cpp")
+  )
 
 target_link_libraries(JumperBoy ${SDL2_LIBRARIES})
 
