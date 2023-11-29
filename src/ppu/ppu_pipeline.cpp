@@ -91,6 +91,8 @@ namespace jmpr {
 					_lcd.getScanline() + 16 >= spr._ypos &&
 					_lcd.getScanline() + 16 < spr._ypos + _lcd.objSize()) {
 
+					std::cout << static_cast<int>(spr._tile_id) << std::endl;
+
 					// Add sprite to the list of visible ones
 					_pt_handler._visible_sprites.push_back(spr);
 				}

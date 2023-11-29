@@ -207,10 +207,10 @@ namespace jmpr {
 
 			Sprite* spr = &_visible_sprites[s];
 
-			u8 xSpr = (spr->_xpos - 8) + (_lcd->getBGScrollX() % 8);
+			u8 xSpr = (spr->_xpos) + (_lcd->getBGScrollX() % 8);
 
 			// Is the sprite present in the next 8 pixels
-			if (xSpr + 8 > _fetcher_x && xSpr < _fetcher_x + 8) {
+			if (xSpr > _fetcher_x && xSpr < _fetcher_x + 16) {
 
 				SpriteFetch fetch = SpriteFetch();
 				fetch.id = spr->_tile_id;
