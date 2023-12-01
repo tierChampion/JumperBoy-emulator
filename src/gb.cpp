@@ -33,16 +33,20 @@ namespace jmpr
 
 	int GameBoy::runGameBoy()
 	{
-
 		_running = false;
 		_ticks = 0;
 
 		connectComponents();
 
+		GameBoy::insertCartridge("/home/thchao/perso-projects/JumperBoy-emulator/roms/Kirby's Dream Land (USA, Europe).gb");
+		GameBoy::resume();
+
 		std::thread cpuThread(&cpuLoop);
 
 		cpuThread.detach();
 		uiLoop();
+
+		// MOVE AUDIO TO MAIN OR OTHER THREAD
 
 		SDL_Quit();
 
@@ -106,9 +110,9 @@ namespace jmpr
 			u32 frameEnd = GameBoy::getCurrentTime();
 			u32 frameLength = frameEnd - lastFrameTime;
 
-			if (frameLength < (1000.0f / FPS))
+			if (frameLength < (1000.0f / 90))
 			{
-				GameBoy::delay((1000.0f / FPS) - frameLength);
+				GameBoy::delay((1000.0f / 90) - frameLength);
 			}
 
 			lastFrameTime = GameBoy::getCurrentTime();

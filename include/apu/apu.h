@@ -12,10 +12,10 @@ namespace jmpr {
 
 #define AUDIO_CHANNEL_COUNT 4
 
-	// desired sample rate of output
-#define SAMPLE_RATE 48000 
-	// every about 87 t-states, collect one audio sample
-#define SAMPLE_GATERING 87.38133333333333f 
+	// desired sample rate of output (48000)
+#define SAMPLE_RATE 44100 
+	// every about 87 t-states, collect one audio sample (87.3813...)
+#define SAMPLE_GATERING 99//95.10893424f but empty the queue before queuing more
 	// max number of samples kept by the apu before being flushed to sdl
 #define MAX_SAMPLES 2048
 

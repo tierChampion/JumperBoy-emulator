@@ -50,6 +50,8 @@ namespace jmpr {
 							0
 						);
 
+						std::cout << _curr_input << std::endl;
+
 						GameBoy::insertCartridge(_curr_input);
 
 					}
