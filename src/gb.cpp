@@ -28,6 +28,8 @@ namespace jmpr
 
 	UI GameBoy::_ui = UI(&_ppu, _joypad.getInputHandler());
 
+	AudioMaster GameBoy::_audio_master = AudioMaster(&_apu);
+
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
 
@@ -45,8 +47,6 @@ namespace jmpr
 
 		cpuThread.detach();
 		uiLoop();
-
-		// MOVE AUDIO TO MAIN OR OTHER THREAD
 
 		SDL_Quit();
 
@@ -67,7 +67,6 @@ namespace jmpr
 
 	void GameBoy::reboot()
 	{
-
 		_cpu.reboot();
 		_ppu.reboot();
 		_apu.reboot();
@@ -104,8 +103,6 @@ namespace jmpr
 				_ui.render();
 
 			_ui.handleEvents(_running);
-
-			SDL_Delay(10);
 
 			u32 frameEnd = GameBoy::getCurrentTime();
 			u32 frameLength = frameEnd - lastFrameTime;

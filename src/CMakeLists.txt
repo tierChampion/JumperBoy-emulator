@@ -33,7 +33,8 @@ add_executable(JumperBoy
 "apu/apu_mixing.cpp"
 "ui/user_interface.cpp" 
 "ui/user_visuals.cpp" 
-"ui/user_inputs.cpp" 
+"ui/user_inputs.cpp"
+"ui/audio_master.cpp" 
 "../libs/tfd/tinyfiledialogs.cpp" 
   )
 

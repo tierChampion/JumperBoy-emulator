@@ -2,28 +2,29 @@
 
 namespace jmpr {
 
-	APU::APU() {
-
+	APU::APU() 
+	{
 		// Initialize SDL Audio
-		if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-			std::cerr << "Couldn't initialize SDL Audio: " << SDL_GetError() << std::endl;
-			exit(-10);
-		}
+		// if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		// 	std::cerr << "Couldn't initialize SDL Audio: " << SDL_GetError() << std::endl;
+		// 	exit(-10);
+		// }
 
-		_audio_specs = SDL_AudioSpec();
-		SDL_zero(_audio_specs);
-		_audio_specs.freq = SAMPLE_RATE;
-		_audio_specs.format = AUDIO_F32;
-		_audio_specs.channels = 2;
-		_audio_specs.samples = MAX_SAMPLES;
-		_audio_specs.callback = nullptr;
+		// _audio_specs = SDL_AudioSpec();
+		// SDL_zero(_audio_specs);
+		// _audio_specs.freq = SAMPLE_RATE;
+		// _audio_specs.format = AUDIO_F32;
+		// _audio_specs.channels = 2;
+		// _audio_specs.samples = MAX_SAMPLES;
+		// _audio_specs.callback = nullptr;
 
-		_audio_id = SDL_OpenAudioDevice(NULL, 0, &_audio_specs, nullptr, 0);
+		// _audio_id = SDL_OpenAudioDevice(NULL, 0, &_audio_specs, nullptr, 0);
 
-		SDL_PauseAudioDevice(_audio_id, 0);
+		// SDL_PauseAudioDevice(_audio_id, 0);
 
 		_sample_pointer = 0;
 		_sample_counter = 0;
+		_extra_counter = 0;
 
 		_apu_power = true;
 
@@ -38,7 +39,7 @@ namespace jmpr {
 
 	APU::~APU() {
 
-		SDL_CloseAudioDevice(_audio_id);
+		// SDL_CloseAudioDevice(_audio_id);
 	}
 
 	void APU::reboot() {

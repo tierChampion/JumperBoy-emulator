@@ -7,6 +7,7 @@
 #include <apu/noise_channel.h>
 
 #include <SDL2/SDL.h>
+#include <vector>
 
 namespace jmpr {
 
@@ -15,19 +16,19 @@ namespace jmpr {
 	// desired sample rate of output (48000)
 #define SAMPLE_RATE 44100 
 	// every about 87 t-states, collect one audio sample (87.3813...)
-#define SAMPLE_GATERING 99//95.10893424f but empty the queue before queuing more
+#define SAMPLE_GATERING 95.10893424f // but empty the queue before queuing more
 	// max number of samples kept by the apu before being flushed to sdl
-#define MAX_SAMPLES 2048
+#define MAX_SAMPLES 4096
 
 	class APU {
 
-		// sdl stuff
 		SDL_AudioDeviceID _audio_id;
 		SDL_AudioSpec _audio_specs;
 
-		float _samples[MAX_SAMPLES];
+		float _samples[2 * MAX_SAMPLES];
 		u16 _sample_pointer;
 		u8 _sample_counter;
+		u8 _extra_counter;
 
 		bool _apu_power;
 		u8 _div_apu;
@@ -52,10 +53,11 @@ namespace jmpr {
 
 		void updateEffects();
 
-		// regular timer updates
 		void update();
 
 		void generateSample();
+
+		void dispatchSamples(uint8_t* stream, int len);
 
 	private:
 

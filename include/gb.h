@@ -13,6 +13,7 @@
 #include <io/io.h>
 #include <cpu/debugging.h>
 #include <ui/user_interface.h>
+#include <ui/audio_master.h>
 
 #include <SDL2/SDL.h>
 
@@ -37,6 +38,7 @@ namespace jmpr {
 
 		// Interactive Components
 		static UI _ui;
+		static AudioMaster _audio_master;
 
 		// States
 		static bool _running;
