@@ -24,7 +24,6 @@ namespace jmpr {
 
 		_sample_pointer = 0;
 		_sample_counter = 0;
-		_extra_counter = 0;
 
 		_apu_power = true;
 

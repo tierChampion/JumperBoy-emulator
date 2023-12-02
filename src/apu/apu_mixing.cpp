@@ -24,25 +24,8 @@ namespace jmpr
 
 		if (_sample_pointer % MAX_SAMPLES == 0)
 		{
-			// 	SDL_QueueAudio(_audio_id, _samples, MAX_SAMPLES * sizeof(float));
-			_sample_pointer %= 2 * MAX_SAMPLES;
+			SDL_QueueAudio(_audio_id, _samples, MAX_SAMPLES * sizeof(float));
+			_sample_pointer = 0;
 		}
-	}
-
-	void APU::dispatchSamples(uint8_t *stream, int len)
-	{
-		float *floatStream = reinterpret_cast<float *>(stream);
-
-		// sometimes sounds weird, find edge cases were it queues unfinished samples
-
-		uint16_t start = _sample_pointer >= MAX_SAMPLES ? 0 : MAX_SAMPLES;
-		std::cout << static_cast<int>(_sample_pointer) << std::endl;
-
-		for (uint16_t i = 0; i < (len / 4); i++)
-		{
-			floatStream[i] = _samples[i + start];
-		}
-
-		_extra_counter = 0;
 	}
 }
