@@ -1,7 +1,6 @@
 #include <ui/user_interface.h>
 
 #include <gb.h>
-#include <tinyfiledialogs.h>
 
 namespace jmpr {
 
@@ -27,38 +26,6 @@ namespace jmpr {
 
 				if (gamePlaying)
 					_inp_handler->onKeyUp(_curr_event.key);
-				break;
-			}
-
-			case SDL_MOUSEBUTTONDOWN: {
-
-				if (_curr_event.button.button == SDL_BUTTON_LEFT) {
-					// Input a command to process afterwards.
-
-					GameBoy::pause();
-
-					_curr_input = tinyfd_inputBox("Input command",
-						"Enter a command: open_rom, set_controls", "");
-
-					if (_curr_input) {
-						_curr_input = tinyfd_openFileDialog(
-							"Select ROM",
-							DIRECTORY_PATH,
-							1,
-							_ROM_FILTER,
-							NULL,
-							0
-						);
-
-						std::cout << _curr_input << std::endl;
-
-						GameBoy::insertCartridge(_curr_input);
-
-					}
-
-					GameBoy::resume();
-				}
-
 				break;
 			}
 			}

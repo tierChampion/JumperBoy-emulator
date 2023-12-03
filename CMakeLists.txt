@@ -22,15 +22,15 @@ add_definitions(-DDIRECTORY_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 set(SDL2_DIR "libs/SDL2")
 endif()
-set(TFD_DIR "libs/tfd")
+set(IMGUI_DIR "libs/imgui")
 set(JSON_DIR "libs/json")
 
 find_package(SDL2 REQUIRED)
 
 include_directories("include")
-include_directories(${JSON_DIR})
-include_directories(${TFD_DIR})
 include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${IMGUI_DIR})
+include_directories(${JSON_DIR})
 
 # Executable definition
 add_subdirectory(src)

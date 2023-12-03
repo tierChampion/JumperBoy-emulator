@@ -4,15 +4,6 @@
 
 namespace jmpr
 {
-
-	/**
-	 * TODO in the future:
-	 * APU
-	 * CGB functionnalities ?
-	 * More MBCs ?
-	 * SGB functionnalities ?
-	 */
-
 	Bus GameBoy::_bus = Bus();
 	CPU GameBoy::_cpu = CPU();
 	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
@@ -26,9 +17,7 @@ namespace jmpr
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
-	UI GameBoy::_ui = UI(&_ppu, _joypad.getInputHandler());
-
-	AudioMaster GameBoy::_audio_master = AudioMaster(&_apu);
+	UI GameBoy::_ui = UI(&_ppu, &_apu, _joypad.getInputHandler());
 
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
@@ -73,7 +62,6 @@ namespace jmpr
 		_joypad.reboot();
 		_timer.reboot();
 		_dma.reboot();
-		// io
 	}
 
 	void GameBoy::cpuLoop()

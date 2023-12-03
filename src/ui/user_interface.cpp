@@ -1,19 +1,19 @@
 #include <ui/user_interface.h>
 
 #include <gb.h>
-#include <tinyfiledialogs.h>
 
 namespace jmpr {
 
-	UI::UI(PPU* ppu, InputHandler* inpHandler) {
+	UI::UI(PPU* ppu, APU* apu, InputHandler* inpHandler) {
 
 		// Initialize SDL Video
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			std::cerr << "Couldn't initialize SDL Video: " << SDL_GetError() << std::endl;
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
 			exit(-10);
 		}
 
 		_opened = initVisuals();
+		initAudio(apu);
 
 		_ppu = ppu;
 		_inp_handler = inpHandler;

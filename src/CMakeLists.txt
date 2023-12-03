@@ -34,8 +34,14 @@ add_executable(JumperBoy
 "ui/user_interface.cpp" 
 "ui/user_visuals.cpp" 
 "ui/user_inputs.cpp"
-"ui/audio_master.cpp" 
-"../libs/tfd/tinyfiledialogs.cpp" 
+"ui/user_audio.cpp"
+"../libs/imgui/imgui.cpp"
+"../libs/imgui/imgui_demo.cpp"
+"../libs/imgui/imgui_draw.cpp"
+"../libs/imgui/imgui_impl_sdl2.cpp"
+"../libs/imgui/imgui_impl_sdlrenderer2.cpp"
+"../libs/imgui/imgui_tables.cpp"
+"../libs/imgui/imgui_widgets.cpp"
   )
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
