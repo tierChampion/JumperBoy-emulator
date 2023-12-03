@@ -48,16 +48,21 @@ namespace jmpr {
 		~UI();
 
 		bool isOpened() { return _opened; }
-		void handleEvents(bool gamePlaying);
 
-		void render();
+		void loop(bool gamePlaying);
 
 	private:
 
 		bool initVisuals();
 		void initAudio(APU* apu);
+		void initImGui();
 
+		void handleEvents(bool gamePlaying);
+
+		void render();
 		void renderVideoBuffer();
+		void renderDefault();
+		void renderImGui();
 		void displayTileData();
 		void displaySingleTile(u16 tileId, u16 xPos, u16 yPos);
 

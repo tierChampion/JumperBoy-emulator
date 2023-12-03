@@ -1,27 +1,10 @@
 #include <apu/apu.h>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	APU::APU() 
+	APU::APU()
 	{
-		// Initialize SDL Audio
-		// if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-		// 	std::cerr << "Couldn't initialize SDL Audio: " << SDL_GetError() << std::endl;
-		// 	exit(-10);
-		// }
-
-		// _audio_specs = SDL_AudioSpec();
-		// SDL_zero(_audio_specs);
-		// _audio_specs.freq = SAMPLE_RATE;
-		// _audio_specs.format = AUDIO_F32;
-		// _audio_specs.channels = 2;
-		// _audio_specs.samples = MAX_SAMPLES;
-		// _audio_specs.callback = nullptr;
-
-		// _audio_id = SDL_OpenAudioDevice(NULL, 0, &_audio_specs, nullptr, 0);
-
-		// SDL_PauseAudioDevice(_audio_id, 0);
-
 		_sample_pointer = 0;
 		_sample_counter = 0;
 
@@ -36,31 +19,31 @@ namespace jmpr {
 		_channel4 = NoiseChannel(0x20);
 	}
 
-	APU::~APU() {
-
-		// SDL_CloseAudioDevice(_audio_id);
-	}
-
-	void APU::reboot() {
+	void APU::reboot()
+	{
 
 		// todo
 	}
 
-	void APU::updateEffects() {
+	void APU::updateEffects()
+	{
 
 		_div_apu = (_div_apu + 1) % 8;
 
-		if (_div_apu % 2 == 0) {
+		if (_div_apu % 2 == 0)
+		{
 			// length
 			_channel1.updateLengthTimer();
 			_channel2.updateLengthTimer();
 			_channel3.updateLengthTimer();
 			_channel4.updateLengthTimer();
 
-			if (_div_apu % 4 == 0) {
+			if (_div_apu % 4 == 0)
+			{
 				// sweep
 
-				if (_div_apu % 8 == 0) {
+				if (_div_apu % 8 == 0)
+				{
 					// enveloppe
 					_channel1.updateEnvelope();
 					_channel2.updateEnvelope();
@@ -70,7 +53,8 @@ namespace jmpr {
 		}
 	}
 
-	void APU::update() {
+	void APU::update()
+	{
 
 		_sample_counter++;
 		_channel1.update();
@@ -79,14 +63,16 @@ namespace jmpr {
 		_channel4.update();
 
 		// generate a sample
-		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer) {
+		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer)
+		{
 
 			generateSample();
 			_sample_counter = 0;
 		}
 	}
 
-	u8 APU::read(u8 address) {
+	u8 APU::read(u8 address)
+	{
 
 		if (between(address, 0x10, 0x15))
 			return _channel1.read(address);
@@ -108,7 +94,8 @@ namespace jmpr {
 		return 0xFF;
 	}
 
-	void APU::write(u8 address, u8 data) {
+	void APU::write(u8 address, u8 data)
+	{
 
 		if (between(address, 0x10, 0x15))
 			_channel1.write(address, data);
@@ -130,7 +117,8 @@ namespace jmpr {
 
 	// NR52
 
-	u8 APU::getAPUPower() const {
+	u8 APU::getAPUPower() const
+	{
 
 		u8 result = (_apu_power << 7) | 0x70;
 
@@ -142,14 +130,16 @@ namespace jmpr {
 		return result;
 	}
 
-	void APU::updateAPUPower(u8 newPower) {
+	void APU::updateAPUPower(u8 newPower)
+	{
 
 		u8 powerStatus = bit(newPower, 7);
 
 		_apu_power = (powerStatus > 0);
 
 		// Power OFF
-		if (!_apu_power) {
+		if (!_apu_power)
+		{
 
 			// todo: set every single registers in the apu to 0.
 		}
@@ -157,7 +147,8 @@ namespace jmpr {
 
 	// NR51
 
-	u8 APU::getPanning() const {
+	u8 APU::getPanning() const
+	{
 
 		u8 result = 0;
 
@@ -169,7 +160,8 @@ namespace jmpr {
 		return result;
 	}
 
-	void APU::updateChannelPanning(u8 newPanning) {
+	void APU::updateChannelPanning(u8 newPanning)
+	{
 
 		_channel1.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT), bit(newPanning, 0));
 		_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 1), bit(newPanning, 1));
@@ -179,13 +171,15 @@ namespace jmpr {
 
 	// NR50
 
-	void APU::updateMasterVolume(u8 newVol) {
+	void APU::updateMasterVolume(u8 newVol)
+	{
 
 		_left_vol = (newVol & 0b01110000) >> 4;
 		_right_vol = (newVol & 0b00000111);
 	}
 
-	u8 APU::getMasterVolume() const {
+	u8 APU::getMasterVolume() const
+	{
 
 		u8 result = 0;
 

@@ -41,7 +41,6 @@ namespace jmpr
 
 	public:
 		APU();
-		~APU();
 
 		void setAudioId(SDL_AudioDeviceID id) { _audio_id = id; }
 

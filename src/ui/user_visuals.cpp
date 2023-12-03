@@ -57,7 +57,6 @@ namespace jmpr
 		SDL_UpdateTexture(context._texture, NULL, context._surface->pixels, context._surface->pitch);
 		SDL_RenderClear(context._renderer);
 		SDL_RenderCopy(context._renderer, context._texture, NULL, NULL);
-		SDL_RenderPresent(context._renderer);
 	}
 
 	void UI::displayTileData()
@@ -163,6 +162,19 @@ namespace jmpr
 			rect.x = 0;
 			rect.y += SCALE;
 		}
+
+		renderInContext(_vc);
+	}
+
+	void UI::renderDefault()
+	{
+		SDL_Rect rect;
+		rect.w = X_RESOLUTION * SCALE;
+		rect.h = Y_RESOLUTION * SCALE;
+		rect.x = 0;
+		rect.y = 0;
+
+		SDL_FillRect(_vc._surface, &rect, PALLET[3]);
 
 		renderInContext(_vc);
 	}

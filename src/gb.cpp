@@ -37,14 +37,11 @@ namespace jmpr
 		cpuThread.detach();
 		uiLoop();
 
-		SDL_Quit();
-
 		return 0;
 	}
 
 	void GameBoy::connectComponents()
 	{
-
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
 		_bus.connectPPU(&_ppu);
@@ -82,25 +79,9 @@ namespace jmpr
 
 	void GameBoy::uiLoop()
 	{
-
-		u32 lastFrameTime = GameBoy::getCurrentTime();
-
 		while (_ui.isOpened())
 		{
-			if (_running)
-				_ui.render();
-
-			_ui.handleEvents(_running);
-
-			u32 frameEnd = GameBoy::getCurrentTime();
-			u32 frameLength = frameEnd - lastFrameTime;
-
-			if (frameLength < (1000.0f / 90))
-			{
-				GameBoy::delay((1000.0f / 90) - frameLength);
-			}
-
-			lastFrameTime = GameBoy::getCurrentTime();
+			_ui.loop(_running);
 		}
 	}
 
