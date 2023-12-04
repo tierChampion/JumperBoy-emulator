@@ -23,6 +23,14 @@ namespace jmpr {
 		SDL_Surface* _surface;
 	};
 
+	// Rethink of the way the visuals work. 
+	// Make a dolphin like interface (ui window creates a sdl window with the game)
+	// Create a window and destroy it when not needed anymore.
+	// Might need to create multiple windows, which visible flags get turned off when
+	// closed.
+
+	// 
+
 	class UI {
 
 		bool _opened;
