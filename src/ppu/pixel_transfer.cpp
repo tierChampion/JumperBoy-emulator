@@ -12,7 +12,7 @@ namespace jmpr {
 		_lcd = lcd;
 		_vram = vram;
 
-		_pixel_fifo = std::queue<u32>();
+		_pixel_fifo = std::queue<u8>();
 		_visible_sprites = std::vector<Sprite>();
 
 		_bgw_fetch = FetcherElem();
@@ -82,7 +82,7 @@ namespace jmpr {
 
 	// Main transfer function
 
-	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u32> vbuffer, u16 lineDots) {
+	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u8> vbuffer, u16 lineDots) {
 
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
 		_map_x = _fetcher_x + _lcd->getBGScrollX();
@@ -264,7 +264,7 @@ namespace jmpr {
 	}
 
 	// todo check if it works
-	u32 PixelTransferHandler::spriteColorFetch(u32 color, u8 colorId) {
+	u8 PixelTransferHandler::spriteColorFetch(u8 colorId) {
 
 		// find the sprite with the lowest xpos that touches the pixel.
 		for (u8 i = 0; i < _spr_fetch.size(); i++) {
@@ -298,7 +298,7 @@ namespace jmpr {
 			return _lcd->getOBJcolor(fetch.spr->pallet(), sprColorId);
 		}
 
-		return color;
+		return colorId;
 	}
 
 	// Pushing
@@ -317,7 +317,7 @@ namespace jmpr {
 
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
 
-			u32 pixel = _lcd->getBGWindowColor(colorIndex);
+			u8 pixel = _lcd->getBGWindowColor(colorIndex);
 
 			// Adapt the color for sprites, window, etc.
 
@@ -325,7 +325,7 @@ namespace jmpr {
 				pixel = _lcd->getBGWindowColor(0);
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0)
-				pixel = spriteColorFetch(pixel, colorIndex);
+				pixel = spriteColorFetch(pixel);
 
 			_pixel_fifo.push(pixel);
 			_fifo_x++;
@@ -336,14 +336,14 @@ namespace jmpr {
 		return true;
 	}
 
-	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u32> vbuffer) {
+	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u8> vbuffer) {
 
 		// switch to a general pixel fifo
 
 		if (_pixel_fifo.size() > 8) {
 
 			// push a pixel to the raster
-			u32 color = _pixel_fifo.front();
+			u8 color = _pixel_fifo.front();
 			_pixel_fifo.pop();
 
 			// Only render if pixel is visible with the scroll
@@ -364,7 +364,6 @@ namespace jmpr {
 
 		// Increment window line if currently inside a window
 		if (isWindowVisible() &&
-			// window gets cut way too early (letters and hearts are only one tile high.)
 			_lcd->getScanline() > _lcd->getWindowY() &&
 			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION) {
 			_window_y++;

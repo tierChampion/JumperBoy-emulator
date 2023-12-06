@@ -10,7 +10,7 @@ namespace jmpr {
 
 		while (SDL_PollEvent(&_curr_event)) {
 
-			ImGui_ImplSDL2_ProcessEvent(&_curr_event);
+			// ImGui_ImplSDL2_ProcessEvent(&_curr_event);
 
 			switch (_curr_event.type) {
 

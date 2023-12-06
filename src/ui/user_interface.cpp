@@ -6,40 +6,19 @@ namespace jmpr
 {
 
 	UI::UI(PPU *ppu, APU *apu, InputHandler *inpHandler)
+		: _opened(true), _game_window(GameWindow(ppu, apu))
 	{
+		_game_window.open();
+		// initImGui();
 
-		// Initialize SDL Video
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
-		{
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
-			exit(-10);
-		}
-
-		_opened = initVisuals();
-		initAudio(apu);
-		initImGui();
-
-		_ppu = ppu;
 		_inp_handler = inpHandler;
 	}
 
 	UI::~UI()
 	{
-		ImGui_ImplSDLRenderer2_Shutdown();
-		ImGui_ImplSDL2_Shutdown();
-		ImGui::DestroyContext();
-
-		SDL_DestroyTexture(_vc._texture);
-		SDL_DestroyRenderer(_vc._renderer);
-		SDL_DestroyWindow(_vc._window);
-
-		SDL_DestroyTexture(_debug._texture);
-		SDL_DestroyRenderer(_debug._renderer);
-		SDL_DestroyWindow(_debug._window);
-
-		SDL_PauseAudioDevice(_audio_id, 1);
-
-		SDL_Quit();
+		// ImGui_ImplSDLRenderer2_Shutdown();
+		// ImGui_ImplSDL2_Shutdown();
+		// ImGui::DestroyContext();
 	}
 
 	void UI::initImGui()
@@ -55,8 +34,8 @@ namespace jmpr
 		ImGui::StyleColorsDark();
 
 		// Setup Platform/Renderer backends
-		ImGui_ImplSDL2_InitForSDLRenderer(_vc._window, _vc._renderer);
-		ImGui_ImplSDLRenderer2_Init(_vc._renderer);
+		// ImGui_ImplSDL2_InitForSDLRenderer(_window, _renderer);
+		// ImGui_ImplSDLRenderer2_Init(_renderer);
 
 		_file_browser = ImGui::FileBrowser();
 		_file_browser.SetTitle("Search for ROM");
@@ -69,17 +48,12 @@ namespace jmpr
 	{
 		handleEvents(gamePlaying);
 
-		renderImGui();
+		// renderImGui();
 
-		if (gamePlaying)
-		{
-			render();
-		}
-		else 
-			renderDefault();	
+		_game_window.render();
 
-		ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-		SDL_RenderPresent(_vc._renderer);
+		// ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+		// SDL_RenderPresent(_renderer);
 	}
 
 	void UI::renderImGui()

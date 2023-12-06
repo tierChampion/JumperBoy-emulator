@@ -74,7 +74,7 @@ namespace jmpr {
 		void setMode(const LCDMode mode);
 
 		// palettes
-		u32 getBGWindowColor(u8 index) const;
-		u32 getOBJcolor(u8 objIndex, u8 colIndex) const;
+		u8 getBGWindowColor(u8 index) const;
+		u8 getOBJcolor(u8 objIndex, u8 colIndex) const;
 	};
 }
