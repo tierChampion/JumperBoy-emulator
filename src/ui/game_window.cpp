@@ -3,6 +3,8 @@
 #include <ppu/ppu.h>
 #include <apu/apu.h>
 
+#include <gb.h>
+
 namespace jmpr
 {
     const u8 DEFAULT_SCALE = 4;
@@ -48,11 +50,13 @@ namespace jmpr
 
         u16 height = _scale * Y_RESOLUTION;
 
-        if (!_opened)
+        if (_window == nullptr)
             _window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                        width, height, 0);
-        else
+        else {
+            destroyGraphics();
             SDL_SetWindowSize(_window, width, height);
+        }
 
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ABGR8888,
@@ -82,27 +86,29 @@ namespace jmpr
     void GameWindow::open()
     {
         initWindow();
+        SDL_ShowWindow(_window);
         _opened = true;
+        GameBoy::resume();
     }
 
     void GameWindow::close()
     {
+        GameBoy::pause();
         _opened = false;
-        destroyGraphics();
+        SDL_HideWindow(_window);
     }
 
-    void GameWindow::setDebug(bool debug)
+    void GameWindow::toggleDebug()
     {
-        _debug = debug;
+        _debug = !_debug;
 
         if (_opened)
         {
-            destroyGraphics();
             initWindow();
         }
     }
 
-    GameWindow::~GameWindow()
+    void GameWindow::cleanup()
     {
         destroyGraphics();
         SDL_DestroyWindow(_window);
@@ -118,14 +124,17 @@ namespace jmpr
 
     void GameWindow::render()
     {
-        renderGame();
-        if (_debug)
-            renderTiles();
+        if (_opened)
+        {
+            renderGame();
+            if (_debug)
+                renderTiles();
 
-        SDL_UpdateTexture(_texture, nullptr, _surface->pixels, _surface->pitch);
-        SDL_RenderClear(_renderer);
-        SDL_RenderCopy(_renderer, _texture, nullptr, nullptr);
-        SDL_RenderPresent(_renderer);
+            SDL_UpdateTexture(_texture, nullptr, _surface->pixels, _surface->pitch);
+            SDL_RenderClear(_renderer);
+            SDL_RenderCopy(_renderer, _texture, nullptr, nullptr);
+            SDL_RenderPresent(_renderer);
+        }
     }
 
     void GameWindow::renderGame()

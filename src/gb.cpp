@@ -37,7 +37,7 @@ namespace jmpr
 		cpuThread.detach();
 		uiLoop();
 
-		SDL_Quit();
+		_ui.cleanup();
 
 		return 0;
 	}

@@ -38,6 +38,9 @@ namespace jmpr {
 		InputHandler* _inp_handler;
 		const char* _curr_input;
 
+		SDL_Window* _imgui_window;
+		SDL_Renderer* _imgui_renderer;
+
 		ImGuiIO _imgui_io;
 		ImGui::FileBrowser _file_browser;
 
@@ -46,7 +49,7 @@ namespace jmpr {
 	public:
 
 		UI(PPU* ppu, APU* apu, InputHandler* inpHandler);
-		~UI();
+		void cleanup();
 
 		bool isOpened() { return _opened; }
 
@@ -61,6 +64,5 @@ namespace jmpr {
 		void render();
 		void renderDefault();
 		void renderImGui();
-
 	};
 }

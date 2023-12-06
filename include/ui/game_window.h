@@ -28,10 +28,10 @@ namespace jmpr
 
     public:
         GameWindow(PPU* ppu, APU* apu);
-        ~GameWindow();
+        void cleanup();
 
         void render();
-        void setDebug(bool debug);
+        void toggleDebug();
         void open();
         void close();
 
