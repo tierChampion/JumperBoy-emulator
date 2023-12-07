@@ -29,9 +29,6 @@ namespace jmpr
 
 		connectComponents();
 
-		GameBoy::insertCartridge("/home/thchao/perso-projects/JumperBoy-emulator/roms/Kirby's Dream Land (USA, Europe).gb");
-		GameBoy::resume();
-
 		std::thread cpuThread(&cpuLoop);
 
 		cpuThread.detach();

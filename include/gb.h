@@ -16,9 +16,11 @@
 
 #include <SDL2/SDL.h>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	class GameBoy {
+	class GameBoy
+	{
 
 		// Internal Components
 		static Bus _bus;
@@ -43,7 +45,6 @@ namespace jmpr {
 		static u64 _ticks;
 
 	public:
-
 		static int runGameBoy();
 
 		static void connectComponents();
@@ -52,7 +53,7 @@ namespace jmpr {
 		static void cpuLoop();
 		static void uiLoop();
 
-		static bool insertCartridge(const char* rom_file);
+		static bool insertCartridge(const char *rom_file);
 
 		static void cycle(u8 m_cycles);
 

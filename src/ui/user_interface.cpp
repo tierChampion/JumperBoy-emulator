@@ -6,9 +6,8 @@ namespace jmpr
 {
 
 	UI::UI(PPU *ppu, APU *apu, InputHandler *inpHandler)
-		: _opened(true), _game_window(GameWindow(ppu, apu))
+		: _opened(true), _game_window(GameWindow(ppu, apu)), _display_browser(false)
 	{
-		_game_window.open();
 		initImGui();
 
 		_inp_handler = inpHandler;
@@ -47,12 +46,16 @@ namespace jmpr
 		// Setup Platform/Renderer backends
 		ImGui_ImplSDL2_InitForSDLRenderer(_imgui_window, _imgui_renderer);
 		ImGui_ImplSDLRenderer2_Init(_imgui_renderer);
+	}
 
+	void UI::initFileBrowser()
+	{
 		_file_browser = ImGui::FileBrowser();
 		_file_browser.SetTitle("Search for ROM");
 		_file_browser.SetTypeFilters({".gb", ".gbc"});
 
 		_file_browser.Open();
+		_display_browser = true;
 	}
 
 	void UI::loop(bool gamePlaying)
@@ -71,10 +74,26 @@ namespace jmpr
 		ImGui::NewFrame();
 
 		ImGui::BeginMainMenuBar();
-		if (ImGui::BeginMenu("Wot"))
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open"))
+				initFileBrowser();
 			ImGui::EndMenu();
+		}
 
 		ImGui::EndMainMenuBar();
+
+		if (_display_browser)
+		{
+			_file_browser.Display();
+
+			if (_file_browser.HasSelected())
+			{
+				GameBoy::insertCartridge(_file_browser.GetSelected().string().c_str());
+				_game_window.open();
+				_file_browser.ClearSelected();
+			}
+		}
 
 		// bool show_demo_window = true;
 		// if (show_demo_window)
@@ -84,11 +103,8 @@ namespace jmpr
 		bool show_another_window = true;
 		if (show_another_window)
 		{
-			ImGui::Begin("Settings window", &show_another_window);
+			ImGui::Begin("Settings window");
 			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Open game"))
-				_game_window.open();
-
 			if (ImGui::Button("Debug ?"))
 				_game_window.toggleDebug();
 			ImGui::End();
