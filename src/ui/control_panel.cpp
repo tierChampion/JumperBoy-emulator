@@ -2,8 +2,13 @@
 
 #include <gb.h>
 
+#include <algorithm>
+
 namespace jmpr
 {
+
+    const u8 MAXIMUM_RECENT_COUNT = 10;
+
     void UI::initImGui()
     {
         _imgui_window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 500, 500,
@@ -47,8 +52,22 @@ namespace jmpr
         {
             if (ImGui::MenuItem("Open"))
                 initFileBrowser();
+            if (ImGui::BeginMenu("Open recent"))
+            {
+                for (s8 i = _recents.size() - 1; i >= 0; i--)
+                {
+                    std::string recent = _recents[i];
+
+                    if (ImGui::MenuItem(recent.c_str()))
+                    {
+                        openROM(recent);
+                    }
+                }
+                ImGui::EndMenu();
+            }
             if (ImGui::MenuItem("Quit"))
                 _opened = false;
+
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Options"))
@@ -89,27 +108,35 @@ namespace jmpr
 
             if (_file_browser.HasSelected())
             {
-                GameBoy::insertCartridge(_file_browser.GetSelected().string());
-                _game_window.open();
+                openROM(_file_browser.GetSelected().string());
+                
                 _file_browser.ClearSelected();
                 _controls.browser = false;
             }
         }
 
-        // 3. Show another simple window.
-        bool show_another_window = true;
-        if (show_another_window)
-        {
-            ImGui::Begin("Settings window");
-            ImGui::Text("Hello from another window!");
-            // if (ImGui::Button("Debug ?"))
-            // 	_game_window.toggleDebug();
-            ImGui::End();
-        }
+        ImGui::ShowDemoWindow();
 
         ImGui::Render();
         SDL_RenderClear(_imgui_renderer);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
         SDL_RenderPresent(_imgui_renderer);
+    }
+
+    void UI::openROM(std::string romPath)
+    {
+        auto it = std::find(_recents.begin(), _recents.end(), romPath);
+        if (it != _recents.end())
+            _recents.erase(it);
+        else if (_recents.size() == MAXIMUM_RECENT_COUNT)
+            _recents.erase(_recents.begin());
+
+        _recents.push_back(romPath);
+
+        GameBoy::pause();
+
+        GameBoy::insertCartridge(romPath);
+        _game_window.open();
+        GameBoy::resume();
     }
 }

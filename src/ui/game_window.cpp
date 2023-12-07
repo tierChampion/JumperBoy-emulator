@@ -53,7 +53,8 @@ namespace jmpr
         if (_window == nullptr)
             _window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                        width, height, 0);
-        else {
+        else
+        {
             destroyGraphics();
             SDL_SetWindowSize(_window, width, height);
         }
@@ -85,10 +86,11 @@ namespace jmpr
 
     void GameWindow::open()
     {
+        if (_opened)
+            return;
         initWindow();
         SDL_ShowWindow(_window);
         _opened = true;
-        GameBoy::resume();
     }
 
     void GameWindow::close()

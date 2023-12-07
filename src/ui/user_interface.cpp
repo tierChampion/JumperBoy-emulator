@@ -2,6 +2,8 @@
 
 #include <gb.h>
 
+#include <fstream>
+
 namespace jmpr
 {
 	UI::UI(PPU *ppu, APU *apu, InputHandler *inpHandler)
@@ -10,6 +12,31 @@ namespace jmpr
 	{
 		initImGui();
 		_inp_handler = inpHandler;
+
+		std::ifstream recentFile(std::string(DIRECTORY_PATH) + std::string("/settings/recents.csv"));
+
+		if (recentFile.is_open()) {
+			std::string line;
+			if (recentFile.good()) {
+				while (std::getline(recentFile, line))
+				{
+					_recents.push_back(line);
+				}
+			}
+		}
+	}
+
+	UI::~UI()
+	{
+		// save recents to file
+		std::ofstream recentFile(std::string(DIRECTORY_PATH) + std::string("/settings/recents.csv"));
+
+		for (std::string recent : _recents)
+		{
+			recentFile << recent << "\n";
+		}
+
+		recentFile.close();
 	}
 
 	void UI::cleanup()

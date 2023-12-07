@@ -44,10 +44,11 @@ namespace jmpr
 		ImGui::FileBrowser _file_browser;
 
 		Controls _controls;
-
+		std::vector<std::string> _recents;
 
 	public:
 		UI(PPU *ppu, APU *apu, InputHandler *inpHandler);
+		~UI();
 		void cleanup();
 
 		bool isOpened() { return _opened; }
@@ -62,5 +63,6 @@ namespace jmpr
 
 		void render();
 		void renderImGui();
+		void openROM(std::string romPath);
 	};
 }
