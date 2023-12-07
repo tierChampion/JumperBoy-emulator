@@ -4,19 +4,17 @@ namespace jmpr
 {
 
 	APU::APU()
+	: _sample_pointer(0),
+	_sample_counter(0),
+	_apu_power(true),
+	_left_vol(0b111),
+	_right_vol(0b111),
+	_main_volume(0.05f),
+	_channel1(SquareChannel(true, 0x10)),
+	_channel2(SquareChannel(false, 0x15)),
+	_channel3(WaveChannel(0x1A)),
+	_channel4(NoiseChannel(0x20))
 	{
-		_sample_pointer = 0;
-		_sample_counter = 0;
-
-		_apu_power = true;
-
-		_left_vol = 0b111;
-		_right_vol = 0b111;
-
-		_channel1 = SquareChannel(true, 0x10);
-		_channel2 = SquareChannel(false, 0x15);
-		_channel3 = WaveChannel(0x1A);
-		_channel4 = NoiseChannel(0x20);
 	}
 
 	void APU::reboot()
@@ -25,9 +23,20 @@ namespace jmpr
 		// todo
 	}
 
+	void APU::toggleChannel(u8 channelId)
+	{
+		switch(channelId)
+		{
+			case 0: _channel1.toggleMuted(); break;
+			case 1: _channel2.toggleMuted(); break;
+			case 2: _channel3.toggleMuted(); break;
+			case 3: _channel4.toggleMuted(); break;
+			default: break;
+		}
+	}
+
 	void APU::updateEffects()
 	{
-
 		_div_apu = (_div_apu + 1) % 8;
 
 		if (_div_apu % 2 == 0)
@@ -55,7 +64,6 @@ namespace jmpr
 
 	void APU::update()
 	{
-
 		_sample_counter++;
 		_channel1.update();
 		_channel2.update();
@@ -73,7 +81,6 @@ namespace jmpr
 
 	u8 APU::read(u8 address)
 	{
-
 		if (between(address, 0x10, 0x15))
 			return _channel1.read(address);
 		else if (between(address, 0x16, 0x19))
@@ -96,7 +103,6 @@ namespace jmpr
 
 	void APU::write(u8 address, u8 data)
 	{
-
 		if (between(address, 0x10, 0x15))
 			_channel1.write(address, data);
 		if (between(address, 0x16, 0x19))
@@ -119,7 +125,6 @@ namespace jmpr
 
 	u8 APU::getAPUPower() const
 	{
-
 		u8 result = (_apu_power << 7) | 0x70;
 
 		result |= _channel1.isActive();
@@ -132,7 +137,6 @@ namespace jmpr
 
 	void APU::updateAPUPower(u8 newPower)
 	{
-
 		u8 powerStatus = bit(newPower, 7);
 
 		_apu_power = (powerStatus > 0);
@@ -149,7 +153,6 @@ namespace jmpr
 
 	u8 APU::getPanning() const
 	{
-
 		u8 result = 0;
 
 		result |= (_channel1.outputsLeft() << AUDIO_CHANNEL_COUNT) | (_channel2.outputsRight());
@@ -162,7 +165,6 @@ namespace jmpr
 
 	void APU::updateChannelPanning(u8 newPanning)
 	{
-
 		_channel1.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT), bit(newPanning, 0));
 		_channel2.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 1), bit(newPanning, 1));
 		_channel3.updatePanning(bit(newPanning, AUDIO_CHANNEL_COUNT + 2), bit(newPanning, 2));
@@ -173,14 +175,12 @@ namespace jmpr
 
 	void APU::updateMasterVolume(u8 newVol)
 	{
-
 		_left_vol = (newVol & 0b01110000) >> 4;
 		_right_vol = (newVol & 0b00000111);
 	}
 
 	u8 APU::getMasterVolume() const
 	{
-
 		u8 result = 0;
 
 		result |= _left_vol << 4;

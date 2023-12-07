@@ -43,7 +43,7 @@ namespace jmpr {
 	public:
 
 		Cartridge() { _filename = ""; }
-		Cartridge(const char* file);
+		Cartridge(const std::string& file);
 
 		bool isValid() const;
 

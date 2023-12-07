@@ -8,7 +8,7 @@ namespace jmpr
 {
     class PPU;
     class APU;
-    
+
     class GameWindow
     {
         SDL_Window *_window;
@@ -16,7 +16,7 @@ namespace jmpr
         SDL_Texture *_texture;
         SDL_Surface *_surface;
 
-        PPU* _ppu;
+        PPU *_ppu;
 
         SDL_AudioDeviceID _audio_id;
 
@@ -27,7 +27,7 @@ namespace jmpr
         u8 _scale;
 
     public:
-        GameWindow(PPU* ppu, APU* apu);
+        GameWindow(PPU *ppu, APU *apu);
         void cleanup();
 
         void render();
@@ -38,7 +38,7 @@ namespace jmpr
     private:
         void initWindow();
         void destroyGraphics();
-        void initAudio(APU* apu);
+        void initAudio(APU *apu);
 
         void renderGame();
         void renderTiles();

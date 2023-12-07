@@ -15,6 +15,8 @@ namespace jmpr {
 		_out[1] = 0;
 
 		_length_timer = 0b111111;
+
+		_muted = false;
 	}
 
 	void AudioChannel::updateLengthTimer() {

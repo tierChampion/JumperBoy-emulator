@@ -4,10 +4,10 @@
 
 #include <array>
 
-namespace jmpr {
-
-	struct AudioChannelState {
-
+namespace jmpr
+{
+	struct AudioChannelState
+	{
 		bool _active;
 		bool _dac;
 		bool _length;
@@ -15,17 +15,16 @@ namespace jmpr {
 		bool _right;
 	};
 
-	class AudioChannel {
-
+	class AudioChannel
+	{
 	protected:
-
 		AudioChannelState _state;
 		std::array<float, 2> _out;
 
 		u8 _length_timer;
+		bool _muted;
 
 	public:
-
 		AudioChannel();
 
 		virtual void reset() = 0;
@@ -45,5 +44,6 @@ namespace jmpr {
 		bool isActive() const { return _state._active; }
 		bool outputsLeft() const { return _state._left; }
 		bool outputsRight() const { return _state._right; }
+		void toggleMuted() { _muted = !_muted; }
 	};
 }

@@ -34,6 +34,7 @@ add_executable(JumperBoy
 "ui/user_interface.cpp" 
 "ui/user_inputs.cpp"
 "ui/game_window.cpp"
+"ui/control_panel.cpp"
 "../libs/imgui/imgui.cpp"
 "../libs/imgui/imgui_demo.cpp"
 "../libs/imgui/imgui_draw.cpp"

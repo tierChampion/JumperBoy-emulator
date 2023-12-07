@@ -84,7 +84,7 @@ namespace jmpr
 		}
 	}
 
-	bool GameBoy::insertCartridge(const char *rom_file)
+	bool GameBoy::insertCartridge(const std::string &rom_file)
 	{
 		reboot();
 
@@ -98,6 +98,16 @@ namespace jmpr
 		_ticks = 0;
 
 		return true;
+	}
+
+	void GameBoy::setVolume(float volume)
+	{
+		_apu.setVolume(volume);
+	}
+
+	void GameBoy::toggleAudioChannel(u8 id)
+	{
+		_apu.toggleChannel(id);
 	}
 
 	/**

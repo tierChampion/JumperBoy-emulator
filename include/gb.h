@@ -53,7 +53,9 @@ namespace jmpr
 		static void cpuLoop();
 		static void uiLoop();
 
-		static bool insertCartridge(const char *rom_file);
+		static bool insertCartridge(const std::string& rom_file);
+		static void setVolume(float volume);
+		static void toggleAudioChannel(u8 id);
 
 		static void cycle(u8 m_cycles);
 

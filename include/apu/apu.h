@@ -33,6 +33,7 @@ namespace jmpr
 
 		u8 _left_vol;
 		u8 _right_vol;
+		float _main_volume;
 
 		SquareChannel _channel1;
 		SquareChannel _channel2;
@@ -43,6 +44,8 @@ namespace jmpr
 		APU();
 
 		void setAudioId(SDL_AudioDeviceID id) { _audio_id = id; }
+		void setVolume(float volume) { _main_volume = volume; }
+		void toggleChannel(u8 channelId);
 
 		void reboot();
 

@@ -173,7 +173,7 @@ namespace jmpr {
 		_out[0] = 0;
 		_out[1] = 0;
 
-		if (_state._active && _state._dac) {
+		if (_state._active && _state._dac && !_muted) {
 
 			u8 samplePair = _waveRAM[_step / 2];
 

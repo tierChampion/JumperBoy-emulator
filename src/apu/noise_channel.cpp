@@ -6,7 +6,7 @@ namespace jmpr {
 
 		_lfsr = 0;
 		_clk_shift = 0;
-		_lfsr_size = 15; // ?
+		_lfsr_size = 15;
 		_clk_divider = 0;
 		_timer = 0;
 
@@ -204,7 +204,7 @@ namespace jmpr {
 		_out[0] = 0;
 		_out[1] = 0;
 
-		if (_state._active && _state._dac) {
+		if (_state._active && _state._dac && !_muted) {
 
 			u8 digitalSignal = bit(_lfsr, 0) * _vol;
 

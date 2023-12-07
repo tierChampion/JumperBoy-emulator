@@ -20,7 +20,7 @@ namespace jmpr {
 	* Load a cartridge from a binary file.
 	* @param file Path of the file containing the game
 	*/
-	Cartridge::Cartridge(const char* file) {
+	Cartridge::Cartridge(const std::string& file) {
 
 		std::ifstream stream;
 		stream.open(file, std::fstream::in | std::fstream::binary);
@@ -46,9 +46,7 @@ namespace jmpr {
 
 		_filename = file;
 
-		std::string strFile = std::string(_filename);
-
-		_savename = (strFile.substr(0, strFile.find(".gb")) + ".sav");
+		_savename = (file.substr(0, file.find(".gb")) + ".sav");
 
 		stream.close();
 

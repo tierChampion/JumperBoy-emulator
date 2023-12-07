@@ -220,7 +220,7 @@ namespace jmpr {
 		_out[0] = 0;
 		_out[1] = 0;
 
-		if (_state._active && _state._dac) {
+		if (_state._active && _state._dac && !_muted) {
 
 			// high or low
 			u8 signal = PULSE_DUTY_CYCLES[8 * _duty + _duty_step];

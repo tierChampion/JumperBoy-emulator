@@ -17,9 +17,19 @@ namespace jmpr
 	class PPU;
 	class APU;
 
+	struct Controls
+	{
+		bool browser;
+		bool tiles;
+		float vol;
+		bool channel1;
+		bool channel2;
+		bool channel3;
+		bool channel4;
+	};
+
 	class UI
 	{
-
 		bool _opened;
 
 		GameWindow _game_window;
@@ -30,10 +40,11 @@ namespace jmpr
 
 		SDL_Window *_imgui_window;
 		SDL_Renderer *_imgui_renderer;
-
 		ImGuiIO _imgui_io;
 		ImGui::FileBrowser _file_browser;
-		bool _display_browser;
+
+		Controls _controls;
+
 
 	public:
 		UI(PPU *ppu, APU *apu, InputHandler *inpHandler);
@@ -50,7 +61,6 @@ namespace jmpr
 		void handleEvents(bool gamePlaying);
 
 		void render();
-		void renderDefault();
 		void renderImGui();
 	};
 }
