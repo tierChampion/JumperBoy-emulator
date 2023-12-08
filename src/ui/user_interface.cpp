@@ -9,7 +9,7 @@ namespace jmpr
 {
 	UI::UI(PPU *ppu, APU *apu)
 		: _opened(true), _game_window(GameWindow(ppu, apu)),
-		  _controls({false, false, 0.05f, true, true, true, true}),
+		  _controls({false, false, 0.05f, true, true, true, true, 0}),
 		  _input_preset(0)
 	{
 		initImGui();
@@ -24,8 +24,8 @@ namespace jmpr
 		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext();
 
-		SDL_DestroyWindow(_imgui_window);
 		SDL_DestroyRenderer(_imgui_renderer);
+		SDL_DestroyWindow(_imgui_window);
 		_game_window.cleanup();
 
 		SDL_Quit();
@@ -33,15 +33,18 @@ namespace jmpr
 
 	void UI::saveSettings()
 	{
+		// create folder
 		std::filesystem::path folderPath = std::string(DIRECTORY_PATH) + std::string("/settings/");
 
-		if (!std::filesystem::exists(folderPath)) {
-			if (!std::filesystem::create_directories(folderPath)) {
+		if (!std::filesystem::exists(folderPath))
+		{
+			if (!std::filesystem::create_directories(folderPath))
+			{
 				std::cerr << "Error creating the folder!" << std::endl;
 			}
 		}
 
-		// save recents to file
+		// recents
 		std::ofstream recentFile(std::string(DIRECTORY_PATH) + std::string("/settings/recents.csv"));
 
 		if (recentFile.is_open())
@@ -59,12 +62,15 @@ namespace jmpr
 			std::cerr << "Error: could not open the recent file." << std::endl;
 		}
 
+		// controls
 		std::ofstream controlsFile(std::string(DIRECTORY_PATH) + std::string("/settings/controls.csv"));
 
 		if (controlsFile.is_open())
 		{
-			for (auto map : _input_maps)
+			for (u8 i = 1; i < _input_maps.size(); i++)
 			{
+				std::map<std::string, JumperInput> map = _input_maps[i];
+
 				controlsFile << "{\n";
 				for (auto &pair : map)
 				{
@@ -84,6 +90,7 @@ namespace jmpr
 
 	void UI::loadSettings()
 	{
+		// recents
 		std::ifstream recentFile(std::string(DIRECTORY_PATH) + std::string("/settings/recents.csv"));
 
 		if (recentFile.is_open())
@@ -96,6 +103,18 @@ namespace jmpr
 
 			recentFile.close();
 		}
+
+		// controls
+		_input_maps.push_back(std::map<std::string, JumperInput>());
+
+		_input_maps[0]["W"] = JumperInput::UP;
+		_input_maps[0]["A"] = JumperInput::LEFT;
+		_input_maps[0]["S"] = JumperInput::DOWN;
+		_input_maps[0]["D"] = JumperInput::RIGHT;
+		_input_maps[0]["H"] = JumperInput::A;
+		_input_maps[0]["J"] = JumperInput::B;
+		_input_maps[0]["N"] = JumperInput::SELECT;
+		_input_maps[0]["M"] = JumperInput::START;
 
 		std::ifstream controlsFile(std::string(DIRECTORY_PATH) + std::string("/settings/controls.csv"));
 
@@ -120,19 +139,38 @@ namespace jmpr
 			controlsFile.close();
 		}
 
-		if (_input_maps.size() == 0)
-		{
-			_input_maps.push_back(std::map<std::string, JumperInput>());
+		// pallets
+		_game_window.addPallet({0xFF0FBC9B,
+								0xFF0FAC8B,
+								0xFF306230,
+								0xFF0F380F});
 
-			_input_maps[0]["W"] = JumperInput::UP;
-			_input_maps[0]["A"] = JumperInput::LEFT;
-			_input_maps[0]["S"] = JumperInput::DOWN;
-			_input_maps[0]["D"] = JumperInput::RIGHT;
-			_input_maps[0]["H"] = JumperInput::A;
-			_input_maps[0]["J"] = JumperInput::B;
-			_input_maps[0]["N"] = JumperInput::SELECT;
-			_input_maps[0]["M"] = JumperInput::START;
-		}
+		_game_window.addPallet({0xFFDDDDDD,
+								0xFFAAAAAA,
+								0xFF555555,
+								0xFF000000});
+		// std::ifstream palletsFile(std::string(DIRECTORY_PATH) + std::string("/settings/pallets.csv"));
+
+		// if (palletsFile.is_open())
+		// {
+		// 	std::string line;
+		// 	while (std::getline(palletsFile, line))
+		// 	{
+		// 		if (line[0] == '{')
+		// 		{
+		// 			_input_maps.push_back(std::map<std::string, JumperInput>());
+		// 		}
+		// 		else if (line[0] != '}')
+		// 		{
+		// 			size_t pos = line.find(":");
+
+		// 			_input_maps[_input_maps.size() - 1][line.substr(0, pos)] =
+		// 				nameToInput(line.substr(pos + 1, line.size()));
+		// 		}
+		// 	}
+
+		// 	controlsFile.close();
+		// }
 	}
 
 	void UI::loop(bool gamePlaying)

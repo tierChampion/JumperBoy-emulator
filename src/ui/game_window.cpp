@@ -28,7 +28,7 @@ namespace jmpr
 
     GameWindow::GameWindow(PPU *ppu, APU *apu) : _ppu(ppu), _opened(false),
                                                  _debug(false),
-                                                 _pallet(0),
+                                                 _pallet_id(0),
                                                  _scale(DEFAULT_SCALE)
     {
         // Initialize SDL Video
@@ -110,6 +110,21 @@ namespace jmpr
         }
     }
 
+    void GameWindow::addPallet(const std::array<u32, 4> &pallet)
+    {
+        _pallets.push_back(pallet);
+    }
+
+    std::vector<std::array<u32, 4>> GameWindow::getPallets() const
+    {
+        return _pallets;
+    }
+
+    void GameWindow::setUsedPallet(u8 palletId)
+    {
+        _pallet_id = palletId;
+    }
+
     void GameWindow::cleanup()
     {
         destroyGraphics();
@@ -158,7 +173,7 @@ namespace jmpr
             {
                 u8 color = _ppu->readBuffer(y * X_RESOLUTION + x);
 
-                SDL_FillRect(_surface, &rect, PALLET[color]);
+                SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
                 rect.x += _scale;
             }
 
@@ -177,7 +192,7 @@ namespace jmpr
         rect.w = tileDim / 2;
         rect.h = Y_RESOLUTION * _scale;
 
-        SDL_FillRect(_surface, &rect, PALLET[3]);
+        SDL_FillRect(_surface, &rect, _pallets[_pallet_id][3]);
 
         // display the 384 tiles
         for (u16 y = 0; y < 24; y++)
@@ -217,7 +232,7 @@ namespace jmpr
                 u8 color = (bit(pal2, 7 - x) << 1) | (bit(pal1, 7 - x));
                 rect.x = xPos + _scale * x + X_RESOLUTION * _scale;
 
-                SDL_FillRect(_surface, &rect, PALLET[color]);
+                SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
             }
         }
     }

@@ -2,6 +2,8 @@
 
 #include <common.h>
 
+#include <vector>
+
 #include <SDL2/SDL.h>
 
 namespace jmpr
@@ -22,7 +24,9 @@ namespace jmpr
 
         bool _opened;
         bool _debug;
-        u8 _pallet;
+
+        std::vector<std::array<u32, 4>> _pallets;
+        u8 _pallet_id;
 
         u8 _scale;
 
@@ -34,6 +38,11 @@ namespace jmpr
         void toggleDebug();
         void open();
         void close();
+
+        void addPallet(const std::array<u32, 4> &pallet);
+        std::vector<std::array<u32, 4>> getPallets() const;
+
+        void setUsedPallet(u8 palletId);
 
     private:
         void initWindow();

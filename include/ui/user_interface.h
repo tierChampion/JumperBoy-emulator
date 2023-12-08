@@ -29,6 +29,7 @@ namespace jmpr
 		bool channel2;
 		bool channel3;
 		bool channel4;
+		u8 pallet;
 	};
 
 	class UI
@@ -67,6 +68,8 @@ namespace jmpr
 		void render();
 		void renderImGui();
 		void openROM(std::string romPath);
+		void fileMenu();
+		void optionsMenu();
 
 		void loadSettings();
 		void saveSettings();

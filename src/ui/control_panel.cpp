@@ -50,36 +50,71 @@ namespace jmpr
         ImGui::BeginMainMenuBar();
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Open"))
-                initFileBrowser();
-            if (ImGui::BeginMenu("Open recent"))
-            {
-                for (s8 i = _recents.size() - 1; i >= 0; i--)
-                {
-                    std::string recent = _recents[i];
-
-                    if (ImGui::MenuItem(recent.c_str()))
-                    {
-                        openROM(recent);
-                    }
-                }
-                ImGui::EndMenu();
-            }
-            if (ImGui::MenuItem("Quit"))
-                _opened = false;
-
+            fileMenu();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Options"))
         {
-            if (ImGui::Checkbox("Show tiles", &_controls.tiles))
+            optionsMenu();
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+
+        if (_controls.browser)
+        {
+            _file_browser.Display();
+
+            if (_file_browser.HasSelected())
             {
-                _game_window.toggleDebug();
+                openROM(_file_browser.GetSelected().string());
+
+                _file_browser.ClearSelected();
+                _controls.browser = false;
             }
-            if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f))
+        }
+
+        ImGui::ShowDemoWindow();
+
+        ImGui::Render();
+        SDL_RenderClear(_imgui_renderer);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(_imgui_renderer);
+    }
+
+    void UI::fileMenu()
+    {
+        if (ImGui::MenuItem("Open"))
+            initFileBrowser();
+        if (ImGui::BeginMenu("Open recent"))
+        {
+            for (s8 i = _recents.size() - 1; i >= 0; i--)
             {
-                GameBoy::setVolume(_controls.vol);
+                std::string recent = _recents[i];
+
+                if (ImGui::MenuItem(recent.c_str()))
+                {
+                    openROM(recent);
+                }
             }
+            ImGui::EndMenu();
+        }
+        if (ImGui::MenuItem("Quit"))
+            _opened = false;
+    }
+
+    void UI::optionsMenu()
+    {
+        if (ImGui::Checkbox("Show tiles", &_controls.tiles))
+        {
+            _game_window.toggleDebug();
+        }
+        if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f, "%.2f"))
+        {
+            GameBoy::setVolume(_controls.vol);
+        }
+        if (ImGui::BeginMenu("Audio channels"))
+        {
             if (ImGui::Checkbox("Channel 1", &_controls.channel1))
             {
                 GameBoy::toggleAudioChannel(0);
@@ -96,31 +131,23 @@ namespace jmpr
             {
                 GameBoy::toggleAudioChannel(3);
             }
-
             ImGui::EndMenu();
         }
-
-        ImGui::EndMainMenuBar();
-
-        if (_controls.browser)
+        // 1320
+        if (ImGui::BeginListBox("Pallet"))
         {
-            _file_browser.Display();
-
-            if (_file_browser.HasSelected())
+            if (ImGui::Selectable("Original", _controls.pallet == 0))
             {
-                openROM(_file_browser.GetSelected().string());
-                
-                _file_browser.ClearSelected();
-                _controls.browser = false;
+                _controls.pallet = 0;
+                _game_window.setUsedPallet(_controls.pallet);
             }
+            if (ImGui::Selectable("Grey", _controls.pallet == 1))
+            {
+                _controls.pallet = 1;
+                _game_window.setUsedPallet(_controls.pallet);
+            }
+            ImGui::EndListBox();
         }
-
-        ImGui::ShowDemoWindow();
-
-        ImGui::Render();
-        SDL_RenderClear(_imgui_renderer);
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(_imgui_renderer);
     }
 
     void UI::openROM(std::string romPath)

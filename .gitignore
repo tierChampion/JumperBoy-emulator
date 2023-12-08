@@ -1,6 +1,6 @@
 .vs/
 .VSCodeCounter/
-build/
+out/
 roms/*
 settings
 !roms/PLACE_ROMS_HERE.txt
