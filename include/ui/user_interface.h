@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.h>
+#include <ui/inputs.h>
 #include <ui/game_window.h>
 
 #include <imgui.h>
@@ -9,6 +10,8 @@
 #include <imfilebrowser.h>
 
 #include <SDL2/SDL.h>
+
+#include <map>
 
 namespace jmpr
 {
@@ -35,7 +38,6 @@ namespace jmpr
 		GameWindow _game_window;
 
 		SDL_Event _curr_event;
-		InputHandler *_inp_handler;
 		const char *_curr_input;
 
 		SDL_Window *_imgui_window;
@@ -45,10 +47,11 @@ namespace jmpr
 
 		Controls _controls;
 		std::vector<std::string> _recents;
+		std::vector<std::map<std::string, JumperInput>> _input_maps;
+		u8 _input_preset;
 
 	public:
-		UI(PPU *ppu, APU *apu, InputHandler *inpHandler);
-		~UI();
+		UI(PPU *ppu, APU *apu);
 		void cleanup();
 
 		bool isOpened() { return _opened; }
@@ -64,5 +67,8 @@ namespace jmpr
 		void render();
 		void renderImGui();
 		void openROM(std::string romPath);
+
+		void loadSettings();
+		void saveSettings();
 	};
 }

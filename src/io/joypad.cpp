@@ -8,8 +8,6 @@ namespace jmpr {
 
 		reboot();
 
-		_inp_handler = InputHandler(this);
-
 		_int_handler = handler;
 	}
 
@@ -41,9 +39,9 @@ namespace jmpr {
 	/**
 	* Enter an input. Interrupt requested if the input type is allowed.
 	*/
-	void Joypad::pressInput(JoypadInput input) {
+	void Joypad::pressInput(u8 input) {
 
-		_p1_input = reset(_p1_input, u8(input));
+		_p1_input = reset(_p1_input, input);
 
 		if (bit(_p1_selection, selectionBit(input)) == 0) {
 			// Request an interrupt
@@ -55,7 +53,7 @@ namespace jmpr {
 	* Release an input. Only registered if the corresponding button type
 	* is activated.
 	*/
-	void Joypad::releaseInput(JoypadInput input) {
+	void Joypad::releaseInput(u8 input) {
 
 		_p1_input = set(_p1_input, u8(input));
 	}
@@ -63,15 +61,15 @@ namespace jmpr {
 	/**
 	* Get the index of the selection bit needed for the input to register.
 	*/
-	static u8 selectionBit(JoypadInput input) {
-		return (((u8)input) / 4);
+	static u8 selectionBit(u8 input) {
+		return (input / 4);
 	}
 
 	/**
 	* Get the index of the input bit to modify.
 	*/
-	static u8 inputBit(JoypadInput input) {
+	static u8 inputBit(u8 input) {
 
-		return ((u8)input) % 4;
+		return input % 4;
 	}
 }

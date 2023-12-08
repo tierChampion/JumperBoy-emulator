@@ -2,8 +2,10 @@
 .VSCodeCounter/
 build/
 roms/*
+settings
 !roms/PLACE_ROMS_HERE.txt
 
+imgui.ini
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

@@ -2,8 +2,6 @@
 
 #include <common.h>
 
-#include <io/input_handler.h>
-
 namespace jmpr {
 
 	enum class JoypadInput {
@@ -17,8 +15,8 @@ namespace jmpr {
 		START
 	};
 
-	static u8 selectionBit(JoypadInput input);
-	static u8 inputBit(JoypadInput input);
+	static u8 selectionBit(u8 input);
+	static u8 inputBit(u8 input);
 
 	class InterruptHandler;
 
@@ -26,8 +24,6 @@ namespace jmpr {
 
 		u8 _p1_selection;
 		u8 _p1_input;
-
-		InputHandler _inp_handler;
 
 		InterruptHandler* _int_handler;
 
@@ -38,12 +34,10 @@ namespace jmpr {
 
 		void reboot();
 
-		InputHandler* getInputHandler() { return &_inp_handler; }
-
 		u8 readP1Register() const;
 		void writeP1Register(u8 data);
 
-		void pressInput(JoypadInput input);
-		void releaseInput(JoypadInput input);
+		void pressInput(u8 input);
+		void releaseInput(u8 input);
 	};
 }

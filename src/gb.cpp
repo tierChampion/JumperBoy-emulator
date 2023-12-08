@@ -17,7 +17,7 @@ namespace jmpr
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
-	UI GameBoy::_ui = UI(&_ppu, &_apu, _joypad.getInputHandler());
+	UI GameBoy::_ui = UI(&_ppu, &_apu);
 
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
@@ -108,6 +108,16 @@ namespace jmpr
 	void GameBoy::toggleAudioChannel(u8 id)
 	{
 		_apu.toggleChannel(id);
+	}
+
+	void GameBoy::pressButton(u8 button)
+	{
+		_joypad.pressInput(button);
+	}
+
+	void GameBoy::releaseButton(u8 button)
+	{
+		_joypad.releaseInput(button);
 	}
 
 	/**

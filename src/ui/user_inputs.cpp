@@ -25,23 +25,27 @@ namespace jmpr
 				if (_curr_event.window.event == SDL_WINDOWEVENT_CLOSE)
 				{
 					if (_curr_event.window.windowID == SDL_GetWindowID(_imgui_window))
-					_opened = false;
+						_opened = false;
 					else
-					_game_window.close();
+						_game_window.close();
 				}
 				break;
 
 			case SDL_KEYDOWN:
 			{
-				if (gamePlaying)
-					_inp_handler->onKeyDown(_curr_event.key);
+				JumperInput input = _input_maps[_input_preset][SDL_GetKeyName(_curr_event.key.keysym.sym)];
+				if (gamePlaying && isJoypadInput(input))
+					GameBoy::pressButton(static_cast<u8>(input) - 1);
+
 				break;
 			}
 
 			case SDL_KEYUP:
 			{
-				if (gamePlaying)
-					_inp_handler->onKeyUp(_curr_event.key);
+				JumperInput input = _input_maps[_input_preset][SDL_GetKeyName(_curr_event.key.keysym.sym)];
+				if (gamePlaying && isJoypadInput(input))
+					GameBoy::releaseButton(static_cast<u8>(input) - 1);
+
 				break;
 			}
 			}

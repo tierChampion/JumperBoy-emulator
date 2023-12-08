@@ -57,6 +57,9 @@ namespace jmpr
 		static void setVolume(float volume);
 		static void toggleAudioChannel(u8 id);
 
+		static void pressButton(u8 button);
+		static void releaseButton(u8 button);
+
 		static void cycle(u8 m_cycles);
 
 		static void pause() { _running = false; }
