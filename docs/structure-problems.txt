@@ -1,0 +1,6 @@
+2 way between CPU and Bus
+2 way between CPU and InterruptHandler
+
+LCD is very coupled! (vram, ppu, pixel-transfer, int handler, io, oam)
+
+Everything is linked to gameboy

@@ -24,13 +24,11 @@ namespace jmpr {
 	// todo split into two VRAM and OAM
 	class VRAM {
 
-		LCD* _lcd;
 		u8 _vram[0x2000];
 
 	public:
 
-		VRAM() {}
-		VRAM(LCD* lcd);
+		VRAM();
 
 		bool isAccessible() const;
 
@@ -42,13 +40,11 @@ namespace jmpr {
 
 	class OAM {
 
-		LCD* _lcd;
 		Sprite _oam[40];
 
 	public:
 
-		OAM() {}
-		OAM(LCD* lcd);
+		OAM();
 
 		u8 read(u16 address, bool dmaRead) const;
 		void write(u16 address, u8 data, bool dmaWrite);

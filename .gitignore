@@ -2,6 +2,7 @@
 .VSCodeCounter/
 out/
 roms/*
+*.eap
 settings
 !roms/PLACE_ROMS_HERE.txt
 

@@ -133,7 +133,6 @@ namespace jmpr
 
 		if (equal && bit(_status, 6))
 		{
-
 			// request an interrupt
 			_it_handler->requestInterrupt(InterruptType::STAT);
 		}

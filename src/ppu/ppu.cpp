@@ -2,15 +2,15 @@
 
 #include <cpu/interrupt.h>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	PPU::PPU(InterruptHandler* intHandler) {
+	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
+	{
 
 		_vbuffer = std::shared_ptr<u8>(new u8[X_RESOLUTION * Y_RESOLUTION]);
 
 		_lcd = LCD(intHandler);
-		_vram = VRAM(&_lcd);
-		_oam = OAM(&_lcd);
 
 		_pt_handler = PixelTransferHandler(&_lcd, &_vram);
 
@@ -24,7 +24,8 @@ namespace jmpr {
 		_lcd.setMode(LCDMode::OAM_SCAN);
 	}
 
-	void PPU::reboot() {
+	void PPU::reboot()
+	{
 
 		_lcd.reboot();
 
@@ -38,27 +39,40 @@ namespace jmpr {
 		_lcd.setMode(LCDMode::OAM_SCAN);
 	}
 
-	void PPU::update() {
+	void PPU::update()
+	{
 
-		switch (_lcd.mode()) {
-		case LCDMode::HBLANK: HBlankProcess(); break;
-		case LCDMode::VBLANK: VBlankProcess(); break;
-		case LCDMode::OAM_SCAN: OAMScanProcess(); break;
-		case LCDMode::TRANSFER: TransferProcess(); break;
+		switch (_lcd.mode())
+		{
+		case LCDMode::HBLANK:
+			HBlankProcess();
+			break;
+		case LCDMode::VBLANK:
+			VBlankProcess();
+			break;
+		case LCDMode::OAM_SCAN:
+			OAMScanProcess();
+			break;
+		case LCDMode::TRANSFER:
+			TransferProcess();
+			break;
 		}
 
 		_line_dots++;
 	}
 
-	bool PPU::pendingRender() const {
+	bool PPU::pendingRender() const
+	{
 		return _frame_ready;
 	}
 
-	void PPU::dispatchRender() {
+	void PPU::dispatchRender()
+	{
 		_frame_ready = false;
 	}
 
-	u8 PPU::readBuffer(u32 index) {
+	u8 PPU::readBuffer(u32 index)
+	{
 
 		return _vbuffer.get()[index];
 	}
