@@ -18,10 +18,8 @@
 
 namespace jmpr
 {
-
 	class GameBoy
 	{
-
 		// Internal Components
 		static Bus _bus;
 		static CPU _cpu;
@@ -53,7 +51,7 @@ namespace jmpr
 		static void cpuLoop();
 		static void uiLoop();
 
-		static bool insertCartridge(const std::string& rom_file);
+		static bool insertCartridge(const std::string &rom_file);
 		static void setVolume(float volume);
 		static void toggleAudioChannel(u8 id);
 

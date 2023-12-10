@@ -7,7 +7,8 @@
 #ifdef __linux__
 #include <unistd.h>
 #endif
-namespace jmpr {
+namespace jmpr
+{
 
 	// Unsigned types
 	using u8 = uint8_t;
@@ -19,52 +20,73 @@ namespace jmpr {
 	using s8 = int8_t;
 	using s16 = int16_t;
 
-	inline u16 merge16(u8 high, u8 low) {
+	// Constants
+	static const u32 GB_CLOCK_SPEED = 4194304;
+	static const u16 AUDIO_SAMPLE_RATE = 44100;
+
+	static const u8 X_RESOLUTION = 160;
+	static const u8 Y_RESOLUTION = 144;
+	static const float GB_FPS = 59.7f;
+
+	inline u16 merge16(u8 high, u8 low)
+	{
 		return (high << 8) | low;
 	}
 
-	inline u8 merge8(u8 high, u8 low) {
+	inline u8 merge8(u8 high, u8 low)
+	{
 		return ((high & 0xF) << 4) | (low & 0xF);
 	}
 
-	inline u8 bit(u8 byte, u8 pos) {
+	inline u8 bit(u8 byte, u8 pos)
+	{
 		return (byte & (1 << pos)) >> pos;
 	}
 
-	inline u8 set(u8 byte, u8 pos) {
+	inline u8 set(u8 byte, u8 pos)
+	{
 		return byte | (1 << pos);
 	}
 
-	inline u8 reset(u8 byte, u8 pos) {
+	inline u8 reset(u8 byte, u8 pos)
+	{
 		return byte & ~(1 << pos);
 	}
 
-	inline u8 setBit(u8 byte, u8 pos, u8 val) {
+	inline u8 setBit(u8 byte, u8 pos, u8 val)
+	{
 		return byte ^ ((-val ^ byte) & (1 << pos));
 	}
 
-	inline u8 hiByte(u16 bytes) {
+	inline u8 hiByte(u16 bytes)
+	{
 		return (bytes >> 8) & 0xFF;
 	}
 
-	inline u8 loByte(u16 bytes) {
+	inline u8 loByte(u16 bytes)
+	{
 		return bytes & 0xFF;
 	}
 
-	inline u8 hiNibble(u8 byte) {
+	inline u8 hiNibble(u8 byte)
+	{
 		return (byte >> 4) & 0xF;
 	}
 
-	inline u8 loNibble(u8 byte) {
+	inline u8 loNibble(u8 byte)
+	{
 		return byte & 0xF;
 	}
 
-	inline bool between(u16 val, u16 lo, u16 hi) {
+	inline bool between(u16 val, u16 lo, u16 hi)
+	{
 		return val >= lo && val <= hi;
 	}
 
-	inline void notImplemented(const char* file, int line) {
-		std::cout << file << " ( line " << std::dec << line << " ): " << "NOT YET IMPLEMENTED" << std::endl;
+	inline void notImplemented(const char *file, int line)
+	{
+		std::cout << file << " ( line " << std::dec << line << " ): "
+				  << "NOT YET IMPLEMENTED" << std::endl;
 	}
 
 #define noImpl() notImplemented(__FILE__, __LINE__)

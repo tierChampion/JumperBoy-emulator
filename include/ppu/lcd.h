@@ -4,10 +4,6 @@
 
 namespace jmpr {
 
-#define X_RESOLUTION 160
-#define Y_RESOLUTION 144
-#define FPS 59.7f
-
 	enum class LCDMode {
 		HBLANK,
 		VBLANK,

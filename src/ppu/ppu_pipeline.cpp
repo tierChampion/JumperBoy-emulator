@@ -43,8 +43,8 @@ namespace jmpr {
 		u32 frameEnd = GameBoy::getCurrentTime();
 		u32 frameLength = frameEnd - _last_frame_time;
 
-		if (frameLength < (1000.0f / FPS)) {
-			GameBoy::delay((1000.0f / FPS) - frameLength);
+		if (frameLength < (1000.0f / GB_FPS)) {
+			GameBoy::delay((1000.0f / GB_FPS) - frameLength);
 		}
 
 		_last_frame_time = GameBoy::getCurrentTime();

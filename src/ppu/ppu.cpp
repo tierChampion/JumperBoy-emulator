@@ -4,7 +4,6 @@
 
 namespace jmpr
 {
-
 	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
 	{
 

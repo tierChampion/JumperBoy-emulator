@@ -11,15 +11,12 @@
 
 namespace jmpr
 {
-
-#define AUDIO_CHANNEL_COUNT 4
-
 	class APU
 	{
 	public:
-		static const u16 SAMPLE_RATE = 44100;
-		static const u8 SAMPLE_GATERING = 98;
-		static const u16 MAX_SAMPLES = 4096;
+		static const u8 AUDIO_CHANNEL_COUNT = 4;
+		static const u8 SAMPLE_GATERING = GB_CLOCK_SPEED / AUDIO_SAMPLE_RATE;
+		static const u16 MAX_SAMPLES = 512;
 
 	private:
 		SDL_AudioDeviceID _audio_id;

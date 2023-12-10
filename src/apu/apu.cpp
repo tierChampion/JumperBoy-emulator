@@ -2,7 +2,6 @@
 
 namespace jmpr
 {
-
 	APU::APU()
 	: _sample_pointer(0),
 	_sample_counter(0),
@@ -15,6 +14,7 @@ namespace jmpr
 	_channel3(WaveChannel(0x1A)),
 	_channel4(NoiseChannel(0x20))
 	{
+		std::cout << SAMPLE_GATERING << std::endl;
 	}
 
 	void APU::reboot()
@@ -144,7 +144,6 @@ namespace jmpr
 		// Power OFF
 		if (!_apu_power)
 		{
-
 			// todo: set every single registers in the apu to 0.
 		}
 	}

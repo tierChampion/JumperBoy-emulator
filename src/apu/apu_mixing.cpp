@@ -24,6 +24,9 @@ namespace jmpr
 		{
 			SDL_QueueAudio(_audio_id, _samples, MAX_SAMPLES * sizeof(float));
 			_sample_pointer = 0;
+
+			// Waiting for the other samples to empty.
+			while (SDL_GetQueuedAudioSize(_audio_id) > MAX_SAMPLES * sizeof(float)) {}
 		}
 	}
 }

@@ -70,7 +70,7 @@ namespace jmpr
     {
         SDL_AudioSpec specs = SDL_AudioSpec();
         SDL_zero(specs);
-        specs.freq = APU::SAMPLE_RATE;
+        specs.freq = AUDIO_SAMPLE_RATE;
         specs.format = AUDIO_F32;
         specs.channels = 2;
         specs.samples = APU::MAX_SAMPLES / 2;

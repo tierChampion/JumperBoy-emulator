@@ -10,8 +10,6 @@
 
 namespace jmpr {
 
-// #define DMG_CLOCK_SPEED 4194304
-
 	class GameBoy;
 	class Bus;
 	class RAM;
@@ -100,7 +98,6 @@ namespace jmpr {
 		void testSRA();
 
 	private:
-
 
 		// STACK OPERATIONS
 		void pushStack8(u8 data);
