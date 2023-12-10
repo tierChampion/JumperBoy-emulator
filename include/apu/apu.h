@@ -16,7 +16,7 @@ namespace jmpr
 	public:
 		static const u8 AUDIO_CHANNEL_COUNT = 4;
 		static const u8 SAMPLE_GATERING = GB_CLOCK_SPEED / AUDIO_SAMPLE_RATE;
-		static const u16 MAX_SAMPLES = 512;
+		static const u16 MAX_SAMPLES = 2048;
 
 	private:
 		SDL_AudioDeviceID _audio_id;

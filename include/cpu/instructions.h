@@ -44,18 +44,18 @@ namespace jmpr {
 		DI,			// Disable interrupts
 		EI,			// Enable interrupts
 
-		CB_ERR,		// Unknown CB Instruction
-		CB_RLC,		// Rotate left
-		CB_RRC,		// Rotate right
-		CB_RL,		// Rotate left through carry
-		CB_RR,		// Rotate right through carry
-		CB_SLA,		// Shift left
-		CB_SRA,		// Shift right
-		CB_SWAP,	// Exchange the low and high nibbles
-		CB_SRL,		// Shift right logical
-		CB_BIT,		// Test bit
-		CB_RES,		// Reset bit
-		CB_SET,		// Set bit
+		BIT_ERR,		// Unknown BIT Instruction
+		BIT_RLC,		// Rotate left
+		BIT_RRC,		// Rotate right
+		BIT_RL,		// Rotate left through carry
+		BIT_RR,		// Rotate right through carry
+		BIT_SLA,		// Shift left
+		BIT_SRA,		// Shift right
+		BIT_SWAP,	// Exchange the low and high nibbles
+		BIT_SRL,		// Shift right logical
+		BIT_BIT,		// Test bit
+		BIT_RES,		// Reset bit
+		BIT_SET,		// Set bit
 	};
 
 	/**

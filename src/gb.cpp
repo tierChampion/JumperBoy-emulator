@@ -32,6 +32,7 @@ namespace jmpr
 		std::thread cpuThread(&cpuLoop);
 
 		cpuThread.detach();
+
 		uiLoop();
 
 		_ui.cleanup();
@@ -62,7 +63,6 @@ namespace jmpr
 
 	void GameBoy::cpuLoop()
 	{
-
 		while (_ui.isOpened())
 		{
 			if (_running)
@@ -126,10 +126,8 @@ namespace jmpr
 	 */
 	void GameBoy::cycle(u8 m_cycles)
 	{
-
 		for (u8 cycle = 0; cycle < m_cycles; cycle++)
 		{
-
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
 				_timer.update();
