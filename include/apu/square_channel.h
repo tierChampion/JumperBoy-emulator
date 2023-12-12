@@ -34,7 +34,7 @@ namespace jmpr {
 		void write(u8 address, u8 data) override;
 		u8 read(u8 address) const override;
 
-		std::array<float, 2> sample() override;
+		virtual void addSample(float& leftSample, float& rightSample) const override;
 
 	private:
 

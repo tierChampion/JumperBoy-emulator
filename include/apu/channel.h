@@ -19,7 +19,6 @@ namespace jmpr
 	{
 	protected:
 		AudioChannelState _state;
-		std::array<float, 2> _out;
 
 		u8 _length_timer;
 		bool _muted;
@@ -37,7 +36,7 @@ namespace jmpr
 		virtual void write(u8 address, u8 data) = 0;
 		virtual u8 read(u8 address) const = 0;
 
-		virtual std::array<float, 2> sample() = 0;
+		virtual void addSample(float& leftSample, float& rightSample) const = 0;
 
 		void updatePanning(bool newLeft, bool newRight);
 

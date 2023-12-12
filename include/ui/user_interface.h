@@ -30,6 +30,7 @@ namespace jmpr
 		bool channel3;
 		bool channel4;
 		u8 pallet;
+		bool capped;
 	};
 
 	class UI
@@ -52,7 +53,7 @@ namespace jmpr
 		u8 _input_preset;
 
 	public:
-		UI(PPU *ppu, APU *apu);
+		UI(PPU *ppu);
 		void cleanup();
 
 		bool isOpened() { return _opened; }

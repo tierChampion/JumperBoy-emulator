@@ -5,6 +5,8 @@ namespace jmpr
 	APU::APU()
 	: _sample_pointer(0),
 	_sample_counter(0),
+	_ready_buffer(0),
+	_buffer_start(0),
 	_apu_power(true),
 	_left_vol(0b111),
 	_right_vol(0b111),
@@ -14,12 +16,10 @@ namespace jmpr
 	_channel3(WaveChannel(0x1A)),
 	_channel4(NoiseChannel(0x20))
 	{
-		std::cout << SAMPLE_GATERING << std::endl;
 	}
 
 	void APU::reboot()
 	{
-
 		// todo
 	}
 
@@ -73,7 +73,6 @@ namespace jmpr
 		// generate a sample
 		if (_sample_counter * _sample_pointer >= SAMPLE_GATERING * _sample_pointer)
 		{
-
 			generateSample();
 			_sample_counter = 0;
 		}

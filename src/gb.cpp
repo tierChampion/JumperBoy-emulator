@@ -17,10 +17,13 @@ namespace jmpr
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
-	UI GameBoy::_ui = UI(&_ppu, &_apu);
+	UI GameBoy::_ui = UI(&_ppu);
+	AudioManager GameBoy::_am = AudioManager(&_apu);
 
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
+	float GameBoy::_fps = 59.7f;
+	bool GameBoy::_capped = true;
 
 	int GameBoy::runGameBoy()
 	{

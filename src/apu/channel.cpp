@@ -11,9 +11,6 @@ namespace jmpr {
 		_state._left = true;
 		_state._right = true;
 
-		_out[0] = 0;
-		_out[1] = 0;
-
 		_length_timer = 0b111111;
 
 		_muted = false;

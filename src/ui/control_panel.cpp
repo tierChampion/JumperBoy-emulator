@@ -133,7 +133,6 @@ namespace jmpr
             }
             ImGui::EndMenu();
         }
-        // 1320
         if (ImGui::BeginListBox("Pallet"))
         {
             if (ImGui::Selectable("Original", _controls.pallet == 0))
@@ -147,6 +146,10 @@ namespace jmpr
                 _game_window.setUsedPallet(_controls.pallet);
             }
             ImGui::EndListBox();
+        }
+        if (ImGui::Checkbox("Capped FPS", &_controls.capped))
+        {
+            GameBoy::setCapped(_controls.capped);
         }
     }
 

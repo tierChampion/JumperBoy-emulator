@@ -20,8 +20,6 @@ namespace jmpr
 
         PPU *_ppu;
 
-        SDL_AudioDeviceID _audio_id;
-
         bool _opened;
         bool _debug;
 
@@ -31,7 +29,7 @@ namespace jmpr
         u8 _scale;
 
     public:
-        GameWindow(PPU *ppu, APU *apu);
+        GameWindow(PPU *ppu);
         void cleanup();
 
         void render();
@@ -47,7 +45,6 @@ namespace jmpr
     private:
         void initWindow();
         void destroyGraphics();
-        void initAudio(APU *apu);
 
         void renderGame();
         void renderTiles();

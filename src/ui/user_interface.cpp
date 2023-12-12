@@ -7,9 +7,9 @@
 
 namespace jmpr
 {
-	UI::UI(PPU *ppu, APU *apu)
-		: _opened(true), _game_window(GameWindow(ppu, apu)),
-		  _controls({false, false, 0.05f, true, true, true, true, 0}),
+	UI::UI(PPU *ppu)
+		: _opened(true), _game_window(GameWindow(ppu)),
+		  _controls({false, false, 0.05f, true, true, true, true, 0, true}),
 		  _input_preset(0)
 	{
 		initImGui();
@@ -177,8 +177,7 @@ namespace jmpr
 	{
 		handleEvents(gamePlaying);
 
-		renderImGui();
-
 		_game_window.render();
+		renderImGui();
 	}
 }

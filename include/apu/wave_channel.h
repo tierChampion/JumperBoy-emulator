@@ -32,7 +32,7 @@ namespace jmpr {
 		void writeToRAM(u8 address, u8 newSamples);
 		u8 readRAM(u8 address) const;
 
-		std::array<float, 2> sample() override;
+		virtual void addSample(float& leftSample, float& rightSample) const override;
 
 	private:
 

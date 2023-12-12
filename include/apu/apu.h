@@ -19,11 +19,12 @@ namespace jmpr
 		static const u16 MAX_SAMPLES = 2048;
 
 	private:
-		SDL_AudioDeviceID _audio_id;
-
-		float _samples[APU::MAX_SAMPLES];
+		float _samples[2 * APU::MAX_SAMPLES];
 		u16 _sample_pointer;
 		u8 _sample_counter;
+
+		u8 _ready_buffer;
+		u16 _buffer_start;
 
 		bool _apu_power;
 		u8 _div_apu;
@@ -40,7 +41,6 @@ namespace jmpr
 	public:
 		APU();
 
-		void setAudioId(SDL_AudioDeviceID id) { _audio_id = id; }
 		void setVolume(float volume) { _main_volume = volume; }
 		void toggleChannel(u8 channelId);
 
@@ -52,7 +52,7 @@ namespace jmpr
 		void updateEffects();
 		void update();
 
-		void generateSample();
+		const float* getSamples() const;
 
 	private:
 		// NR52
@@ -66,5 +66,7 @@ namespace jmpr
 		// NR50
 		void updateMasterVolume(u8 newVol);
 		u8 getMasterVolume() const;
+
+		void generateSample();
 	};
 }

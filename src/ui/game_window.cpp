@@ -26,7 +26,7 @@ namespace jmpr
         //*/
     };
 
-    GameWindow::GameWindow(PPU *ppu, APU *apu) : _ppu(ppu), _opened(false),
+    GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
                                                  _debug(false),
                                                  _pallet_id(0),
                                                  _scale(DEFAULT_SCALE)
@@ -37,8 +37,6 @@ namespace jmpr
             std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
             exit(-10);
         }
-
-        initAudio(apu);
     }
 
     void GameWindow::initWindow()
@@ -64,24 +62,6 @@ namespace jmpr
                                      SDL_TEXTUREACCESS_STREAMING, width, height);
         _surface = SDL_CreateRGBSurfaceWithFormat(0,
                                                   width, height, 32, SDL_PIXELFORMAT_ABGR8888);
-    }
-
-    void GameWindow::initAudio(APU *apu)
-    {
-        SDL_AudioSpec specs = SDL_AudioSpec();
-        SDL_zero(specs);
-        specs.freq = AUDIO_SAMPLE_RATE;
-        specs.format = AUDIO_F32;
-        specs.channels = 2;
-        specs.samples = APU::MAX_SAMPLES / 2;
-        specs.callback = nullptr;
-        specs.userdata = nullptr;
-
-        _audio_id = SDL_OpenAudioDevice(NULL, 0, &specs, nullptr, 0);
-
-        apu->setAudioId(_audio_id);
-
-        SDL_PauseAudioDevice(_audio_id, 0);
     }
 
     void GameWindow::open()
@@ -129,7 +109,6 @@ namespace jmpr
     {
         destroyGraphics();
         SDL_DestroyWindow(_window);
-        SDL_PauseAudioDevice(_audio_id, 1);
     }
 
     void GameWindow::destroyGraphics()

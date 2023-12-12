@@ -10,8 +10,6 @@ namespace jmpr {
 
 		_output_level = 0;
 
-		_out = std::array<float, 2>();
-
 		_state._left = true;
 		_state._right = true;
 
@@ -168,10 +166,7 @@ namespace jmpr {
 	/**
 	* Compute the current volume of the channel.
 	*/
-	std::array<float, 2> WaveChannel::sample() {
-
-		_out[0] = 0;
-		_out[1] = 0;
+	void WaveChannel::addSample(float& leftSample, float& rightSample) const {
 
 		if (_state._active && _state._dac && !_muted) {
 
@@ -183,10 +178,8 @@ namespace jmpr {
 
 			float analogSignal = -(2 * digitalSignal / 16.0f) + 1;
 
-			_out[0] = analogSignal * _state._left;
-			_out[1] = analogSignal * _state._right;
+			leftSample += analogSignal * _state._left;
+			rightSample += analogSignal * _state._right;
 		}
-
-		return _out;
 	}
 }
