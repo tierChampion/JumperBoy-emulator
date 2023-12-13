@@ -39,6 +39,7 @@ namespace jmpr
 
         void addPallet(const std::array<u32, 4> &pallet);
         std::vector<std::array<u32, 4>> getPallets() const;
+        u8 getPalletsSize() const;
 
         void setUsedPallet(u8 palletId);
 

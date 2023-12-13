@@ -92,12 +92,22 @@ namespace jmpr
 
     void GameWindow::addPallet(const std::array<u32, 4> &pallet)
     {
+        // todo, tell the ui!
+        if (_pallets.size() < 256) {
         _pallets.push_back(pallet);
+        } else {
+            _pallets[255] = pallet;
+        }
     }
 
     std::vector<std::array<u32, 4>> GameWindow::getPallets() const
     {
         return _pallets;
+    }
+
+    u8 GameWindow::getPalletsSize() const
+    {
+        return _pallets.size();
     }
 
     void GameWindow::setUsedPallet(u8 palletId)

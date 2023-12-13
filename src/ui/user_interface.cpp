@@ -9,10 +9,10 @@ namespace jmpr
 {
 	UI::UI(PPU *ppu)
 		: _opened(true), _game_window(GameWindow(ppu)),
-		  _controls({false, false, 0.05f, true, true, true, true, 0, true}),
 		  _input_preset(0)
 	{
 		initImGui();
+		initControls();
 		loadSettings();
 	}
 
@@ -86,6 +86,30 @@ namespace jmpr
 		{
 			std::cerr << "Error: could not open the controls file." << std::endl;
 		}
+
+		// pallets
+		std::ofstream palletsFile(std::string(DIRECTORY_PATH) + std::string("/settings/pallets.csv"));
+
+		if (palletsFile.is_open())
+		{
+			std::vector<std::array<u32, 4>> pallets = _game_window.getPallets();
+			for (u8 i = 2; i < pallets.size(); i++)
+			{
+				palletsFile << "{\n";
+				std::array<u32, 4> pallet = pallets[i];
+				for (u8 j = 0; j < pallet.size(); j++)
+				{
+					palletsFile << std::hex << pallet[j] << "\n";
+				}
+				palletsFile << "}\n";
+			}
+
+			palletsFile.close();
+		}
+		else
+		{
+			std::cerr << "Error: could not open the pallets file." << std::endl;
+		}
 	}
 
 	void UI::loadSettings()
@@ -149,28 +173,28 @@ namespace jmpr
 								0xFFAAAAAA,
 								0xFF555555,
 								0xFF000000});
-		// std::ifstream palletsFile(std::string(DIRECTORY_PATH) + std::string("/settings/pallets.csv"));
+		std::ifstream palletsFile(std::string(DIRECTORY_PATH) + std::string("/settings/pallets.csv"));
 
-		// if (palletsFile.is_open())
-		// {
-		// 	std::string line;
-		// 	while (std::getline(palletsFile, line))
-		// 	{
-		// 		if (line[0] == '{')
-		// 		{
-		// 			_input_maps.push_back(std::map<std::string, JumperInput>());
-		// 		}
-		// 		else if (line[0] != '}')
-		// 		{
-		// 			size_t pos = line.find(":");
+		if (palletsFile.is_open())
+		{
+			std::string line;
+			std::array<u32, 4> pallet;
+			u8 i = 0;
+			while (std::getline(palletsFile, line))
+			{
+				if (line[0] == '}')
+				{
+					_game_window.addPallet(pallet);
+					i = 0;
+				}
+				else if (line[0] != '{') {
+					pallet[i++] = static_cast<u32>(std::stoul(line, nullptr, 16));
+					u32 test = 0;
+				}
+			}
 
-		// 			_input_maps[_input_maps.size() - 1][line.substr(0, pos)] =
-		// 				nameToInput(line.substr(pos + 1, line.size()));
-		// 		}
-		// 	}
-
-		// 	controlsFile.close();
-		// }
+			controlsFile.close();
+		}
 	}
 
 	void UI::loop(bool gamePlaying)

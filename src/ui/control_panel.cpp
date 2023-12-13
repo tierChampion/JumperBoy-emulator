@@ -31,6 +31,21 @@ namespace jmpr
         ImGui_ImplSDLRenderer2_Init(_imgui_renderer);
     }
 
+    void UI::initControls()
+    {
+        _controls.browser = false;
+        _controls.tiles = false;
+        _controls.vol = 0.05f;
+        _controls.channel1 = true;
+        _controls.channel2 = true;
+        _controls.channel3 = true;
+        _controls.channel4 = true;
+        _controls.pallet = 0;
+        _controls.palletCreation = false;
+        _controls.capped = true;
+        _controls.fps = 59.7;
+    }
+
     void UI::initFileBrowser()
     {
         _file_browser = ImGui::FileBrowser();
@@ -61,18 +76,8 @@ namespace jmpr
 
         ImGui::EndMainMenuBar();
 
-        if (_controls.browser)
-        {
-            _file_browser.Display();
-
-            if (_file_browser.HasSelected())
-            {
-                openROM(_file_browser.GetSelected().string());
-
-                _file_browser.ClearSelected();
-                _controls.browser = false;
-            }
-        }
+        browserWindow();
+        palletWindow();
 
         ImGui::ShowDemoWindow();
 
@@ -135,21 +140,70 @@ namespace jmpr
         }
         if (ImGui::BeginListBox("Pallet"))
         {
-            if (ImGui::Selectable("Original", _controls.pallet == 0))
+            for (u8 i = 0; i < _game_window.getPalletsSize(); i++)
             {
-                _controls.pallet = 0;
-                _game_window.setUsedPallet(_controls.pallet);
-            }
-            if (ImGui::Selectable("Grey", _controls.pallet == 1))
-            {
-                _controls.pallet = 1;
-                _game_window.setUsedPallet(_controls.pallet);
+                if (ImGui::Selectable(std::to_string(i).c_str(), _controls.pallet == i))
+                {
+                    _controls.pallet = i;
+                    _game_window.setUsedPallet(_controls.pallet);
+                }
             }
             ImGui::EndListBox();
+        }
+        if (ImGui::Button("Add pallet..."))
+        {
+            _controls.palletCreation = true;
+        }
+        if (ImGui::SliderFloat("FPS", &_controls.fps, 10.0f, 150.0f, "%.1f"))
+        {
+            GameBoy::setDesiredFPS(_controls.fps);
         }
         if (ImGui::Checkbox("Capped FPS", &_controls.capped))
         {
             GameBoy::setCapped(_controls.capped);
+        }
+    }
+
+    void UI::palletWindow()
+    {
+        if (_controls.palletCreation)
+        {
+            ImGui::Begin("Create your new pallet");
+            ImGui::ColorPicker3("Color #1:", &_controls.colors[0]);
+            ImGui::ColorPicker3("Color #2:", &_controls.colors[3]);
+            ImGui::ColorPicker3("Color #3:", &_controls.colors[6]);
+            ImGui::ColorPicker3("Color #4:", &_controls.colors[9]);
+
+            if (ImGui::Button("Confirm"))
+            {
+                std::array<u32, 4> pallet;
+                for (u8 i = 0; i < 4; i++)
+                {
+                    pallet[i] = (static_cast<u32>(_controls.colors[3 * i] * 255.0f)) |
+                                ((static_cast<u32>(_controls.colors[3 * i + 1] * 255.0f) << 8)) |
+                                ((static_cast<u32>(_controls.colors[3 * i + 2] * 255.0f) << 16)) | 0xFF000000;
+                }
+
+                _game_window.addPallet(pallet);
+                _controls.palletCreation = false;
+            }
+            ImGui::End();
+        }
+    }
+
+    void UI::browserWindow()
+    {
+        if (_controls.browser)
+        {
+            _file_browser.Display();
+
+            if (_file_browser.HasSelected())
+            {
+                openROM(_file_browser.GetSelected().string());
+
+                _file_browser.ClearSelected();
+                _controls.browser = false;
+            }
         }
     }
 

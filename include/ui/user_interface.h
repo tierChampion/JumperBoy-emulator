@@ -30,7 +30,10 @@ namespace jmpr
 		bool channel3;
 		bool channel4;
 		u8 pallet;
+		bool palletCreation;
+		float colors[12] = {0};
 		bool capped;
+		float fps;
 	};
 
 	class UI
@@ -62,15 +65,19 @@ namespace jmpr
 
 	private:
 		void initImGui();
+		void initControls();
 		void initFileBrowser();
 
 		void handleEvents(bool gamePlaying);
 
 		void render();
+
 		void renderImGui();
 		void openROM(std::string romPath);
 		void fileMenu();
 		void optionsMenu();
+		void palletWindow();
+		void browserWindow();
 
 		void loadSettings();
 		void saveSettings();

@@ -69,6 +69,7 @@ namespace jmpr
 		static bool isRunning() { return _running; }
 
 		static float getDesiredFPS() { return _fps; }
+		static void setDesiredFPS(float newFps) { _fps = newFps; }
 		static bool isCapped() { return _capped; }
 		static void setCapped(bool newCapped) { _capped = newCapped; }
 
