@@ -11,7 +11,7 @@ namespace jmpr
 	_left_vol(0b111),
 	_right_vol(0b111),
 	_main_volume(0.05f),
-	_channel1(SquareChannel(true, 0x10)),
+	_channel1(SquareChannel(true, 0x10, true)),
 	_channel2(SquareChannel(false, 0x15)),
 	_channel3(WaveChannel(0x1A)),
 	_channel4(NoiseChannel(0x20))
@@ -50,6 +50,7 @@ namespace jmpr
 			if (_div_apu % 4 == 0)
 			{
 				// sweep
+				_channel1.updateSweep();
 
 				if (_div_apu % 8 == 0)
 				{

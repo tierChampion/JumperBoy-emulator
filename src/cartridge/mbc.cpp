@@ -32,21 +32,18 @@ namespace jmpr {
 		if (between(address, 0x0000, 0x3FFF)) {
 
 			u8 bankId = _banking_mode ? _ram_bank_num : 0;
-
 			return _rom_banks[bankId].get()[address];
 		}
 
 		else if (between(address, 0x4000, 0x7FFF)) {
 
 			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num;
-
-			return _rom_banks[_rom_bank_num].get()[address - 0x4000];
+			return _rom_banks[bankId].get()[address - 0x4000];
 		}
 
 		else if (between(address, 0xA000, 0xBFFF) && _ram_enabled == 0x0A && _has_ram) {
 
 			u8 bankId = _banking_mode ? _ram_bank_num : 0;
-
 			return _ram_banks[bankId].get()[address - 0xA000];
 		}
 

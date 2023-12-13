@@ -154,7 +154,7 @@ namespace jmpr
         {
             _controls.palletCreation = true;
         }
-        if (ImGui::SliderFloat("FPS", &_controls.fps, 10.0f, 150.0f, "%.1f"))
+        if (ImGui::SliderFloat("FPS", &_controls.fps, 1.0f, 150.0f, "%.1f"))
         {
             GameBoy::setDesiredFPS(_controls.fps);
         }

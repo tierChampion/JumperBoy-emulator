@@ -6,6 +6,10 @@ namespace jmpr {
 
 	class SquareChannel : public AudioChannel {
 
+		u8 _sweep_pace;
+		u8 _sweep_dir;
+		u8 _sweep_step;
+
 		u8 _duty;
 		u8 _duty_step; 
 
@@ -19,16 +23,18 @@ namespace jmpr {
 		u16 _timer;
 
 		u8 _addr_start;
+		bool _allow_sweep;
 
 	public:
 
 		SquareChannel() {}
-		SquareChannel(bool activate, u8 addressSpaceStart);
+		SquareChannel(bool activate, u8 addressSpaceStart, bool allowSweep = false);
 
 		void reset() override;
 
 		void update() override;
 
+		void updateSweep();
 		void updateEnvelope() override;
 
 		void write(u8 address, u8 data) override;
