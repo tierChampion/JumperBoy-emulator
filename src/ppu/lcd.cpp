@@ -82,6 +82,18 @@ namespace jmpr
 		case 0x4B:
 			return _wx;
 			break;
+		case 0x68:
+			return _bcps_bgpi;
+			break;
+		case 0x69:
+			return _bcpd_bgpd;
+			break;
+		case 0x6A:
+			return _ocps_obpi;
+			break;
+		case 0x6B:
+			return _ocpd_obpd;
+			break;
 		}
 
 		return 0xFF;
@@ -223,13 +235,13 @@ namespace jmpr
 		_status = (_status & 0xFC) | ((u8)mode & 0b11);
 	}
 
-	u8 LCD::getBGWindowColor(u8 index) const
+	u16 LCD::getBGWindowColor(u8 index) const
 	{
 		return (_bgp >> (2 * index)) & 0b11;
 	}
 
-	u8 LCD::getOBJcolor(u8 objIndex, u8 colIndex) const
+	u16 LCD::getOBJcolor(u8 objIndex, u8 colIndex) const
 	{
-		return (_obp[objIndex] >> (2 * colIndex)) & 0b11; 
+		return (_obp[objIndex] >> (2 * colIndex)) & 0b11;
 	}
 }

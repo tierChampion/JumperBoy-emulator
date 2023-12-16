@@ -1,0 +1,9 @@
+1. Changing the initial accumulator when detecting the cartridge
+
+2. Other DMA transfer to VRAM instead of OAM
+
+3. Switcheable VRAM banks
+
+4. Switcheable RAM banks
+
+5. Double speed

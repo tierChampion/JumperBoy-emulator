@@ -32,6 +32,7 @@ namespace jmpr
 		u8 pallet;
 		bool palletCreation;
 		float colors[12] = {0};
+		bool controls;
 		bool capped;
 		float fps;
 	};
@@ -78,6 +79,7 @@ namespace jmpr
 		void optionsMenu();
 		void palletWindow();
 		void browserWindow();
+		void controlsWindow();
 
 		void loadSettings();
 		void saveSettings();

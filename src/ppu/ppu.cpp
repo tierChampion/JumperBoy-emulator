@@ -7,7 +7,7 @@ namespace jmpr
 	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
 	{
 
-		_vbuffer = std::shared_ptr<u8>(new u8[X_RESOLUTION * Y_RESOLUTION]);
+		_vbuffer = std::shared_ptr<u16>(new u16[X_RESOLUTION * Y_RESOLUTION]);
 
 		_lcd = LCD(intHandler);
 
@@ -70,7 +70,7 @@ namespace jmpr
 		_frame_ready = false;
 	}
 
-	u8 PPU::readBuffer(u32 index)
+	u16 PPU::readBuffer(u32 index)
 	{
 
 		return _vbuffer.get()[index];

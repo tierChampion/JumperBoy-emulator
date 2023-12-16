@@ -12,7 +12,7 @@ namespace jmpr {
 	class PPU {
 
 		// Main components
-		std::shared_ptr<u8> _vbuffer;
+		std::shared_ptr<u16> _vbuffer;
 		LCD _lcd;
 		VRAM _vram;
 		OAM _oam;
@@ -39,7 +39,7 @@ namespace jmpr {
 		VRAM* getVRAM() { return &_vram; }
 		OAM* getOAM() { return &_oam; }
 
-		u8 readBuffer(u32 index);
+		u16 readBuffer(u32 index);
 
 		void update();
 		bool pendingRender() const;

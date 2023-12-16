@@ -36,7 +36,7 @@ namespace jmpr {
 		VRAM* _vram;
 
 		FifoPhase _phase;
-		std::queue<u8> _pixel_fifo;
+		std::queue<u16> _pixel_fifo;
 		std::vector<Sprite> _visible_sprites;
 
 		u8 _lx; // x on the scanline
@@ -69,7 +69,7 @@ namespace jmpr {
 		void resetFifo();
 		void resetWindow();
 
-		void pixelTransferProcedure(std::shared_ptr<u8> vbuffer, u16 lineDots);
+		void pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots);
 
 		void jumpWindowScanline();
 
@@ -83,13 +83,13 @@ namespace jmpr {
 		void tileHalfDataFetch(u8 id);
 		void spriteIdFetch();
 		void spriteHalfDataFetch(u8 id);
-		u8 spriteColorFetch(u8 colorId);
+		u16 spriteColorFetch(u8 colorId);
 
 
 		// Pushing
 
 		bool pushToFifoProcedure();
-		void pushToVBufferProcedure(std::shared_ptr<u8> vbuffer);
+		void pushToVBufferProcedure(std::shared_ptr<u16> vbuffer);
 
 
 		// Window status

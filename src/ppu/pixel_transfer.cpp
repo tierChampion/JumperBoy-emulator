@@ -12,7 +12,7 @@ namespace jmpr {
 		_lcd = lcd;
 		_vram = vram;
 
-		_pixel_fifo = std::queue<u8>();
+		_pixel_fifo = std::queue<u16>();
 		_visible_sprites = std::vector<Sprite>();
 
 		_bgw_fetch = FetcherElem();
@@ -60,7 +60,6 @@ namespace jmpr {
 		_tile_y = 0;
 
 		//_pixel_fifo = {};
-
 		//_visible_sprites.clear();
 
 		_bgw_fetch.id = 0x0000;
@@ -71,7 +70,6 @@ namespace jmpr {
 	void PixelTransferHandler::resetFifo() {
 
 		_pixel_fifo = {};
-
 		_visible_sprites.clear();
 	}
 
@@ -82,7 +80,7 @@ namespace jmpr {
 
 	// Main transfer function
 
-	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u8> vbuffer, u16 lineDots) {
+	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots) {
 
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
 		_map_x = _fetcher_x + _lcd->getBGScrollX();
@@ -220,7 +218,7 @@ namespace jmpr {
 			}
 		}
 
-		// Sort fetches by sprite x
+		// Sort fetches by sprite x, not done in cgb mode
 		if (_spr_fetch.size() > 1) {
 			std::sort(_spr_fetch.begin(),
 				_spr_fetch.end(),
@@ -264,7 +262,7 @@ namespace jmpr {
 	}
 
 	// todo check if it works
-	u8 PixelTransferHandler::spriteColorFetch(u8 colorId) {
+	u16 PixelTransferHandler::spriteColorFetch(u8 colorId) {
 
 		// find the sprite with the lowest xpos that touches the pixel.
 		for (u8 i = 0; i < _spr_fetch.size(); i++) {
@@ -317,7 +315,7 @@ namespace jmpr {
 
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
 
-			u8 pixel = _lcd->getBGWindowColor(colorIndex);
+			u16 pixel = _lcd->getBGWindowColor(colorIndex);
 
 			// Adapt the color for sprites, window, etc.
 
@@ -336,14 +334,14 @@ namespace jmpr {
 		return true;
 	}
 
-	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u8> vbuffer) {
+	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u16> vbuffer) {
 
 		// switch to a general pixel fifo
 
 		if (_pixel_fifo.size() > 8) {
 
 			// push a pixel to the raster
-			u8 color = _pixel_fifo.front();
+			u16 color = _pixel_fifo.front();
 			_pixel_fifo.pop();
 
 			// Only render if pixel is visible with the scroll

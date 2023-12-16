@@ -160,7 +160,7 @@ namespace jmpr
         {
             for (u32 x = 0; x < X_RESOLUTION; x++)
             {
-                u8 color = _ppu->readBuffer(y * X_RESOLUTION + x);
+                u16 color = _ppu->readBuffer(y * X_RESOLUTION + x);
 
                 SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
                 rect.x += _scale;
@@ -209,7 +209,6 @@ namespace jmpr
 
         for (u8 y = 0; y < 8; y++)
         {
-
             u8 pal1 = data[2 * y];
             u8 pal2 = data[2 * y + 1];
 

@@ -42,6 +42,7 @@ namespace jmpr
         _controls.channel4 = true;
         _controls.pallet = 0;
         _controls.palletCreation = false;
+        _controls.controls = false;
         _controls.capped = true;
         _controls.fps = 59.7;
     }
@@ -76,6 +77,7 @@ namespace jmpr
 
         ImGui::EndMainMenuBar();
 
+        // controlsWindow();
         browserWindow();
         palletWindow();
 
@@ -154,6 +156,10 @@ namespace jmpr
         {
             _controls.palletCreation = true;
         }
+        if (ImGui::Button("Controls..."))
+        {
+            _controls.controls = true;
+        }
         if (ImGui::SliderFloat("FPS", &_controls.fps, 1.0f, 150.0f, "%.1f"))
         {
             GameBoy::setDesiredFPS(_controls.fps);
@@ -161,6 +167,34 @@ namespace jmpr
         if (ImGui::Checkbox("Capped FPS", &_controls.capped))
         {
             GameBoy::setCapped(_controls.capped);
+        }
+    }
+
+    void UI::controlsWindow()
+    {
+        if (_controls.controls)
+        {
+            ImGui::Begin("Select your controls:");
+            for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
+            {
+                ImGui::Text(inputToName(static_cast<JumperInput>(i)).c_str());
+                if (ImGui::Button("but on"))
+                {
+                    std::cout << "yo" << static_cast<int>(i) << std::endl;
+                }
+            }
+            // ImGui::Text("DOWN");
+            // ImGui::Text("LEFT");
+            // ImGui::Text("RIGHT");
+            // ImGui::Text("START");
+            // ImGui::Text("SELECT");
+            // ImGui::Text("A");
+            // ImGui::Text("B");
+            if (ImGui::Button("Confirm"))
+            {
+                _controls.controls = false;
+            }
+            ImGui::End();
         }
     }
 
