@@ -6,7 +6,6 @@ namespace jmpr
 	: _sample_pointer(0),
 	_sample_counter(0),
 	_ready_buffer(0),
-	_buffer_start(0),
 	_apu_power(true),
 	_left_vol(0b111),
 	_right_vol(0b111),
@@ -21,6 +20,13 @@ namespace jmpr
 	void APU::reboot()
 	{
 		// todo
+		_sample_pointer = 0;
+		_sample_counter = 0;
+		_ready_buffer = 0;
+		_left_vol = 0b111;
+		_right_vol = 0b111;
+
+		memset(_samples, 0, 4096 * sizeof(float));
 	}
 
 	void APU::toggleChannel(u8 channelId)

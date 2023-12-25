@@ -13,7 +13,6 @@
 #include <io/io.h>
 #include <cpu/debugging.h>
 #include <ui/user_interface.h>
-#include <ui/audio_manager.h>
 
 #include <SDL2/SDL.h>
 
@@ -38,11 +37,11 @@ namespace jmpr
 
 		// Interactive Components
 		static UI _ui;
-		static AudioManager _am;
 
 		// States
 		static bool _running;
 		static u64 _ticks;
+		static bool _cgb_mode;
 		static float _fps;
 		static bool _capped;
 
@@ -67,6 +66,8 @@ namespace jmpr
 		static void pause() { _running = false; }
 		static void resume() { _running = true; }
 		static bool isRunning() { return _running; }
+
+		static bool isCGB() { return _cgb_mode; }
 
 		static float getDesiredFPS() { return _fps; }
 		static void setDesiredFPS(float newFps) { _fps = newFps; }

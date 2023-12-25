@@ -40,13 +40,6 @@ namespace jmpr {
 		_waiting_for_save = false;
 	}
 
-	u8 MBC::read(u16 address) const {
-
-		return 0xFF;
-	}
-
-	void MBC::write(u16 address, u8 data) {}
-
 	bool MBC::hasSavePending() const {
 		return _waiting_for_save && _has_ram && _has_battery;
 	}

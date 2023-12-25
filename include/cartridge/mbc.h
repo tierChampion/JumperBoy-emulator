@@ -21,8 +21,8 @@ namespace jmpr {
 
 		MBC(bool hasRam, bool hasBattery);
 
-		virtual u8 read(u16 address) const;
-		virtual void write(u16 address, u8 data);
+		virtual u8 read(u16 address) const = 0;
+		virtual void write(u16 address, u8 data) = 0;
 
 		bool hasSavePending() const;
 		void save(const char* path);

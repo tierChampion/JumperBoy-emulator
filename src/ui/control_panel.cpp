@@ -251,8 +251,6 @@ namespace jmpr
 
         _recents.push_back(romPath);
 
-        GameBoy::pause();
-
         GameBoy::insertCartridge(romPath);
         _game_window.open();
         GameBoy::resume();

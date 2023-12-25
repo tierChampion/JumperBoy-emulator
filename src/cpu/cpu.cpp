@@ -6,11 +6,13 @@
 
 #include <SDL2/SDL.h>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	//#define LOGGING
+	// #define LOGGING
 
-	CPU::CPU() {
+	CPU::CPU()
+	{
 
 		_bus = nullptr;
 		_it_handler = InterruptHandler(this);
@@ -19,19 +21,34 @@ namespace jmpr {
 	}
 
 	/**
-	* Reboot the CPU and resets the registers to their initial values.
-	*/
-	void CPU::reboot() {
+	 * Reboot the CPU and resets the registers to their initial values.
+	 */
+	void CPU::reboot()
+	{
 
 		// Initial DMG register values. See TCAGBD.pdf for more info.
-		_registers._A = 0x01;
-		_registers._F = 0xB0;
-		_registers._B = 0x00;
-		_registers._C = 0x13;
-		_registers._D = 0x00;
-		_registers._E = 0xD8;
-		_registers._H = 0x01;
-		_registers._L = 0x4D;
+		if (!GameBoy::isCGB())
+		{
+			_registers._A = 0x11;
+			_registers._F = 0xB0;
+			_registers._B = 0x00;
+			_registers._C = 0x00;
+			_registers._D = 0x00;
+			_registers._E = 0x08;
+			_registers._H = 0x00;
+			_registers._L = 0x00;
+		}
+		else
+		{
+			_registers._A = 0x11;
+			_registers._F = 0xB0;
+			_registers._B = 0x00;
+			_registers._C = 0x00;
+			_registers._D = 0xFF;
+			_registers._E = 0x56;
+			_registers._H = 0x00;
+			_registers._L = 0x0D;
+		}
 		_SP = 0xFFFE;
 		_PC = 0x100;
 
@@ -50,15 +67,17 @@ namespace jmpr {
 	}
 
 	/**
-	* Get the opcode of the instruction to execute.
-	*/
-	void CPU::fetchOpcode() {
+	 * Get the opcode of the instruction to execute.
+	 */
+	void CPU::fetchOpcode()
+	{
 
 		_curr_opcode = _bus->read(_PC);
 		GameBoy::cycle(1);
 
 		// Halt bug, fails to increment PC
-		if (!_it_handler.haltBugged(_PC)) {
+		if (!_it_handler.haltBugged(_PC))
+		{
 			_PC++;
 		}
 
@@ -66,13 +85,15 @@ namespace jmpr {
 	}
 
 	/**
-	* Execute a single CPU instruction. Might take up multiple M-cycles.
-	*/
-	bool CPU::cycle() {
+	 * Execute a single CPU instruction. Might take up multiple M-cycles.
+	 */
+	bool CPU::cycle()
+	{
 
 		_it_handler.checkInterrupts();
 
-		if (!_halted && !_stopped) {
+		if (!_halted && !_stopped)
+		{
 
 			u16 programCounter = _PC;
 
@@ -87,7 +108,8 @@ namespace jmpr {
 
 			execute();
 		}
-		else if (!_stopped) {
+		else if (!_stopped)
+		{
 
 			GameBoy::cycle(1);
 		}
@@ -95,7 +117,8 @@ namespace jmpr {
 		return true;
 	}
 
-	bool CPU::reached(u16 address) {
+	bool CPU::reached(u16 address)
+	{
 		return _PC == address;
 	}
 }

@@ -1,6 +1,7 @@
 #include <ui/audio_manager.h>
 
 #include <gb.h>
+#include <algorithm>
 
 namespace jmpr
 {
@@ -23,6 +24,16 @@ namespace jmpr
 
         _audio_id = SDL_OpenAudioDevice(NULL, 0, &specs, nullptr, 0);
 
+        play();
+    }
+
+    void AudioManager::mute()
+    {
+        SDL_PauseAudioDevice(_audio_id, 1);
+    }
+
+    void AudioManager::play()
+    {
         SDL_PauseAudioDevice(_audio_id, 0);
     }
 
@@ -30,21 +41,13 @@ namespace jmpr
     {
         if (GameBoy::isRunning())
         {
-            bool bufferOk = true;
-
             const float* buffer = _apu->getSamples();
 
-            for (int i = 0; i < len; i++)
-            {
-                stream[i] = buffer[i];
-            }
+            std::copy(buffer, buffer + len, stream);
         }
         else
         {
-            for (int i = 0; i < len; i++)
-            {
-                stream[i] = 0;
-            }
+            std::fill(stream, stream + len, 0);
         }
     }
 }

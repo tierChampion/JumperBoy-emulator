@@ -7,8 +7,10 @@
 
 namespace jmpr
 {
-	UI::UI(PPU *ppu)
-		: _opened(true), _game_window(GameWindow(ppu)),
+	UI::UI(PPU *ppu, APU *apu)
+		: _opened(true),
+		  _game_window(GameWindow(ppu)),
+		  _audio_manager(apu),
 		  _input_preset(0)
 	{
 		initImGui();
@@ -187,7 +189,8 @@ namespace jmpr
 					_game_window.addPallet(pallet);
 					i = 0;
 				}
-				else if (line[0] != '{') {
+				else if (line[0] != '{')
+				{
 					pallet[i++] = static_cast<u32>(std::stoul(line, nullptr, 16));
 					u32 test = 0;
 				}

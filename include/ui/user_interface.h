@@ -3,6 +3,7 @@
 #include <common.h>
 #include <ui/inputs.h>
 #include <ui/game_window.h>
+#include <ui/audio_manager.h>
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -42,6 +43,7 @@ namespace jmpr
 		bool _opened;
 
 		GameWindow _game_window;
+		AudioManager _audio_manager;
 
 		SDL_Event _curr_event;
 		const char *_curr_input;
@@ -57,7 +59,7 @@ namespace jmpr
 		u8 _input_preset;
 
 	public:
-		UI(PPU *ppu);
+		UI(PPU *ppu, APU* apu);
 		void cleanup();
 
 		bool isOpened() { return _opened; }

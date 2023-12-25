@@ -17,11 +17,11 @@ namespace jmpr
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
-	UI GameBoy::_ui = UI(&_ppu);
-	AudioManager GameBoy::_am = AudioManager(&_apu);
+	UI GameBoy::_ui = UI(&_ppu, &_apu);
 
 	bool GameBoy::_running = false;
 	u64 GameBoy::_ticks = 0;
+	bool GameBoy::_cgb_mode = false;
 	float GameBoy::_fps = 59.7f;
 	bool GameBoy::_capped = true;
 
@@ -89,13 +89,18 @@ namespace jmpr
 
 	bool GameBoy::insertCartridge(const std::string &rom_file)
 	{
-		reboot();
+		pause();
+
+		delay(100);
 
 		_cart = Cartridge(rom_file);
 
 		if (!_cart.isValid())
 			return false;
 
+		_cgb_mode = _cart.isColor();
+
+		reboot();
 		_bus.connectCartridge(&_cart);
 
 		_ticks = 0;

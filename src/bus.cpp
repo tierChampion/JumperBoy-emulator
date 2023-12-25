@@ -71,6 +71,9 @@ namespace jmpr {
 			// IF register
 			return _cpu->readInterruptFlagRegister();
 		}
+		else if (address == 0xFF70) {
+			return _ram->getBank();
+		}
 		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
 			return _io->read(address);
@@ -121,6 +124,9 @@ namespace jmpr {
 		}
 		else if (address == 0xFF0F) {
 			_cpu->writeInterruptFlagRegister(data);
+		}
+		else if (address == 0xFF70) {
+			_ram->setBank(data);
 		}
 		else if (between(address, 0xFF00, 0xFF7F)) {
 			// IO registers
