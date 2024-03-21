@@ -34,6 +34,7 @@ namespace jmpr
 		bool palletCreation;
 		float colors[12] = {0};
 		bool controls;
+		std::string inputs[9] = {""};
 		bool capped;
 		float fps;
 	};
@@ -46,7 +47,7 @@ namespace jmpr
 		AudioManager _audio_manager;
 
 		SDL_Event _curr_event;
-		const char *_curr_input;
+		SDL_KeyboardEvent _last_input;
 
 		SDL_Window *_imgui_window;
 		SDL_Renderer *_imgui_renderer;

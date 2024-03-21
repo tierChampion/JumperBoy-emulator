@@ -11,7 +11,8 @@ namespace jmpr
 		: _opened(true),
 		  _game_window(GameWindow(ppu)),
 		  _audio_manager(apu),
-		  _input_preset(0)
+		  _input_preset(0),
+		  _last_input(SDL_KeyboardEvent())
 	{
 		initImGui();
 		initControls();

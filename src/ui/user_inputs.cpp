@@ -7,8 +7,6 @@ namespace jmpr
 
 	void UI::handleEvents(bool gamePlaying)
 	{
-		_curr_input = "";
-
 		while (SDL_PollEvent(&_curr_event))
 		{
 			if (_curr_event.window.windowID == SDL_GetWindowID(_imgui_window))
@@ -33,6 +31,7 @@ namespace jmpr
 
 			case SDL_KEYDOWN:
 			{
+				_last_input = _curr_event.key;
 				JumperInput input = _input_maps[_input_preset][SDL_GetKeyName(_curr_event.key.keysym.sym)];
 				if (gamePlaying && isJoypadInput(input))
 					GameBoy::pressButton(static_cast<u8>(input) - 1);

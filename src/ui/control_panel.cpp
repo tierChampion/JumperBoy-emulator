@@ -77,11 +77,9 @@ namespace jmpr
 
         ImGui::EndMainMenuBar();
 
-        // controlsWindow();
         browserWindow();
+        controlsWindow();
         palletWindow();
-
-        ImGui::ShowDemoWindow();
 
         ImGui::Render();
         SDL_RenderClear(_imgui_renderer);
@@ -152,11 +150,22 @@ namespace jmpr
             }
             ImGui::EndListBox();
         }
+        if (ImGui::BeginListBox("Controls"))
+        {
+            for (u8 i = 0; i < _input_maps.size(); i++)
+            {
+                if (ImGui::Selectable(std::to_string(i).c_str(), _input_preset == i))
+                {
+                    _input_preset = i;
+                }
+            }
+            ImGui::EndListBox();
+        }
         if (ImGui::Button("Add pallet..."))
         {
             _controls.palletCreation = true;
         }
-        if (ImGui::Button("Controls..."))
+        if (ImGui::Button("Add controls..."))
         {
             _controls.controls = true;
         }
@@ -177,21 +186,28 @@ namespace jmpr
             ImGui::Begin("Select your controls:");
             for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
             {
-                ImGui::Text(inputToName(static_cast<JumperInput>(i)).c_str());
-                if (ImGui::Button("but on"))
+                if (ImGui::Selectable(
+                        ("(" + inputToName(static_cast<JumperInput>(i)) + ") " + _controls.inputs[i - 1]).c_str()))
                 {
-                    std::cout << "yo" << static_cast<int>(i) << std::endl;
+                    _controls.inputs[i - 1] = std::toupper(_last_input.keysym.sym);
+                    std::cout << i - 1 << std::endl;
                 }
             }
-            // ImGui::Text("DOWN");
-            // ImGui::Text("LEFT");
-            // ImGui::Text("RIGHT");
-            // ImGui::Text("START");
-            // ImGui::Text("SELECT");
-            // ImGui::Text("A");
-            // ImGui::Text("B");
+
             if (ImGui::Button("Confirm"))
             {
+                std::map<std::string, JumperInput> inputMap;
+                for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
+                {
+                    if (_controls.inputs[i - 1] == "")
+                    {
+                        std::cerr << "Error: The new control map is incomplete." << std::endl;
+                        ImGui::End();
+                        return;
+                    }
+                    inputMap[_controls.inputs[i - 1]] = static_cast<JumperInput>(i);
+                }
+                _input_maps.push_back(inputMap);
                 _controls.controls = false;
             }
             ImGui::End();
