@@ -70,7 +70,7 @@ namespace jmpr {
 			out = _disable_bootrom;
 		}
 		else if (between(range, 0x51, 0x55)) {
-			out = _vram_dma[range - 0x51];
+			out = _vram_dma[range - 0x51]; // cgb only
 		}
 		else if (between(range, 0x68, 0x69)) {
 			out = _bg_obj_pallets[range - 0x68]; // cgb only

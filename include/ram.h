@@ -9,7 +9,7 @@ namespace jmpr
 	class RAM
 	{
 		// From 0xC000 to 0xDFFF
-		std::array<std::array<u8, 0x2000>, 2> _new_wram;
+		std::array<std::array<u8, 0x1000>, 8> _new_wram;
 		u8 _wram[0x2000];
 		u8 _wram_bank;
 

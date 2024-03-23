@@ -4,18 +4,28 @@ namespace jmpr
 {
 
 	RAM::RAM()
-	: _wram_bank(0), _new_wram(std::array<std::array<u8, 0x2000>, 2>())
+	: _wram_bank(0), _new_wram(std::array<std::array<u8, 0x1000>, 8>())
 	{
 	}
 
 	void RAM::writeWorkRam(u16 address, u8 data)
 	{
-		_new_wram[_wram_bank][address - 0xC000] = data;
+		if (address < 0xD000) {
+			_new_wram[0][address - 0xC000] = data;
+		}
+		else {
+			_new_wram[_wram_bank + 1][address - 0xD000] = data;
+		}
 	}
 
 	u8 RAM::readWorkRam(u16 address)
 	{
-		return _new_wram[_wram_bank][address - 0xC000];
+		if (address < 0xD000) {
+			return _new_wram[0][address - 0xC000];
+		}
+		else {
+			return _new_wram[_wram_bank + 1][address - 0xD000];
+		}
 	}
 
 	void RAM::writeHighRam(u16 address, u8 data)
@@ -30,11 +40,11 @@ namespace jmpr
 
 	u8 RAM::getBank() const
 	{
-		return 0xFE | _wram_bank;
+		return 0xF8 | _wram_bank;
 	}
 
 	void RAM::setBank(u8 bank)
 	{
-		_wram_bank = bank & 1;
+		_wram_bank = bank & 0x7;
 	}
 }
