@@ -7,7 +7,8 @@ namespace jmpr
 
 	// VRAM
 
-	VRAM::VRAM() : _vram{0}
+	VRAM::VRAM() : _vram_bank(0), 
+	_vram(std::array<std::array<u8, 0x2000>, 2>())
 	{
 	}
 
@@ -26,7 +27,7 @@ namespace jmpr
 		if (!isAccessible())
 			return 0xFF;
 
-		return _vram[address - 0x8000];
+		return _vram[_vram_bank][address - 0x8000];
 	}
 
 	void VRAM::write(u16 address, u8 data)
@@ -34,12 +35,20 @@ namespace jmpr
 		if (!isAccessible())
 			return;
 
-		_vram[address - 0x8000] = data;
+		_vram[_vram_bank][address - 0x8000] = data;
 	}
 
 	u8 VRAM::ppuRead(u16 address) const
 	{
-		return _vram[address - 0x8000];
+		return _vram[_vram_bank][address - 0x8000];
+	}
+
+	u8 VRAM::getBank() {
+		return 0xFE | _vram_bank;
+	}
+
+	void VRAM::setBank(u8 bank) {
+		_vram_bank = bank & 1;
 	}
 
 	// Sprites
@@ -62,6 +71,16 @@ namespace jmpr
 	u8 Sprite::pallet() const
 	{
 		return bit(_attributes, 4);
+	}
+
+	u8 Sprite::bank() const
+	{
+		return bit(_attributes, 3);
+	}
+
+	u8 Sprite::cgbPallet() const
+	{
+		return _attributes & 0b111;
 	}
 
 	u8 Sprite::operator[](int i) const

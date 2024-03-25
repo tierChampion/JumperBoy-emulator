@@ -4,27 +4,27 @@ namespace jmpr
 {
 
 	RAM::RAM()
-	: _wram_bank(0), _new_wram(std::array<std::array<u8, 0x1000>, 8>())
+	: _wram_bank(0), _wram(std::array<std::array<u8, 0x1000>, 8>())
 	{
 	}
 
 	void RAM::writeWorkRam(u16 address, u8 data)
 	{
 		if (address < 0xD000) {
-			_new_wram[0][address - 0xC000] = data;
+			_wram[0][address - 0xC000] = data;
 		}
 		else {
-			_new_wram[_wram_bank + 1][address - 0xD000] = data;
+			_wram[_wram_bank + 1][address - 0xD000] = data;
 		}
 	}
 
 	u8 RAM::readWorkRam(u16 address)
 	{
 		if (address < 0xD000) {
-			return _new_wram[0][address - 0xC000];
+			return _wram[0][address - 0xC000];
 		}
 		else {
-			return _new_wram[_wram_bank + 1][address - 0xD000];
+			return _wram[_wram_bank + 1][address - 0xD000];
 		}
 	}
 

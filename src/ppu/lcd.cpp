@@ -34,6 +34,8 @@ namespace jmpr
 		_bcpd_bgpd = 0xFF;
 		_ocps_obpi = 0xFF;
 		_ocpd_obpd = 0xFF;
+
+		_priority_mode = 0xFE;
 	}
 
 	/**
@@ -94,6 +96,9 @@ namespace jmpr
 		case 0x6B:
 			return _ocpd_obpd;
 			break;
+		case 0x6C:
+			return _priority_mode;
+			break;
 		}
 
 		return 0xFF;
@@ -133,6 +138,8 @@ namespace jmpr
 		case 0x4B:
 			_wx = data;
 			break;
+		case 0x6C:
+			_priority_mode = 0xFE | (data & 1);
 		}
 	}
 
@@ -215,6 +222,11 @@ namespace jmpr
 	bool LCD::bgWindowPriority() const
 	{
 		return bit(_lcdc, 0);
+	}
+
+	u8 LCD::getPriorityMode() const
+	{
+		return _priority_mode & 1;
 	}
 
 	// STAT

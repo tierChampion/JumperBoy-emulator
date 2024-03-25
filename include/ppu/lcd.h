@@ -34,6 +34,8 @@ namespace jmpr {
 		u8 _ocps_obpi;
 		u8 _ocpd_obpd;
 
+		u8 _priority_mode;
+
 	public:
 
 		LCD() {}
@@ -62,6 +64,7 @@ namespace jmpr {
 		u8 objSize() const;
 		bool objEnabled() const;
 		bool bgWindowPriority() const;
+		u8 getPriorityMode() const;
 
 		// stat
 		bool statInterruptTypeEnabled(LCDMode source) const;

@@ -261,7 +261,6 @@ namespace jmpr {
 		}
 	}
 
-	// todo check if it works
 	u16 PixelTransferHandler::spriteColorFetch(u8 colorId) {
 
 		// find the sprite with the lowest xpos that touches the pixel.

@@ -2,6 +2,8 @@
 
 #include <common.h>
 
+#include <array>
+
 namespace jmpr {
 
 	struct Sprite {
@@ -17,14 +19,16 @@ namespace jmpr {
 		bool isFlippedY() const;
 		bool isFlippedX() const;
 		u8 pallet() const;
+		u8 bank() const;
+		u8 cgbPallet() const;
 	};
 
 	class LCD;
 
-	// todo split into two VRAM and OAM
 	class VRAM {
 
-		u8 _vram[0x2000];
+		std::array<std::array<u8, 0x2000>, 2> _vram;
+		u8 _vram_bank;
 
 	public:
 
@@ -34,6 +38,9 @@ namespace jmpr {
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);
+
+		u8 getBank();
+		void setBank(u8 bank);
 
 		u8 ppuRead(u16 address) const;
 	};

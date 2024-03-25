@@ -75,6 +75,9 @@ namespace jmpr {
 		else if (between(range, 0x68, 0x69)) {
 			out = _bg_obj_pallets[range - 0x68]; // cgb only
 		}
+		else if (range == 0x6C) {
+			out = _lcd->getPriorityMode();
+		}
 		else if (range == 0x70) {
 			out = _wram_select;
 		}
@@ -118,13 +121,14 @@ namespace jmpr {
 		}
 		else if (between(range, 0x68, 0x69)) {
 			_bg_obj_pallets[range - 0x68] = data;
-
+		}
+		else if (range == 0x6C) {
+			_lcd->write(range, data);
 		}
 		else if (range == 0x70) {
 			_wram_select = data;
 		}
 		else {
-
 			printf("Error: trying to write to an unknown IO register: %04X\n", address);
 		}
 	}

@@ -1,13 +1,12 @@
-1. Changing the initial accumulator when detecting the cartridge (meh)
-
 2. Other DMA transfer to VRAM instead of OAM
 
-3. Switcheable VRAM banks
+3. Switcheable VRAM banks (NORMALLY DONE, need to fix for cgb mode only)
 
 4. Switcheable RAM banks (NORMALLY DONE, need to fix for cgb mode only)
 
 5. 2 CRAM (BG and OBJ) with a bunch of registers for it
 
-6. Double speed (meh)
-
 <2-3-4-5 are by far the most important>
+
+1. Changing the initial accumulator when detecting the cartridge (meh)
+6. Double speed (meh)

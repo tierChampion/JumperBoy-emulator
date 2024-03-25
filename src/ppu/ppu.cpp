@@ -6,7 +6,6 @@ namespace jmpr
 {
 	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
 	{
-
 		_vbuffer = std::shared_ptr<u16>(new u16[X_RESOLUTION * Y_RESOLUTION]);
 
 		_lcd = LCD(intHandler);
@@ -25,7 +24,6 @@ namespace jmpr
 
 	void PPU::reboot()
 	{
-
 		_lcd.reboot();
 
 		_line_dots = 0;
