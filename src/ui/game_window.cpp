@@ -9,23 +9,6 @@ namespace jmpr
 {
     const u8 DEFAULT_SCALE = 4;
 
-    const std::array<u32, 8> PALLET = {
-        ///*
-        // Green pallet
-        0xFF0FBC9B,
-        0xFF0FAC8B,
-        0xFF306230,
-        0xFF0F380F,
-        //*/
-        ///*
-        // Gray pallet
-        0xFFFFFFFF,
-        0xFFAAAAAA,
-        0xFF555555,
-        0xFF000000,
-        //*/
-    };
-
     GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
                                                  _debug(false),
                                                  _pallet_id(0),
@@ -200,7 +183,7 @@ namespace jmpr
         // read tile data
         for (u8 i = 0; i < 16; i++)
         {
-            data[i] = _ppu->getVRAM()->ppuRead(0x8000 + (16 * tileId) + i);
+            data[i] = _ppu->getVRAM()->ppuRead(0, 0x8000 + (16 * tileId) + i);
         }
 
         SDL_Rect rect;

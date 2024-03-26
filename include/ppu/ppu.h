@@ -16,6 +16,7 @@ namespace jmpr {
 		LCD _lcd;
 		VRAM _vram;
 		OAM _oam;
+		CRAM _cram[2];
 
 		// Timing
 		u16 _line_dots;
@@ -38,6 +39,7 @@ namespace jmpr {
 		LCD* getLCD() { return &_lcd; }
 		VRAM* getVRAM() { return &_vram; }
 		OAM* getOAM() { return &_oam; }
+		CRAM* getCRAM(u8 id) { return &_cram[id]; }
 
 		u16 readBuffer(u32 index);
 

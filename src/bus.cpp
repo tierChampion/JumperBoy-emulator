@@ -74,6 +74,12 @@ namespace jmpr {
 		else if (address == 0xFF4F) {
 			return _ppu->getVRAM()->getBank();
 		}
+		else if (between(address, 0xFF68, 0xFF69)) {
+			return _ppu->getCRAM(0)->read(address);
+		}
+		else if (between(address, 0xFF6A, 0xFF6B)) {
+			return _ppu->getCRAM(1)->read(address);
+		}
 		else if (address == 0xFF70) {
 			return _ram->getBank();
 		}
@@ -130,6 +136,12 @@ namespace jmpr {
 		}
 		else if (address == 0xFF4F) {
 			_ppu->getVRAM()->setBank(data);
+		}
+		else if (between(address, 0xFF68, 0xFF69)) {
+			_ppu->getCRAM(0)->write(address, data);
+		}
+		else if (between(address, 0xFF6A, 0xFF6B)) {
+			_ppu->getCRAM(1)->write(address, data);
 		}
 		else if (address == 0xFF70) {
 			_ram->setBank(data);

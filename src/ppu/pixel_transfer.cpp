@@ -101,7 +101,7 @@ namespace jmpr {
 	void PixelTransferHandler::fetcherProcedure() {
 
 		bool doSpriteOperations = _lcd->objEnabled() && _visible_sprites.size() > 0;
-		// todo sprite ops if enabled
+		
 		switch (_phase) {
 		case FifoPhase::GET_TILE:
 
@@ -155,12 +155,13 @@ namespace jmpr {
 		}
 	}
 
+	// todo, get attributes for cgb
 	void PixelTransferHandler::tileIdFetch() {
 
 		if (_lcd->bgWindowPriority()) {
 
 			// index of the tile to read
-			_bgw_fetch.id = _vram->ppuRead(_lcd->bgTileMapAreaBegin() +
+			_bgw_fetch.id = _vram->ppuRead(0, _lcd->bgTileMapAreaBegin() +
 				(_map_x / 8) + ((_map_y / 8) * 32));
 
 			if (_lcd->tileDataAreaBegin() == 0x8800) {
@@ -169,11 +170,12 @@ namespace jmpr {
 		}
 	}
 
+	// todo, get attributes for cgb
 	void PixelTransferHandler::windowTileIdFetch() {
 
 		if (insideWindow()) {
 
-			_bgw_fetch.id = _vram->ppuRead(_lcd->windowTileMapAreaBegin() +
+			_bgw_fetch.id = _vram->ppuRead(0, _lcd->windowTileMapAreaBegin() +
 				// X on the window
 				((_fetcher_x + 7 - _lcd->getWindowX()) / 8) +
 				// Y on the window
@@ -185,20 +187,22 @@ namespace jmpr {
 		}
 	}
 
+	// todo account for banking for cgb
 	void PixelTransferHandler::tileHalfDataFetch(u8 id) {
 
 		u8 tileLine = insideWindow() ? ((_window_y % 8) * 2) : _tile_y;
 
 		if (id == 0) {
-			_bgw_fetch.lo = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
+			_bgw_fetch.lo = _vram->ppuRead(0, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
 				+ tileLine);
 		}
 		else if (id == 1) {
-			_bgw_fetch.hi = _vram->ppuRead(_lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
+			_bgw_fetch.hi = _vram->ppuRead(0, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
 				+ tileLine + 1);
 		}
 	}
 
+	// todo, do different sorting in cgb mode
 	void PixelTransferHandler::spriteIdFetch() {
 
 		for (u8 s = 0; s < _visible_sprites.size(); s++) {
@@ -226,6 +230,7 @@ namespace jmpr {
 		}
 	}
 
+	// todo account for banking for cgb
 	void PixelTransferHandler::spriteHalfDataFetch(u8 id) {
 
 		// look only at the sprites that were selected
@@ -251,16 +256,17 @@ namespace jmpr {
 
 			// use the same formula to get the pixel as the bg
 			if (id == 0) {
-				fetch->lo = _vram->ppuRead(0x8000 + (tileId * 16)
+				fetch->lo = _vram->ppuRead(0, 0x8000 + (tileId * 16)
 					+ yLine);
 			}
 			else if (id == 1) {
-				fetch->hi = _vram->ppuRead(0x8000 + (tileId * 16)
+				fetch->hi = _vram->ppuRead(0, 0x8000 + (tileId * 16)
 					+ yLine + 1);
 			}
 		}
 	}
 
+	// todo get it from cram in cgb
 	u16 PixelTransferHandler::spriteColorFetch(u8 colorId) {
 
 		// find the sprite with the lowest xpos that touches the pixel.
@@ -300,6 +306,7 @@ namespace jmpr {
 
 	// Pushing
 
+	// todo fix priority in cgb mode
 	bool PixelTransferHandler::pushToFifoProcedure() {
 
 		// fifo is full

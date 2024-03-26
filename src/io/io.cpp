@@ -72,7 +72,7 @@ namespace jmpr {
 		else if (between(range, 0x51, 0x55)) {
 			out = _vram_dma[range - 0x51]; // cgb only
 		}
-		else if (between(range, 0x68, 0x69)) {
+		else if (between(range, 0x68, 0x6B)) {
 			out = _bg_obj_pallets[range - 0x68]; // cgb only
 		}
 		else if (range == 0x6C) {
@@ -119,7 +119,7 @@ namespace jmpr {
 		else if (between(range, 0x51, 0x55)) {
 			_vram_dma[range - 0x51] = data;
 		}
-		else if (between(range, 0x68, 0x69)) {
+		else if (between(range, 0x68, 0x6B)) {
 			_bg_obj_pallets[range - 0x68] = data;
 		}
 		else if (range == 0x6C) {

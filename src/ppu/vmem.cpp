@@ -7,8 +7,8 @@ namespace jmpr
 
 	// VRAM
 
-	VRAM::VRAM() : _vram_bank(0), 
-	_vram(std::array<std::array<u8, 0x2000>, 2>())
+	VRAM::VRAM() : _vram_bank(0),
+				   _vram(std::array<std::array<u8, 0x2000>, 2>())
 	{
 	}
 
@@ -38,20 +38,27 @@ namespace jmpr
 		_vram[_vram_bank][address - 0x8000] = data;
 	}
 
-	u8 VRAM::ppuRead(u16 address) const
+	u8 VRAM::ppuRead(u8 bank, u16 address) const
 	{
-		return _vram[_vram_bank][address - 0x8000];
+		return _vram[bank][address - 0x8000];
 	}
 
-	u8 VRAM::getBank() {
+	u8 VRAM::getBank()
+	{
 		return 0xFE | _vram_bank;
 	}
 
-	void VRAM::setBank(u8 bank) {
+	void VRAM::setBank(u8 bank)
+	{
 		_vram_bank = bank & 1;
 	}
 
 	// Sprites
+
+	void Sprite::fromVRAM(u8 data)
+	{
+		_attributes = data;
+	}
 
 	bool Sprite::noPriority() const
 	{
@@ -161,5 +168,45 @@ namespace jmpr
 	Sprite OAM::ppuRead(u16 spriteId) const
 	{
 		return _oam[spriteId];
+	}
+
+	CRAM::CRAM(bool isObjPallets) : _cram{0}, _bcps(0), _obj(isObjPallets) {}
+
+	u8 CRAM::read(u16 address) const
+	{
+		if (address == 0xFF68)
+		{
+			return _bcps;
+		}
+		else if (address == 0xFF69)
+		{
+			return _cram[_bcps & 0x3F];
+		}
+		else {
+			return 0x00;
+		}
+	}
+
+	void CRAM::write(u16 address, u8 data)
+	{
+		if (address == 0xFF68)
+		{
+			_bcps = data;
+		}
+		else if (address == 0xFF69)
+		{
+			_cram[_bcps & 0x3F] = data;
+			if (bit(_bcps, 7) == 1)
+			{
+				_bcps = (_bcps & 0x80) | (((_bcps & 0x3F) + 1) & 0x3F);
+			}
+		}
+	}
+
+	u8 CRAM::ppuRead(u8 pallet, u8 color, u8 byte) const {
+		if (color == 0 && _obj) {
+			return 0x00;
+		}
+		return _cram[byte + color * 2 + pallet * 8];
 	}
 }

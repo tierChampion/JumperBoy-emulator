@@ -6,6 +6,9 @@ namespace jmpr
 {
 	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
 	{
+		_cram[0] = CRAM(false);
+		_cram[1] = CRAM(true);
+
 		_vbuffer = std::shared_ptr<u16>(new u16[X_RESOLUTION * Y_RESOLUTION]);
 
 		_lcd = LCD(intHandler);
