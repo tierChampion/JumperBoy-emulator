@@ -8,7 +8,6 @@
 
 namespace jmpr
 {
-
 	// #define LOGGING
 
 	CPU::CPU()
@@ -89,10 +88,9 @@ namespace jmpr
 	 */
 	bool CPU::cycle()
 	{
-
 		_it_handler.checkInterrupts();
 
-		if (!_halted && !_stopped)
+		if (!_halted && !_vdma->inProcess() && !_stopped)
 		{
 
 			u16 programCounter = _PC;
@@ -110,7 +108,6 @@ namespace jmpr
 		}
 		else if (!_stopped)
 		{
-
 			GameBoy::cycle(1);
 		}
 

@@ -8,7 +8,8 @@ namespace jmpr {
 	class Timer;
 	class APU;
 	class LCD;
-	class DMA;
+	class ObjectDMA;
+	class VideoDMA;
 
 	// manage the io registers.
 	class IO {
@@ -18,7 +19,8 @@ namespace jmpr {
 		Timer* _timer;
 		APU* _apu;
 		LCD* _lcd;
-		DMA* _dma;
+		ObjectDMA* _odma;
+		VideoDMA* _vdma;
 		u8 _vram_select; // cgb
 		u8 _disable_bootrom;
 		u8 _vram_dma[5]; // cgb
@@ -28,7 +30,7 @@ namespace jmpr {
 	public:
 
 		IO() {}
-		IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, DMA* dma);
+		IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, ObjectDMA* odma, VideoDMA* vdma);
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);

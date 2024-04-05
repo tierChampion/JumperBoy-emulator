@@ -109,6 +109,10 @@ namespace jmpr {
 			_pt_handler.resetFifo();
 			_lcd.setMode(LCDMode::HBLANK);
 
+			// todo if in cgb mode, check and manage for a potentiel hblank vram dma
+			// only lasts for 8 M-cycles (16 bytes transfered)
+			_vdma->continueHBlankDMA();
+
 			if (_lcd.statInterruptTypeEnabled(LCDMode::HBLANK)) {
 				_it_handler->requestInterrupt(InterruptType::STAT);
 			}

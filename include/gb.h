@@ -29,7 +29,8 @@ namespace jmpr
 		static Joypad _joypad;
 		static Timer _timer;
 		static RAM _ram;
-		static DMA _dma;
+		static ObjectDMA _odma;
+		static VideoDMA _vdma;
 		static IO _io;
 		static InterruptHandler _it_handler;
 

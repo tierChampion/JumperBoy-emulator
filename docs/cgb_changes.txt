@@ -1,10 +1,17 @@
 2. Other DMA transfer to VRAM instead of OAM
-
+    (
+        detect cgb functions and propagate it to the rest of the system
+        add the vram dma transfer
+        add it to the cpu to be able to stop execution of the cpu and simply burn cycles (simply _halted = true)
+        implement its two modes with one that is impacted by the mode of the ppu (h-blank)
+        the mode basically changes when transfers are initiated
+    ) should be done!
 3. Switcheable VRAM banks (NORMALLY DONE, need to fix for cgb mode only)
-
 4. Switcheable RAM banks (NORMALLY DONE, need to fix for cgb mode only)
 
 5. 2 CRAM (BG and OBJ) with a bunch of registers for it
+   Need to finish #2 in order to properly do this 
+    change pixel_transfer to work with the CRAM and the extra banks (theres a bunch of todos already)
 
 <2-3-4-5 are by far the most important>
 

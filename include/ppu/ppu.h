@@ -7,9 +7,14 @@
 
 #include <queue>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	class PPU {
+	class InterruptHandler;
+	class VideoDMA;
+
+	class PPU
+	{
 
 		// Main components
 		std::shared_ptr<u16> _vbuffer;
@@ -27,19 +32,22 @@ namespace jmpr {
 		PixelTransferHandler _pt_handler;
 
 		// Interrupts
-		InterruptHandler* _it_handler;
+		InterruptHandler *_it_handler;
+
+		VideoDMA *_vdma;
 
 	public:
-
 		PPU() {}
-		PPU(InterruptHandler* intHandler);
+		PPU(InterruptHandler *intHandler);
+
+		void connectVideoDMA(VideoDMA *vdma) { _vdma = vdma; }
 
 		void reboot();
 
-		LCD* getLCD() { return &_lcd; }
-		VRAM* getVRAM() { return &_vram; }
-		OAM* getOAM() { return &_oam; }
-		CRAM* getCRAM(u8 id) { return &_cram[id]; }
+		LCD *getLCD() { return &_lcd; }
+		VRAM *getVRAM() { return &_vram; }
+		OAM *getOAM() { return &_oam; }
+		CRAM *getCRAM(u8 id) { return &_cram[id]; }
 
 		u16 readBuffer(u32 index);
 
@@ -48,7 +56,6 @@ namespace jmpr {
 		void dispatchRender();
 
 	private:
-
 		void HBlankProcess();
 		void VBlankProcess();
 		void OAMScanProcess();

@@ -24,7 +24,7 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, DMA* dma) :
+	IO::IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, ObjectDMA* odma, VideoDMA* vdma) :
 		_serial_trans{ 0x00, 0x7E },
 		_vram_dma{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
 		_bg_obj_pallets{ 0xFF, 0xFF }
@@ -33,7 +33,8 @@ namespace jmpr {
 		_timer = tim;
 		_apu = apu;
 		_lcd = lcd;
-		_dma = dma;
+		_odma = odma;
+		_vdma = vdma;
 
 		_vram_select = 0xFF;
 		_disable_bootrom = 0xFF;
@@ -58,7 +59,7 @@ namespace jmpr {
 			out = _apu->read(address);
 		}
 		else if (range == 0x46) {
-			out = _dma->readDMA();
+			out = _odma->readDMA();
 		}
 		else if (between(range, 0x40, 0x4B)) {
 			out = _lcd->read(range);
@@ -69,8 +70,8 @@ namespace jmpr {
 		else if (range == 0x50) {
 			out = _disable_bootrom;
 		}
-		else if (between(range, 0x51, 0x55)) {
-			out = _vram_dma[range - 0x51]; // cgb only
+		else if (range == 0x55) {
+			out = _vdma->readDMA();
 		}
 		else if (between(range, 0x68, 0x6B)) {
 			out = _bg_obj_pallets[range - 0x68]; // cgb only
@@ -105,7 +106,7 @@ namespace jmpr {
 			_apu->write(range, data);
 		}
 		else if (range == 0x46) {
-			_dma->requestDMA(data);
+			_odma->requestDMA(data);
 		}
 		else if (between(range, 0x40, 0x4B)) {
 			_lcd->write(range, data);
@@ -117,7 +118,7 @@ namespace jmpr {
 			_disable_bootrom = data;
 		}
 		else if (between(range, 0x51, 0x55)) {
-			_vram_dma[range - 0x51] = data;
+			_vdma->write(range, data);
 		}
 		else if (between(range, 0x68, 0x6B)) {
 			_bg_obj_pallets[range - 0x68] = data;

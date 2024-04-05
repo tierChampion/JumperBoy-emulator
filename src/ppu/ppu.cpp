@@ -1,6 +1,7 @@
 #include <ppu/ppu.h>
 
 #include <cpu/interrupt.h>
+#include <ppu/dma.h>
 
 namespace jmpr
 {

@@ -12,8 +12,9 @@ namespace jmpr
 	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
 	Timer GameBoy::_timer = Timer(&_apu, _cpu.getInterruptHandler());
 	RAM GameBoy::_ram = RAM();
-	DMA GameBoy::_dma = DMA(_ppu.getOAM());
-	IO GameBoy::_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_dma);
+	ObjectDMA GameBoy::_odma = ObjectDMA(_ppu.getOAM());
+	VideoDMA GameBoy::_vdma = VideoDMA(_ppu.getVRAM());
+	IO GameBoy::_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_odma, &_vdma);
 
 	Debugger GameBoy::_dbg = Debugger(&_bus, true);
 
@@ -51,7 +52,10 @@ namespace jmpr
 		_bus.connectIO(&_io);
 
 		_cpu.connectBus(&_bus);
-		_dma.connectBus(&_bus);
+		_cpu.connectVideoDMA(&_vdma);
+		_ppu.connectVideoDMA(&_vdma);
+		_odma.connectBus(&_bus);
+		_vdma.connectBus(&_bus);
 	}
 
 	void GameBoy::reboot()
@@ -61,7 +65,8 @@ namespace jmpr
 		_apu.reboot();
 		_joypad.reboot();
 		_timer.reboot();
-		_dma.reboot();
+		_odma.reboot();
+		_vdma.reboot();
 	}
 
 	void GameBoy::cpuLoop()
@@ -145,7 +150,8 @@ namespace jmpr
 				_ticks++;
 			}
 
-			_dma.processDMA();
+			_odma.processDMA();
+			_vdma.processDMA();
 		}
 	}
 }

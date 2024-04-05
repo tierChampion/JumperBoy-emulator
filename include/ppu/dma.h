@@ -6,8 +6,9 @@ namespace jmpr {
 
 	class Bus;
 	class OAM;
+	class VRAM;
 
-	class DMA {
+	class ObjectDMA {
 
 		Bus* _bus;
 		OAM* _oam;
@@ -17,8 +18,8 @@ namespace jmpr {
 
 	public:
 
-		DMA() {}
-		DMA(OAM* oam);
+		ObjectDMA() {}
+		ObjectDMA(OAM* oam);
 
 		void reboot();
 
@@ -27,6 +28,38 @@ namespace jmpr {
 		bool inProcess();
 		void requestDMA(u8 source);
 		void processDMA();
+
+		u8 readDMA() const;
+	};
+	
+	// todo create a new vram dma and adapt it
+	class VideoDMA {
+
+		Bus* _bus;
+		VRAM* _vram;
+
+		u16 _source;
+		u16 _destination;
+		u8 _mode;
+		u16 _total_length;
+		u16 _current_length;
+		u16 _elapsed_length;
+
+	public:
+
+		VideoDMA() {}
+		VideoDMA(VRAM* vram);
+
+		void reboot();
+		void connectBus(Bus* bus) { _bus = bus; }
+
+		void write(u8 address, u8 data);
+
+		void setStart(u8 start);
+		bool inProcess();
+		void requestDMA(u8 source);
+		void processDMA();
+		void continueHBlankDMA();
 
 		u8 readDMA() const;
 	};

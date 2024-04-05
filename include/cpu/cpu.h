@@ -14,6 +14,7 @@ namespace jmpr {
 	class Bus;
 	class RAM;
 	class InterruptHandler;
+	class VideoDMA;
 
 	struct CpuRegisters {
 		u8 _A; // Accumulator
@@ -38,6 +39,7 @@ namespace jmpr {
 		u16 _PC; // Program counter
 
 		Bus* _bus;
+		VideoDMA* _vdma;
 
 		// Current Instruction
 		u8 _curr_opcode;
@@ -62,6 +64,7 @@ namespace jmpr {
 		void reboot();
 
 		void connectBus(Bus* bus) { _bus = bus; }
+		void connectVideoDMA(VideoDMA* vdma) { _vdma = vdma; }
 
 		InterruptHandler* getInterruptHandler() { return &_it_handler; }
 
