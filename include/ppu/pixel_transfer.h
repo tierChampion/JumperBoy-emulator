@@ -17,6 +17,7 @@ namespace jmpr {
 
 	struct FetcherElem {
 		u8 id;
+		u8 attributes;
 		u8 lo;
 		u8 hi;
 	};
@@ -34,6 +35,7 @@ namespace jmpr {
 
 		LCD* _lcd;
 		VRAM* _vram;
+		CRAM* _crams;
 
 		FifoPhase _phase;
 		std::queue<u16> _pixel_fifo;
@@ -59,7 +61,7 @@ namespace jmpr {
 	public:
 
 		PixelTransferHandler() {}
-		PixelTransferHandler(LCD* lcd, VRAM* vram);
+		PixelTransferHandler(LCD* lcd, VRAM* vram, CRAM* crams);
 
 		void reboot();
 

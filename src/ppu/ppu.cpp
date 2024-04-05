@@ -14,7 +14,7 @@ namespace jmpr
 
 		_lcd = LCD(intHandler);
 
-		_pt_handler = PixelTransferHandler(&_lcd, &_vram);
+		_pt_handler = PixelTransferHandler(&_lcd, &_vram, &_cram[0]);
 
 		_it_handler = intHandler;
 

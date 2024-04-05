@@ -2,15 +2,18 @@
 
 #include <ppu/lcd.h>
 #include <ppu/vmem.h>
+#include <gb.h>
 
 #include <functional>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	PixelTransferHandler::PixelTransferHandler(LCD* lcd, VRAM* vram) {
-
+	PixelTransferHandler::PixelTransferHandler(LCD *lcd, VRAM *vram, CRAM* crams)
+	{
 		_lcd = lcd;
 		_vram = vram;
+		_crams = crams;
 
 		_pixel_fifo = std::queue<u16>();
 		_visible_sprites = std::vector<Sprite>();
@@ -21,8 +24,8 @@ namespace jmpr {
 		prepareForTransfer();
 	}
 
-	void PixelTransferHandler::reboot() {
-
+	void PixelTransferHandler::reboot()
+	{
 		_phase = FifoPhase::GET_TILE;
 		_lx = 0;
 		_pushed_x = 0;
@@ -42,13 +45,15 @@ namespace jmpr {
 		_bgw_fetch.hi = 0x0000;
 	}
 
-	bool PixelTransferHandler::transferComplete() {
+	bool PixelTransferHandler::transferComplete()
+	{
 		return (_pushed_x >= X_RESOLUTION);
 	}
 
 	// Resetting
 
-	void PixelTransferHandler::prepareForTransfer() {
+	void PixelTransferHandler::prepareForTransfer()
+	{
 
 		_phase = FifoPhase::GET_TILE;
 		_lx = 0;
@@ -67,20 +72,23 @@ namespace jmpr {
 		_bgw_fetch.hi = 0x0000;
 	}
 
-	void PixelTransferHandler::resetFifo() {
+	void PixelTransferHandler::resetFifo()
+	{
 
 		_pixel_fifo = {};
 		_visible_sprites.clear();
 	}
 
-	void PixelTransferHandler::resetWindow() {
+	void PixelTransferHandler::resetWindow()
+	{
 
 		_window_y = 0;
 	}
 
 	// Main transfer function
 
-	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots) {
+	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots)
+	{
 
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
 		_map_x = _fetcher_x + _lcd->getBGScrollX();
@@ -88,7 +96,8 @@ namespace jmpr {
 		_tile_y = ((_lcd->getScanline() + _lcd->getBGScrollY()) % 8) * 2;
 
 		// One fetch for every two pushes
-		if ((lineDots & 1) == 0) {
+		if ((lineDots & 1) == 0)
+		{
 
 			fetcherProcedure();
 		}
@@ -98,11 +107,13 @@ namespace jmpr {
 
 	// Fetching
 
-	void PixelTransferHandler::fetcherProcedure() {
+	void PixelTransferHandler::fetcherProcedure()
+	{
 
 		bool doSpriteOperations = _lcd->objEnabled() && _visible_sprites.size() > 0;
-		
-		switch (_phase) {
+
+		switch (_phase)
+		{
 		case FifoPhase::GET_TILE:
 
 			tileIdFetch();
@@ -147,7 +158,8 @@ namespace jmpr {
 		case FifoPhase::PUSH:
 
 			// Push to single fifo
-			if (pushToFifoProcedure()) {
+			if (pushToFifoProcedure())
+			{
 
 				_phase = FifoPhase::GET_TILE;
 			}
@@ -155,64 +167,86 @@ namespace jmpr {
 		}
 	}
 
-	// todo, get attributes for cgb
-	void PixelTransferHandler::tileIdFetch() {
+	void PixelTransferHandler::tileIdFetch()
+	{
 
-		if (_lcd->bgWindowPriority()) {
+		if (_lcd->bgWindowPriority())
+		{
 
+			u16 idx = _lcd->bgTileMapAreaBegin() +
+					  (_map_x / 8) + ((_map_y / 8) * 32);
+			_bgw_fetch.attributes = _vram->ppuRead(1, idx);
 			// index of the tile to read
-			_bgw_fetch.id = _vram->ppuRead(0, _lcd->bgTileMapAreaBegin() +
-				(_map_x / 8) + ((_map_y / 8) * 32));
+			_bgw_fetch.id = _vram->ppuRead(0, idx);
 
-			if (_lcd->tileDataAreaBegin() == 0x8800) {
+			if (_lcd->tileDataAreaBegin() == 0x8800)
+			{
 				_bgw_fetch.id += 0x80;
 			}
 		}
 	}
 
-	// todo, get attributes for cgb
-	void PixelTransferHandler::windowTileIdFetch() {
+	void PixelTransferHandler::windowTileIdFetch()
+	{
+		if (insideWindow())
+		{
+			u16 idx = _lcd->windowTileMapAreaBegin() +
+					  // X on the window
+					  ((_fetcher_x + 7 - _lcd->getWindowX()) / 8) +
+					  // Y on the window
+					  (_window_y / 8) * 32;
+			_bgw_fetch.attributes = _vram->ppuRead(1, idx);
+			_bgw_fetch.id = _vram->ppuRead(0, idx);
 
-		if (insideWindow()) {
-
-			_bgw_fetch.id = _vram->ppuRead(0, _lcd->windowTileMapAreaBegin() +
-				// X on the window
-				((_fetcher_x + 7 - _lcd->getWindowX()) / 8) +
-				// Y on the window
-				(_window_y / 8) * 32);
-
-			if (_lcd->tileDataAreaBegin() == 0x8800) {
+			if (_lcd->tileDataAreaBegin() == 0x8800)
+			{
 				_bgw_fetch.id += 0x80;
 			}
 		}
 	}
 
-	// todo account for banking for cgb
-	void PixelTransferHandler::tileHalfDataFetch(u8 id) {
-
+	void PixelTransferHandler::tileHalfDataFetch(u8 id)
+	{
 		u8 tileLine = insideWindow() ? ((_window_y % 8) * 2) : _tile_y;
 
-		if (id == 0) {
-			_bgw_fetch.lo = _vram->ppuRead(0, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
-				+ tileLine);
+		u8 bank = 0;
+
+		if (GameBoy::isCGB())
+		{
+			// y flip
+			if (bit(_bgw_fetch.attributes, 6) == 1)
+			{
+			
+				tileLine = ((8 - 1) * 2) - tileLine;
+			}
+
+			// bank
+			bank = bit(_bgw_fetch.attributes, 3);
 		}
-		else if (id == 1) {
-			_bgw_fetch.hi = _vram->ppuRead(0, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16)
-				+ tileLine + 1);
+
+		if (id == 0)
+		{
+			_bgw_fetch.lo = _vram->ppuRead(bank, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16) + tileLine);
+		}
+		else if (id == 1)
+		{
+			_bgw_fetch.hi = _vram->ppuRead(bank, _lcd->tileDataAreaBegin() + (_bgw_fetch.id * 16) + tileLine + 1);
 		}
 	}
 
-	// todo, do different sorting in cgb mode
-	void PixelTransferHandler::spriteIdFetch() {
+	void PixelTransferHandler::spriteIdFetch()
+	{
 
-		for (u8 s = 0; s < _visible_sprites.size(); s++) {
+		for (u8 s = 0; s < _visible_sprites.size(); s++)
+		{
 
-			Sprite* spr = &_visible_sprites[s];
+			Sprite *spr = &_visible_sprites[s];
 
 			u8 xSpr = (spr->_xpos) + (_lcd->getBGScrollX() % 8);
 
 			// Is the sprite present in the next 8 pixels
-			if (xSpr > _fetcher_x && xSpr < _fetcher_x + 16) {
+			if (xSpr > _fetcher_x && xSpr < _fetcher_x + 16)
+			{
 
 				SpriteFetch fetch = SpriteFetch();
 				fetch.id = spr->_tile_id;
@@ -223,25 +257,29 @@ namespace jmpr {
 		}
 
 		// Sort fetches by sprite x, not done in cgb mode
-		if (_spr_fetch.size() > 1) {
+		if (_spr_fetch.size() > 1 && GameBoy::isCGB())
+		{
 			std::sort(_spr_fetch.begin(),
-				_spr_fetch.end(),
-				[](SpriteFetch a, SpriteFetch b) {return a.spr->_xpos < b.spr->_xpos; });
+					  _spr_fetch.end(),
+					  [](SpriteFetch a, SpriteFetch b)
+					  { return a.spr->_xpos < b.spr->_xpos; });
 		}
 	}
 
-	// todo account for banking for cgb
-	void PixelTransferHandler::spriteHalfDataFetch(u8 id) {
+	void PixelTransferHandler::spriteHalfDataFetch(u8 id)
+	{
 
 		// look only at the sprites that were selected
-		for (u8 s = 0; s < _spr_fetch.size(); s++) {
+		for (u8 s = 0; s < _spr_fetch.size(); s++)
+		{
 
-			SpriteFetch* fetch = &_spr_fetch[s];
+			SpriteFetch *fetch = &_spr_fetch[s];
 
 			// get the y coord of the tile to read (see _tile_y for explanation)
 			u8 yLine = ((_lcd->getScanline() + 16) - fetch->spr->_ypos) * 2;
 
-			if (fetch->spr->isFlippedY()) {
+			if (fetch->spr->isFlippedY())
+			{
 				// Maximum y - current y
 				yLine = ((_lcd->objSize() - 1) * 2) - yLine;
 			}
@@ -249,28 +287,32 @@ namespace jmpr {
 			// get index of tile and modify it in case the tile is 16 pixels high
 			u16 tileId = fetch->id;
 
-			if (_lcd->objSize() == 16) {
+			if (_lcd->objSize() == 16)
+			{
 				// Round the id
 				tileId &= ~(1);
 			}
 
+			u8 bank = GameBoy::isCGB() ? fetch->spr->bank() : 0;
+
 			// use the same formula to get the pixel as the bg
-			if (id == 0) {
-				fetch->lo = _vram->ppuRead(0, 0x8000 + (tileId * 16)
-					+ yLine);
+			if (id == 0)
+			{
+				fetch->lo = _vram->ppuRead(bank, 0x8000 + (tileId * 16) + yLine);
 			}
-			else if (id == 1) {
-				fetch->hi = _vram->ppuRead(0, 0x8000 + (tileId * 16)
-					+ yLine + 1);
+			else if (id == 1)
+			{
+				fetch->hi = _vram->ppuRead(bank, 0x8000 + (tileId * 16) + yLine + 1);
 			}
 		}
 	}
 
 	// todo get it from cram in cgb
-	u16 PixelTransferHandler::spriteColorFetch(u8 colorId) {
-
+	u16 PixelTransferHandler::spriteColorFetch(u8 colorId)
+	{
 		// find the sprite with the lowest xpos that touches the pixel.
-		for (u8 i = 0; i < _spr_fetch.size(); i++) {
+		for (u8 i = 0; i < _spr_fetch.size(); i++)
+		{
 
 			SpriteFetch fetch = _spr_fetch[i];
 
@@ -278,15 +320,18 @@ namespace jmpr {
 			u8 xSpr = (fetch.spr->_xpos - 8) + (_lcd->getBGScrollX() % 8);
 
 			// check if the sprite touches the pixel
-			if (xSpr + 8 < _fifo_x) continue;
+			if (xSpr + 8 < _fifo_x)
+				continue;
 
 			u8 offset = _fifo_x - xSpr;
 
-			if (offset > 7) continue;
+			if (offset > 7)
+				continue;
 
 			u8 b = 7 - offset;
 
-			if (fetch.spr->isFlippedX()) {
+			if (fetch.spr->isFlippedX())
+			{
 				b = offset;
 			}
 
@@ -294,7 +339,8 @@ namespace jmpr {
 			u8 sprColorId = (bit(fetch.hi, b) << 1) | (bit(fetch.lo, b));
 
 			// Transparent color or doesn't have priority
-			if (sprColorId == 0 || (fetch.spr->noPriority() && colorId > 0)) {
+			if (sprColorId == 0 || (fetch.spr->noPriority() && colorId > 0))
+			{
 				continue;
 			}
 
@@ -307,17 +353,21 @@ namespace jmpr {
 	// Pushing
 
 	// todo fix priority in cgb mode
-	bool PixelTransferHandler::pushToFifoProcedure() {
+	bool PixelTransferHandler::pushToFifoProcedure()
+	{
 
 		// fifo is full
-		if (_pixel_fifo.size() > 8) return false;
+		if (_pixel_fifo.size() > 8)
+			return false;
 
-		// adjust the x for scrolling 
+		// adjust the x for scrolling
 		int x = _fetcher_x - (8 - getCurrentScroll());
 
-		if (x < 0) return false;
+		if (x < 0)
+			return false;
 
-		for (u8 i = 0; i < 8; i++) {
+		for (u8 i = 0; i < 8; i++)
+		{
 
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
 
@@ -340,18 +390,20 @@ namespace jmpr {
 		return true;
 	}
 
-	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u16> vbuffer) {
+	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u16> vbuffer)
+	{
 
 		// switch to a general pixel fifo
-
-		if (_pixel_fifo.size() > 8) {
+		if (_pixel_fifo.size() > 8)
+		{
 
 			// push a pixel to the raster
 			u16 color = _pixel_fifo.front();
 			_pixel_fifo.pop();
 
 			// Only render if pixel is visible with the scroll
-			if (_lx >= getCurrentScroll()) {
+			if (_lx >= getCurrentScroll())
+			{
 
 				vbuffer.get()[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
 
@@ -364,31 +416,36 @@ namespace jmpr {
 
 	// Window ops
 
-	void PixelTransferHandler::jumpWindowScanline() {
+	void PixelTransferHandler::jumpWindowScanline()
+	{
 
 		// Increment window line if currently inside a window
 		if (isWindowVisible() &&
 			_lcd->getScanline() > _lcd->getWindowY() &&
-			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION) {
+			_lcd->getScanline() < _lcd->getWindowY() + Y_RESOLUTION)
+		{
 			_window_y++;
 		}
 	}
 
-	u8 PixelTransferHandler::getCurrentScroll() const {
+	u8 PixelTransferHandler::getCurrentScroll() const
+	{
 
 		return insideWindow() ? 0 : (_lcd->getBGScrollX() % 8);
 	}
 
-	bool PixelTransferHandler::isWindowVisible() const {
+	bool PixelTransferHandler::isWindowVisible() const
+	{
 
 		return _lcd->windowEnabled() && _lcd->bgWindowPriority() &&
-			between(_lcd->getWindowX(), 0, 166) &&
-			between(_lcd->getWindowY(), 0, 143);
+			   between(_lcd->getWindowX(), 0, 166) &&
+			   between(_lcd->getWindowY(), 0, 143);
 	}
 
-	bool PixelTransferHandler::insideWindow() const {
+	bool PixelTransferHandler::insideWindow() const
+	{
 		return isWindowVisible() &&
-			(_fetcher_x + 7 >= _lcd->getWindowX() &&
+			   (_fetcher_x + 7 >= _lcd->getWindowX() &&
 				_fetcher_x + 7 < _lcd->getWindowX() + Y_RESOLUTION + 14 &&
 				_lcd->getScanline() >= _lcd->getWindowY() &&
 				_lcd->getScanline() < _lcd->getWindowY() + X_RESOLUTION);

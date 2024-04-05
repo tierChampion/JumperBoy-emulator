@@ -111,23 +111,14 @@ namespace jmpr {
 		else if (between(range, 0x40, 0x4B)) {
 			_lcd->write(range, data);
 		}
-		else if (range == 0x4F) {
-			_vram_select = data;
-		}
 		else if (range == 0x50) {
 			_disable_bootrom = data;
 		}
 		else if (between(range, 0x51, 0x55)) {
 			_vdma->write(range, data);
 		}
-		else if (between(range, 0x68, 0x6B)) {
-			_bg_obj_pallets[range - 0x68] = data;
-		}
 		else if (range == 0x6C) {
 			_lcd->write(range, data);
-		}
-		else if (range == 0x70) {
-			_wram_select = data;
 		}
 		else {
 			printf("Error: trying to write to an unknown IO register: %04X\n", address);

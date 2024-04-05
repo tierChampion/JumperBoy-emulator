@@ -11,6 +11,7 @@ namespace jmpr
 
     GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
                                                  _debug(false),
+                                                 _bank(0),
                                                  _pallet_id(0),
                                                  _scale(DEFAULT_SCALE)
     {
@@ -63,9 +64,10 @@ namespace jmpr
         SDL_HideWindow(_window);
     }
 
-    void GameWindow::toggleDebug()
+    void GameWindow::toggleDebug(u8 bank)
     {
         _debug = !_debug;
+        _bank = bank;
 
         if (_opened)
         {
@@ -183,7 +185,7 @@ namespace jmpr
         // read tile data
         for (u8 i = 0; i < 16; i++)
         {
-            data[i] = _ppu->getVRAM()->ppuRead(0, 0x8000 + (16 * tileId) + i);
+            data[i] = _ppu->getVRAM()->ppuRead(_bank, 0x8000 + (16 * tileId) + i);
         }
 
         SDL_Rect rect;

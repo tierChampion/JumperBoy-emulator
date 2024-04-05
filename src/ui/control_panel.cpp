@@ -35,6 +35,7 @@ namespace jmpr
     {
         _controls.browser = false;
         _controls.tiles = false;
+        _controls.tileBank = 0;
         _controls.vol = 0.05f;
         _controls.channel1 = true;
         _controls.channel2 = true;
@@ -112,7 +113,8 @@ namespace jmpr
     {
         if (ImGui::Checkbox("Show tiles", &_controls.tiles))
         {
-            _game_window.toggleDebug();
+            _game_window.toggleDebug(_controls.tileBank & 0x2);
+            _controls.tileBank = (_controls.tileBank + 1) & 0x3;
         }
         if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f, "%.2f"))
         {

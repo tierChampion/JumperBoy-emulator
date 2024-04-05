@@ -22,6 +22,7 @@ namespace jmpr
 
         bool _opened;
         bool _debug;
+        u8 _bank;
 
         std::vector<std::array<u32, 4>> _pallets;
         u8 _pallet_id;
@@ -33,7 +34,7 @@ namespace jmpr
         void cleanup();
 
         void render();
-        void toggleDebug();
+        void toggleDebug(u8 bank);
         void open();
         void close();
 

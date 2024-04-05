@@ -5,15 +5,16 @@
         add it to the cpu to be able to stop execution of the cpu and simply burn cycles (simply _halted = true)
         implement its two modes with one that is impacted by the mode of the ppu (h-blank)
         the mode basically changes when transfers are initiated
-    ) should be done!
+    ) doesnt seem to work, to see if this is true (doesnt on crystal)
+
 3. Switcheable VRAM banks (NORMALLY DONE, need to fix for cgb mode only)
 4. Switcheable RAM banks (NORMALLY DONE, need to fix for cgb mode only)
 
 5. 2 CRAM (BG and OBJ) with a bunch of registers for it
    Need to finish #2 in order to properly do this 
     change pixel_transfer to work with the CRAM and the extra banks (theres a bunch of todos already)
+doesnt use cram pallets for now, but flipping seems to work
 
 <2-3-4-5 are by far the most important>
 
-1. Changing the initial accumulator when detecting the cartridge (meh)
 6. Double speed (meh)

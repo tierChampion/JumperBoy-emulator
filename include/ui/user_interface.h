@@ -25,6 +25,7 @@ namespace jmpr
 	{
 		bool browser;
 		bool tiles;
+		u8 tileBank;
 		float vol;
 		bool channel1;
 		bool channel2;
