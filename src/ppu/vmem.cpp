@@ -174,11 +174,11 @@ namespace jmpr
 
 	u8 CRAM::read(u16 address) const
 	{
-		if (address == 0xFF68)
+		if (address == 0xFF68 || address == 0xFF6A)
 		{
 			return _bcps;
 		}
-		else if (address == 0xFF69)
+		else if (address == 0xFF69 || address == 0xFF6B)
 		{
 			return _cram[_bcps & 0x3F];
 		}
@@ -189,11 +189,11 @@ namespace jmpr
 
 	void CRAM::write(u16 address, u8 data)
 	{
-		if (address == 0xFF68)
+		if (address == 0xFF68 || address == 0xFF6A)
 		{
 			_bcps = data;
 		}
-		else if (address == 0xFF69)
+		else if (address == 0xFF69 || address == 0xFF6B)
 		{
 			_cram[_bcps & 0x3F] = data;
 			if (bit(_bcps, 7) == 1)

@@ -111,6 +111,10 @@ namespace jmpr
 
     void UI::optionsMenu()
     {
+        if (ImGui::Button("Reboot"))
+        {
+            GameBoy::reboot();
+        }
         if (ImGui::Checkbox("Show tiles", &_controls.tiles))
         {
             _game_window.toggleDebug(_controls.tileBank & 0x2);

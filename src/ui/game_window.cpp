@@ -10,10 +10,10 @@ namespace jmpr
     const u8 DEFAULT_SCALE = 4;
 
     GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
-                                                 _debug(false),
-                                                 _bank(0),
-                                                 _pallet_id(0),
-                                                 _scale(DEFAULT_SCALE)
+                                       _debug(false),
+                                       _bank(0),
+                                       _pallet_id(0),
+                                       _scale(DEFAULT_SCALE)
     {
         // Initialize SDL Video
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
@@ -42,10 +42,10 @@ namespace jmpr
         }
 
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ABGR8888,
+        _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB555,
                                      SDL_TEXTUREACCESS_STREAMING, width, height);
         _surface = SDL_CreateRGBSurfaceWithFormat(0,
-                                                  width, height, 32, SDL_PIXELFORMAT_ABGR8888);
+                                                  width, height, 32, SDL_PIXELFORMAT_RGB555);
     }
 
     void GameWindow::open()
@@ -78,9 +78,12 @@ namespace jmpr
     void GameWindow::addPallet(const std::array<u32, 4> &pallet)
     {
         // todo, tell the ui!
-        if (_pallets.size() < 256) {
-        _pallets.push_back(pallet);
-        } else {
+        if (_pallets.size() < 256)
+        {
+            _pallets.push_back(pallet);
+        }
+        else
+        {
             _pallets[255] = pallet;
         }
     }
@@ -147,7 +150,14 @@ namespace jmpr
             {
                 u16 color = _ppu->readBuffer(y * X_RESOLUTION + x);
 
-                SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
+                if (!GameBoy::isCGB())
+                {
+                    SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
+                }
+                else
+                {
+                    SDL_FillRect(_surface, &rect, color);
+                }
                 rect.x += _scale;
             }
 

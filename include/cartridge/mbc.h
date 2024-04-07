@@ -73,5 +73,13 @@ namespace jmpr {
 		void write(u16 address, u8 data) override;
 	};
 
+	class MBC5 : public MBC {
+
+		MBC5(u8* romData, u32 romSize, u32 ramSize, bool hasBattery, bool hasTimer);
+
+		u8 read(u16 address) const override;
+		void write(u16 address, u8 data) override;
+	};
+
 	MBC* giveAppropriateMBC(u8 cartridgeHardware, u32 romSize, u8* romData, u32 ramSize);
 }

@@ -9,7 +9,7 @@
 namespace jmpr
 {
 
-	PixelTransferHandler::PixelTransferHandler(LCD *lcd, VRAM *vram, CRAM* crams)
+	PixelTransferHandler::PixelTransferHandler(LCD *lcd, VRAM *vram, CRAM *crams)
 	{
 		_lcd = lcd;
 		_vram = vram;
@@ -216,7 +216,6 @@ namespace jmpr
 			// y flip
 			if (bit(_bgw_fetch.attributes, 6) == 1)
 			{
-			
 				tileLine = ((8 - 1) * 2) - tileLine;
 			}
 
@@ -247,7 +246,6 @@ namespace jmpr
 			// Is the sprite present in the next 8 pixels
 			if (xSpr > _fetcher_x && xSpr < _fetcher_x + 16)
 			{
-
 				SpriteFetch fetch = SpriteFetch();
 				fetch.id = spr->_tile_id;
 				fetch.spr = spr;
@@ -257,7 +255,7 @@ namespace jmpr
 		}
 
 		// Sort fetches by sprite x, not done in cgb mode
-		if (_spr_fetch.size() > 1 && GameBoy::isCGB())
+		if (_spr_fetch.size() > 1 && !GameBoy::isCGB())
 		{
 			std::sort(_spr_fetch.begin(),
 					  _spr_fetch.end(),
@@ -307,13 +305,40 @@ namespace jmpr
 		}
 	}
 
+	u16 PixelTransferHandler::windowColorFetch(u8 colorId) const
+	{
+		if (!GameBoy::isCGB())
+		{
+			return _lcd->getBGWindowColor(colorId);
+		}
+		else
+		{
+			u8 lo = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 0);
+			u8 hi = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 1);
+			return lo | (hi << 8);
+		}
+	}
+
+	u16 PixelTransferHandler::spriteColor(u8 colorId, SpriteFetch spr) const
+	{
+		if (!GameBoy::isCGB())
+		{
+			return _lcd->getOBJcolor(spr.spr->pallet(), colorId);
+		}
+		else
+		{
+			u8 lo = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 0);
+			u8 hi = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 1);
+			return lo | (hi << 8);
+		}
+	}
+
 	// todo get it from cram in cgb
 	u16 PixelTransferHandler::spriteColorFetch(u8 colorId)
 	{
 		// find the sprite with the lowest xpos that touches the pixel.
 		for (u8 i = 0; i < _spr_fetch.size(); i++)
 		{
-
 			SpriteFetch fetch = _spr_fetch[i];
 
 			// X pos in Sprite space
@@ -344,7 +369,7 @@ namespace jmpr
 				continue;
 			}
 
-			return _lcd->getOBJcolor(fetch.spr->pallet(), sprColorId);
+			return spriteColor(sprColorId, fetch);
 		}
 
 		return colorId;
@@ -352,7 +377,6 @@ namespace jmpr
 
 	// Pushing
 
-	// todo fix priority in cgb mode
 	bool PixelTransferHandler::pushToFifoProcedure()
 	{
 
@@ -368,17 +392,23 @@ namespace jmpr
 
 		for (u8 i = 0; i < 8; i++)
 		{
-
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
+			if (GameBoy::isCGB() && bit(_bgw_fetch.attributes, 5) == 1)
+			{
+				colorIndex = (bit(_bgw_fetch.hi, i) << 1) | (bit(_bgw_fetch.lo, i));
+			}
 
-			u16 pixel = _lcd->getBGWindowColor(colorIndex);
+			// lcd isnt used anymore (unless for compatibility) so use the actual cram data
+			u16 pixel = windowColorFetch(colorIndex);
 
 			// Adapt the color for sprites, window, etc.
 
 			if (!_lcd->lcdEnabled())
 				pixel = _lcd->getBGWindowColor(0);
 
-			if (_lcd->objEnabled() && _spr_fetch.size() > 0)
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::isCGB();
+
+			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
 				pixel = spriteColorFetch(pixel);
 
 			_pixel_fifo.push(pixel);

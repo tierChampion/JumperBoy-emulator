@@ -15,6 +15,8 @@
     change pixel_transfer to work with the CRAM and the extra banks (theres a bunch of todos already)
 doesnt use cram pallets for now, but flipping seems to work
 
+Tetrix DX doesnt even render (doesnt use any dma, is in cgb mode)
+
 <2-3-4-5 are by far the most important>
 
 6. Double speed (meh)

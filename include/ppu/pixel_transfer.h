@@ -85,6 +85,10 @@ namespace jmpr {
 		void tileHalfDataFetch(u8 id);
 		void spriteIdFetch();
 		void spriteHalfDataFetch(u8 id);
+
+		// Color
+		u16 windowColorFetch(u8 colorId) const;
+		u16 spriteColor(u8 colorId, SpriteFetch spr) const;
 		u16 spriteColorFetch(u8 colorId);
 
 
