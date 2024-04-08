@@ -172,10 +172,10 @@ namespace jmpr
 								0xFF306230,
 								0xFF0F380F});
 
-		_game_window.addPallet({0xFFDDDDDD,
-								0xFFAAAAAA,
-								0xFF555555,
-								0xFF000000});
+		_game_window.addPallet({0xFFFF,
+								0x3DEF,
+								0x1CE7,
+								0x0C63});
 		std::ifstream palletsFile(std::string(DIRECTORY_PATH) + std::string("/settings/pallets.csv"));
 
 		if (palletsFile.is_open())

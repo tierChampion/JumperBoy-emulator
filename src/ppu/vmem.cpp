@@ -198,7 +198,7 @@ namespace jmpr
 			_cram[_bcps & 0x3F] = data;
 			if (bit(_bcps, 7) == 1)
 			{
-				_bcps = (_bcps & 0x80) | (((_bcps & 0x3F) + 1) & 0x3F);
+				_bcps = (_bcps & 0x80) | ((_bcps + 1) & 0x3F);
 			}
 		}
 	}

@@ -51,5 +51,6 @@ namespace jmpr
         void renderGame();
         void renderTiles();
         void renderSingleTile(u16 tileId, u16 xPos, u16 yPos);
+        void renderPallets();
     };
 }

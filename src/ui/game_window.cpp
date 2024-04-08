@@ -122,7 +122,7 @@ namespace jmpr
         {
             renderGame();
             if (_debug)
-                renderTiles();
+                renderPallets();//renderTiles();
 
             SDL_UpdateTexture(_texture, nullptr, _surface->pixels, _surface->pitch);
             SDL_RenderClear(_renderer);
@@ -156,7 +156,10 @@ namespace jmpr
                 }
                 else
                 {
-                    SDL_FillRect(_surface, &rect, color);
+                    u16 red = color & 0b11111;
+                    u16 green = (color & 0b1111100000) >> 5;
+                    u16 blue = (color & 0b111110000000000) >> 10;
+                    SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
                 }
                 rect.x += _scale;
             }
@@ -211,11 +214,39 @@ namespace jmpr
 
             for (u8 x = 0; x < 8; x++)
             {
-
                 u8 color = (bit(pal2, 7 - x) << 1) | (bit(pal1, 7 - x));
                 rect.x = xPos + _scale * x + X_RESOLUTION * _scale;
 
                 SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
+            }
+        }
+    }
+
+    void GameWindow::renderPallets()
+    {
+        u16 tileDim = (8 + 1) * _scale;
+
+        SDL_Rect rect;
+        rect.x = X_RESOLUTION * _scale;
+        rect.y = 0;
+        rect.w = 8 * _scale;
+        rect.h = 8 * _scale;
+
+        for (u16 z = 0; z < 2; z++)
+        {
+            for (u16 y = 0; y < 8; y++)
+            {
+                rect.y = y * tileDim + z * 8 * tileDim;
+                for (u16 x = 0; x < 4; x++)
+                {
+                    rect.x = x * tileDim + X_RESOLUTION * _scale;
+                    u16 color = _ppu->getCRAM(z)->ppuRead(y, x, 0) | (_ppu->getCRAM(z)->ppuRead(y, x, 1) << 8);
+
+                    u16 red = color & 0b11111;
+                    u16 green = (color & 0b1111100000) >> 5;
+                    u16 blue = (color & 0b111110000000000) >> 10;
+                    SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
+                }
             }
         }
     }
