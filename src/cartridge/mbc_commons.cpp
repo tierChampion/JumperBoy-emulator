@@ -24,7 +24,7 @@ namespace jmpr {
 		}
 
 		std::cerr << "Error: The game requested has unsupported cartridge hardware. \n" << std::endl;
-		exit(-2);
+		return nullptr;
 	}
 
 	// MBC template

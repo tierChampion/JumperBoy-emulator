@@ -20,7 +20,7 @@ namespace jmpr
 	 * Load a cartridge from a binary file.
 	 * @param file Path of the file containing the game
 	 */
-	Cartridge::Cartridge(const std::string &file)
+	Cartridge::Cartridge(const std::string &file) : _error(false)
 	{
 
 		std::ifstream stream;
@@ -29,7 +29,7 @@ namespace jmpr
 		if (!stream)
 		{
 			std::cerr << "Error: the ROM path (" << file << ") isn't valid." << std::endl;
-			exit(-1);
+			_error = true;
 			return;
 		}
 
@@ -56,14 +56,19 @@ namespace jmpr
 
 		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_size, _rom_data.get(), RAM_SIZES[_header._ram_size]);
 
-		_mbc->loadSave(_savename.c_str());
+		if (_mbc == nullptr)
+		{
+			_error = true;
+		}
 
 		if (!isValid())
 		{
 			std::cerr << "Error: The provided ROM (" << _header._title << ") isn't valid." << std::endl;
-			exit(-2);
+			_error = true;
 			return;
 		}
+
+		_mbc->loadSave(_savename.c_str());
 	}
 
 	/**
@@ -457,7 +462,7 @@ namespace jmpr
 	 */
 	bool Cartridge::isValid() const
 	{
-		if (_rom_size == 0)
+		if (_error || _rom_size == 0)
 			return false;
 
 		return std::equal(std::begin(_header._nintendo_logo),

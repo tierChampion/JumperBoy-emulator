@@ -33,6 +33,7 @@ namespace jmpr {
 
 	class Cartridge {
 
+		bool _error;
 		std::string _filename;
 		std::string _savename;
 		u32 _rom_size = 0;
@@ -42,7 +43,7 @@ namespace jmpr {
 
 	public:
 
-		Cartridge() { _filename = ""; }
+		Cartridge() { _error = false; _filename = ""; }
 		Cartridge(const std::string& file);
 
 		bool isValid() const;

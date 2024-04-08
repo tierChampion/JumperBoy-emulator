@@ -273,8 +273,11 @@ namespace jmpr
 
         _recents.push_back(romPath);
 
-        GameBoy::insertCartridge(romPath);
-        _game_window.open();
-        GameBoy::resume();
+        bool valid = GameBoy::insertCartridge(romPath);
+        if (valid)
+        {
+            _game_window.open();
+            GameBoy::resume();
+        }
     }
 }
