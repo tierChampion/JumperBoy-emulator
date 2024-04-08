@@ -169,8 +169,8 @@ namespace jmpr
 
 	void PixelTransferHandler::tileIdFetch()
 	{
-
-		if (_lcd->bgWindowPriority())
+		// change for cgb
+		if (_lcd->bgWindowPriority() || GameBoy::isCGB())
 		{
 
 			u16 idx = _lcd->bgTileMapAreaBegin() +
@@ -327,14 +327,16 @@ namespace jmpr
 		}
 		else
 		{
+			// return 0xFFFF;
 			u8 lo = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 0);
 			u8 hi = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 1);
 			return lo | (hi << 8);
+			
 		}
 	}
 
 	// todo get it from cram in cgb
-	u16 PixelTransferHandler::spriteColorFetch(u8 colorId)
+	u16 PixelTransferHandler::spriteColorFetch(u16 color, u8 colorId)
 	{
 		// find the sprite with the lowest xpos that touches the pixel.
 		for (u8 i = 0; i < _spr_fetch.size(); i++)
@@ -372,7 +374,7 @@ namespace jmpr
 			return spriteColor(sprColorId, fetch);
 		}
 
-		return colorId;
+		return color;
 	}
 
 	// Pushing
@@ -406,10 +408,10 @@ namespace jmpr
 			if (!_lcd->lcdEnabled())
 				pixel = _lcd->getBGWindowColor(0);
 
-			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::isCGB();
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::isCGB();
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
-				pixel = spriteColorFetch(pixel);
+				pixel = spriteColorFetch(pixel, colorIndex);
 
 			_pixel_fifo.push(pixel);
 			_fifo_x++;
@@ -466,8 +468,8 @@ namespace jmpr
 
 	bool PixelTransferHandler::isWindowVisible() const
 	{
-
-		return _lcd->windowEnabled() && _lcd->bgWindowPriority() &&
+		// change for cgb
+		return _lcd->windowEnabled() && (_lcd->bgWindowPriority() || GameBoy::isCGB()) &&
 			   between(_lcd->getWindowX(), 0, 166) &&
 			   between(_lcd->getWindowY(), 0, 143);
 	}

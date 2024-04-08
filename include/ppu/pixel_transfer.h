@@ -89,7 +89,7 @@ namespace jmpr {
 		// Color
 		u16 windowColorFetch(u8 colorId) const;
 		u16 spriteColor(u8 colorId, SpriteFetch spr) const;
-		u16 spriteColorFetch(u8 colorId);
+		u16 spriteColorFetch(u16 color, u8 colorId);
 
 
 		// Pushing
