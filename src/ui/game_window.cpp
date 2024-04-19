@@ -41,7 +41,7 @@ namespace jmpr
             SDL_SetWindowSize(_window, width, height);
         }
 
-        _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
         _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB555,
                                      SDL_TEXTUREACCESS_STREAMING, width, height);
         _surface = SDL_CreateRGBSurfaceWithFormat(0,
@@ -122,7 +122,7 @@ namespace jmpr
         {
             renderGame();
             if (_debug)
-                renderPallets();//renderTiles();
+                renderTiles();
 
             SDL_UpdateTexture(_texture, nullptr, _surface->pixels, _surface->pitch);
             SDL_RenderClear(_renderer);
@@ -160,6 +160,8 @@ namespace jmpr
                     u16 green = (color & 0b1111100000) >> 5;
                     u16 blue = (color & 0b111110000000000) >> 10;
                     SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
+                    // SDL_SetRenderDrawColor(_renderer, red, green, blue, 1);
+                    // SDL_RenderFillRect(_renderer, &rect);
                 }
                 rect.x += _scale;
             }
