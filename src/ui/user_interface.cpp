@@ -95,11 +95,11 @@ namespace jmpr
 
 		if (palletsFile.is_open())
 		{
-			std::vector<std::array<u32, 4>> pallets = _game_window.getPallets();
+			std::vector<std::array<u16, 4>> pallets = _game_window.getPallets();
 			for (u8 i = 2; i < pallets.size(); i++)
 			{
 				palletsFile << "{\n";
-				std::array<u32, 4> pallet = pallets[i];
+				std::array<u16, 4> pallet = pallets[i];
 				for (u8 j = 0; j < pallet.size(); j++)
 				{
 					palletsFile << std::hex << pallet[j] << "\n";
@@ -167,11 +167,6 @@ namespace jmpr
 		}
 
 		// pallets
-		_game_window.addPallet({0xFF0FBC9B,
-								0xFF0FAC8B,
-								0xFF306230,
-								0xFF0F380F});
-
 		_game_window.addPallet({0xFFFF,
 								0x3DEF,
 								0x1CE7,
@@ -181,7 +176,7 @@ namespace jmpr
 		if (palletsFile.is_open())
 		{
 			std::string line;
-			std::array<u32, 4> pallet;
+			std::array<u16, 4> pallet;
 			u8 i = 0;
 			while (std::getline(palletsFile, line))
 			{

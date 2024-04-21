@@ -232,12 +232,14 @@ namespace jmpr
 
             if (ImGui::Button("Confirm"))
             {
-                std::array<u32, 4> pallet;
+                std::array<u16, 4> pallet;
                 for (u8 i = 0; i < 4; i++)
                 {
-                    pallet[i] = (static_cast<u32>(_controls.colors[3 * i] * 255.0f)) |
-                                ((static_cast<u32>(_controls.colors[3 * i + 1] * 255.0f) << 8)) |
-                                ((static_cast<u32>(_controls.colors[3 * i + 2] * 255.0f) << 16)) | 0xFF000000;
+                    pallet[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
+                                ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
+                                ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
+
+                    std::cout << (int)pallet[i] << std::endl;
                 }
 
                 _game_window.addPallet(pallet);

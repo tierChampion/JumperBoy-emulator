@@ -24,7 +24,7 @@ namespace jmpr
         bool _debug;
         u8 _bank;
 
-        std::vector<std::array<u32, 4>> _pallets;
+        std::vector<std::array<u16, 4>> _pallets;
         u8 _pallet_id;
 
         u8 _scale;
@@ -38,8 +38,8 @@ namespace jmpr
         void open();
         void close();
 
-        void addPallet(const std::array<u32, 4> &pallet);
-        std::vector<std::array<u32, 4>> getPallets() const;
+        void addPallet(const std::array<u16, 4> &pallet);
+        std::vector<std::array<u16, 4>> getPallets() const;
         u8 getPalletsSize() const;
 
         void setUsedPallet(u8 palletId);
