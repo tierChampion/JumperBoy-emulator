@@ -54,12 +54,20 @@ namespace jmpr {
 		void write(u16 address, u8 data) override;
 	};
 
+	enum class RamRtcMode {
+		RAM,
+		RTC,
+		NONE
+	};
+
 	class MBC3 : public MBC {
 
 		u8 _ram_timer_enabled;
 		u8 _rom_bank_num;
-		u8 _ram_bank_num;
+		u8 _ram_rtc_select;
 		u8 _latch_clk_data;
+
+		RamRtcMode _mode;
 
 		u8 _clk_registers[5];
 
