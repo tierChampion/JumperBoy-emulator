@@ -16,7 +16,7 @@ namespace jmpr
 		_bus = nullptr;
 		_it_handler = InterruptHandler(this);
 
-		reboot();
+		// reboot();
 	}
 
 	/**

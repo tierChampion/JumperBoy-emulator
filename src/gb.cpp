@@ -7,11 +7,12 @@ namespace jmpr
 
 	GameBoy *GameBoy::getInstance()
 	{
-		std::cout << "ayo" << std::endl;
 		static GameBoy instance;
 		return &instance;
 	}
 
+	// TODO recursive construction (reboot of the cpu calls getInstance)
+	// 			aka, remove all getInstance in the functions called here
 	GameBoy::GameBoy() : _bus(),
 						 _cpu(),
 						 _apu(),
@@ -39,6 +40,7 @@ namespace jmpr
 		_running = false;
 		_ticks = 0;
 
+		reboot();
 		connectComponents();
 
 		std::thread cpuThread([this]()
