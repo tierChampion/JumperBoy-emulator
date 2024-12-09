@@ -59,7 +59,7 @@ namespace jmpr
 
     void GameWindow::close()
     {
-        GameBoy::pause();
+        GameBoy::getInstance()->pause();
         _opened = false;
         SDL_HideWindow(_window);
     }
@@ -150,7 +150,7 @@ namespace jmpr
             {
                 u16 color = _ppu->readBuffer(y * X_RESOLUTION + x);
 
-                if (!GameBoy::isCGB())
+                if (!GameBoy::getInstance()->isCGB())
                 {
                     SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
                 }

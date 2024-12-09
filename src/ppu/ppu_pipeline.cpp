@@ -26,8 +26,8 @@ namespace jmpr {
 
 				_curr_frame++;
 				_frame_ready = true;
-				GameBoy::requestSaveHandling();
-				if (GameBoy::isCapped()) manageFrameTiming();
+				GameBoy::getInstance()->requestSaveHandling();
+				if (GameBoy::getInstance()->isCapped()) manageFrameTiming();
 			}
 			else {
 
@@ -40,14 +40,15 @@ namespace jmpr {
 
 	void PPU::manageFrameTiming() {
 
-		u32 frameEnd = GameBoy::getCurrentTime();
+// TODO
+		u32 frameEnd = GameBoy::getInstance()->getCurrentTime();
 		u32 frameLength = frameEnd - _last_frame_time;
 
-		if (frameLength < (1000.0f / GameBoy::getDesiredFPS())) {
-			GameBoy::delay((1000.0f / GameBoy::getDesiredFPS()) - frameLength);
+		if (frameLength < GameBoy::getInstance()->getDesiredFrameLength()) {
+			GameBoy::getInstance()->delay(GameBoy::getInstance()->getDesiredFrameLength() - frameLength);
 		}
 
-		_last_frame_time = GameBoy::getCurrentTime();
+		_last_frame_time = GameBoy::getInstance()->getCurrentTime();
 	}
 
 	void PPU::VBlankProcess() {

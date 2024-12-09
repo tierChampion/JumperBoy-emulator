@@ -21,64 +21,69 @@ namespace jmpr
 	class GameBoy
 	{
 		// Internal Components
-		static Bus _bus;
-		static CPU _cpu;
-		static PPU _ppu;
-		static APU _apu;
-		static Cartridge _cart;
-		static Joypad _joypad;
-		static Timer _timer;
-		static RAM _ram;
-		static ObjectDMA _odma;
-		static VideoDMA _vdma;
-		static IO _io;
-		static InterruptHandler _it_handler;
+		Bus _bus;
+		CPU _cpu;
+		PPU _ppu;
+		APU _apu;
+		Cartridge _cart;
+		Joypad _joypad;
+		Timer _timer;
+		RAM _ram;
+		ObjectDMA _odma;
+		VideoDMA _vdma;
+		IO _io;
+		InterruptHandler _it_handler;
 
-		static Debugger _dbg;
+		Debugger _dbg;
 
 		// Interactive Components
-		static UI _ui;
+		UI _ui;
 
 		// States
-		static bool _running;
-		static u64 _ticks;
-		static bool _cgb_mode;
-		static float _fps;
-		static bool _capped;
+		bool _running;
+		u64 _ticks;
+		bool _cgb_mode;
+		float _fps;
+		bool _capped;
 
 	public:
-		static int runGameBoy();
+		static GameBoy* getInstance();
+		int runGameBoy();
 
-		static void connectComponents();
-		static void reboot();
+		void connectComponents();
+		void reboot();
 
-		static void cpuLoop();
-		static void uiLoop();
+		void cpuLoop();
+		void uiLoop();
 
-		static bool insertCartridge(const std::string &rom_file);
-		static void setVolume(float volume);
-		static void toggleAudioChannel(u8 id);
+		bool insertCartridge(const std::string &rom_file);
+		void setVolume(float volume);
+		void toggleAudioChannel(u8 id);
 
-		static void pressButton(u8 button);
-		static void releaseButton(u8 button);
+		void pressButton(u8 button);
+		void releaseButton(u8 button);
 
-		static void cycle(u8 m_cycles);
+		void cycle(u8 m_cycles);
 
-		static void pause() { _running = false; }
-		static void resume() { _running = true; }
-		static bool isRunning() { return _running; }
+		void pause() { _running = false; }
+		void resume() { _running = true; }
+		bool isRunning() { return _running; }
 
-		static bool isCGB() { return _cgb_mode; }
+		bool isCGB() { return _cgb_mode; }
 
-		static float getDesiredFPS() { return _fps; }
-		static void setDesiredFPS(float newFps) { _fps = newFps; }
-		static bool isCapped() { return _capped; }
-		static void setCapped(bool newCapped) { _capped = newCapped; }
+		float getDesiredFPS() { return _fps; }
+		float getDesiredFrameLength();
+		void setDesiredFPS(float newFps) { _fps = newFps; }
+		bool isCapped() { return _capped; }
+		void setCapped(bool newCapped) { _capped = newCapped; }
 
-		static void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
+		void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
 
-		static u32 getCurrentTime() { return SDL_GetTicks(); }
+		u32 getCurrentTime() { return SDL_GetTicks(); }
 
-		static void requestSaveHandling() { _cart.handleSaves(); }
+		void requestSaveHandling() { _cart.handleSaves(); }
+
+	private:
+		GameBoy();
 	};
 }

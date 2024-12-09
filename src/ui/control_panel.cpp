@@ -113,7 +113,7 @@ namespace jmpr
     {
         if (ImGui::Button("Reboot"))
         {
-            GameBoy::reboot();
+            GameBoy::getInstance()->reboot();
         }
         if (ImGui::Checkbox("Show tiles", &_controls.tiles))
         {
@@ -122,25 +122,25 @@ namespace jmpr
         }
         if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f, "%.2f"))
         {
-            GameBoy::setVolume(_controls.vol);
+            GameBoy::getInstance()->setVolume(_controls.vol);
         }
         if (ImGui::BeginMenu("Audio channels"))
         {
             if (ImGui::Checkbox("Channel 1", &_controls.channel1))
             {
-                GameBoy::toggleAudioChannel(0);
+                GameBoy::getInstance()->toggleAudioChannel(0);
             }
             if (ImGui::Checkbox("Channel 2", &_controls.channel2))
             {
-                GameBoy::toggleAudioChannel(1);
+                GameBoy::getInstance()->toggleAudioChannel(1);
             }
             if (ImGui::Checkbox("Channel 3", &_controls.channel3))
             {
-                GameBoy::toggleAudioChannel(2);
+                GameBoy::getInstance()->toggleAudioChannel(2);
             }
             if (ImGui::Checkbox("Channel 4", &_controls.channel4))
             {
-                GameBoy::toggleAudioChannel(3);
+                GameBoy::getInstance()->toggleAudioChannel(3);
             }
             ImGui::EndMenu();
         }
@@ -177,11 +177,11 @@ namespace jmpr
         }
         if (ImGui::SliderFloat("FPS", &_controls.fps, 1.0f, 150.0f, "%.1f"))
         {
-            GameBoy::setDesiredFPS(_controls.fps);
+            GameBoy::getInstance()->setDesiredFPS(_controls.fps);
         }
         if (ImGui::Checkbox("Capped FPS", &_controls.capped))
         {
-            GameBoy::setCapped(_controls.capped);
+            GameBoy::getInstance()->setCapped(_controls.capped);
         }
     }
 
@@ -275,11 +275,11 @@ namespace jmpr
 
         _recents.push_back(romPath);
 
-        bool valid = GameBoy::insertCartridge(romPath);
+        bool valid = GameBoy::getInstance()->insertCartridge(romPath);
         if (valid)
         {
             _game_window.open();
-            GameBoy::resume();
+            GameBoy::getInstance()->resume();
         }
     }
 }

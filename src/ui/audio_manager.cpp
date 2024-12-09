@@ -39,7 +39,7 @@ namespace jmpr
 
     void AudioManager::audioCallback(float *stream, int len)
     {
-        if (GameBoy::isRunning())
+        if (GameBoy::getInstance()->isRunning())
         {
             const float* buffer = _apu->getSamples();
 

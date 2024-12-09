@@ -30,6 +30,7 @@ namespace jmpr
         u8 _scale;
 
     public:
+        GameWindow() {}
         GameWindow(PPU *ppu);
         void cleanup();
 

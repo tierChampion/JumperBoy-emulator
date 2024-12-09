@@ -26,7 +26,7 @@ namespace jmpr
 	{
 
 		// Initial DMG register values. See TCAGBD.pdf for more info.
-		if (!GameBoy::isCGB())
+		if (!GameBoy::getInstance()->isCGB())
 		{
 			_registers._A = 0x11;
 			_registers._F = 0xB0;
@@ -72,7 +72,7 @@ namespace jmpr
 	{
 
 		_curr_opcode = _bus->read(_PC);
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 
 		// Halt bug, fails to increment PC
 		if (!_it_handler.haltBugged(_PC))
@@ -108,7 +108,7 @@ namespace jmpr
 		}
 		else if (!_stopped)
 		{
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
 
 		return true;

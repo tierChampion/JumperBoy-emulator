@@ -4,27 +4,35 @@
 
 namespace jmpr
 {
-	Bus GameBoy::_bus = Bus();
-	CPU GameBoy::_cpu = CPU();
-	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
-	APU GameBoy::_apu = APU();
-	Cartridge GameBoy::_cart = Cartridge();
-	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
-	Timer GameBoy::_timer = Timer(&_apu, _cpu.getInterruptHandler());
-	RAM GameBoy::_ram = RAM();
-	ObjectDMA GameBoy::_odma = ObjectDMA(_ppu.getOAM());
-	VideoDMA GameBoy::_vdma = VideoDMA(_ppu.getVRAM());
-	IO GameBoy::_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_odma, &_vdma);
 
-	Debugger GameBoy::_dbg = Debugger(&_bus, true);
+	GameBoy *GameBoy::getInstance()
+	{
+		std::cout << "ayo" << std::endl;
+		static GameBoy instance;
+		return &instance;
+	}
 
-	UI GameBoy::_ui = UI(&_ppu, &_apu);
+	GameBoy::GameBoy() : _bus(),
+						 _cpu(),
+						 _apu(),
+						 _cart(),
+						 _ram()
+	{
+		_ppu = PPU(_cpu.getInterruptHandler());
+		_joypad = Joypad(_cpu.getInterruptHandler());
+		_timer = Timer(&_apu, _cpu.getInterruptHandler());
+		_odma = ObjectDMA(_ppu.getOAM());
+		_vdma = VideoDMA(_ppu.getVRAM());
+		_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_odma, &_vdma);
+		_dbg = Debugger(&_bus, true);
+		_ui = UI(&_ppu, &_apu);
 
-	bool GameBoy::_running = false;
-	u64 GameBoy::_ticks = 0;
-	bool GameBoy::_cgb_mode = false;
-	float GameBoy::_fps = 59.7f;
-	bool GameBoy::_capped = true;
+		_running = false;
+		_ticks = 0;
+		_cgb_mode = false;
+		_fps = 59.7f;
+		_capped = true;
+	}
 
 	int GameBoy::runGameBoy()
 	{
@@ -33,7 +41,8 @@ namespace jmpr
 
 		connectComponents();
 
-		std::thread cpuThread(&cpuLoop);
+		std::thread cpuThread([this]()
+							  { cpuLoop(); });
 
 		cpuThread.detach();
 
@@ -131,6 +140,11 @@ namespace jmpr
 	void GameBoy::releaseButton(u8 button)
 	{
 		_joypad.releaseInput(button);
+	}
+
+	float GameBoy::getDesiredFrameLength()
+	{
+		return 1000.0f / GameBoy::getDesiredFPS();
 	}
 
 	/**

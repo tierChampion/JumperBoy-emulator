@@ -61,6 +61,7 @@ namespace jmpr
 		u8 _input_preset;
 
 	public:
+		UI() {}
 		UI(PPU *ppu, APU* apu);
 		void cleanup();
 

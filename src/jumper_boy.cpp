@@ -2,5 +2,6 @@
 
 int main(int argc, char* args[])
 {
-	return jmpr::GameBoy::runGameBoy();
+	std::cout << "ayo" << std::endl;
+	return jmpr::GameBoy::getInstance()->runGameBoy();
 }

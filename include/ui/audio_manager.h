@@ -10,6 +10,7 @@ namespace jmpr
         SDL_AudioDeviceID _audio_id;
 
     public:
+        AudioManager() {}
         AudioManager(APU *apu);
 
         void mute();
