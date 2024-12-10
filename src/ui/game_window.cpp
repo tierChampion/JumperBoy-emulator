@@ -160,8 +160,6 @@ namespace jmpr
                     u16 green = (color & 0b1111100000) >> 5;
                     u16 blue = (color & 0b111110000000000) >> 10;
                     SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
-                    // SDL_SetRenderDrawColor(_renderer, red, green, blue, 1);
-                    // SDL_RenderFillRect(_renderer, &rect);
                 }
                 rect.x += _scale;
             }

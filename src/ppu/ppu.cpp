@@ -12,9 +12,9 @@ namespace jmpr
 
 		_vbuffer = std::shared_ptr<u16>(new u16[X_RESOLUTION * Y_RESOLUTION]);
 
-		_lcd = LCD(intHandler);
+		_lcd = std::make_shared<LCD>(intHandler);
 
-		_pt_handler = PixelTransferHandler(&_lcd, &_vram, _cram);
+		_pt_handler = PixelTransferHandler(_lcd, &_vram, _cram);
 
 		_it_handler = intHandler;
 
@@ -23,12 +23,12 @@ namespace jmpr
 		_last_frame_time = 0;
 		_frame_ready = false;
 
-		_lcd.setMode(LCDMode::OAM_SCAN);
+		_lcd->setMode(LCDMode::OAM_SCAN);
 	}
 
 	void PPU::reboot()
 	{
-		_lcd.reboot();
+		_lcd->reboot();
 
 		_line_dots = 0;
 		_curr_frame = 0;
@@ -37,13 +37,12 @@ namespace jmpr
 
 		_pt_handler.reboot();
 
-		_lcd.setMode(LCDMode::OAM_SCAN);
+		_lcd->setMode(LCDMode::OAM_SCAN);
 	}
 
 	void PPU::update()
 	{
-
-		switch (_lcd.mode())
+		switch (_lcd->mode())
 		{
 		case LCDMode::HBLANK:
 			HBlankProcess();
@@ -74,7 +73,6 @@ namespace jmpr
 
 	u16 PPU::readBuffer(u32 index)
 	{
-
 		return _vbuffer.get()[index];
 	}
 }

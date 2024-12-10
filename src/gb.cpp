@@ -11,8 +11,6 @@ namespace jmpr
 		return &instance;
 	}
 
-	// TODO recursive construction (reboot of the cpu calls getInstance)
-	// 			aka, remove all getInstance in the functions called here
 	GameBoy::GameBoy() : _bus(),
 						 _cpu(),
 						 _apu(),

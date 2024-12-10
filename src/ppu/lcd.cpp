@@ -10,7 +10,6 @@ namespace jmpr
 	LCD::LCD(InterruptHandler *intHandler)
 	{
 		_it_handler = intHandler;
-
 		reboot();
 	}
 

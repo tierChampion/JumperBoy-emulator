@@ -9,7 +9,7 @@
 namespace jmpr
 {
 
-	PixelTransferHandler::PixelTransferHandler(LCD *lcd, VRAM *vram, CRAM *crams)
+	PixelTransferHandler::PixelTransferHandler(std::shared_ptr<LCD> lcd, VRAM *vram, CRAM *crams)
 	{
 		_lcd = lcd;
 		_vram = vram;
@@ -54,7 +54,6 @@ namespace jmpr
 
 	void PixelTransferHandler::prepareForTransfer()
 	{
-
 		_phase = FifoPhase::GET_TILE;
 		_lx = 0;
 		_pushed_x = 0;
@@ -74,14 +73,12 @@ namespace jmpr
 
 	void PixelTransferHandler::resetFifo()
 	{
-
 		_pixel_fifo = {};
 		_visible_sprites.clear();
 	}
 
 	void PixelTransferHandler::resetWindow()
 	{
-
 		_window_y = 0;
 	}
 
@@ -331,7 +328,6 @@ namespace jmpr
 			u8 lo = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 0);
 			u8 hi = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 1);
 			return lo | (hi << 8);
-			
 		}
 	}
 
@@ -395,23 +391,26 @@ namespace jmpr
 		for (u8 i = 0; i < 8; i++)
 		{
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
-			if (GameBoy::getInstance()->getInstance()->isCGB() && bit(_bgw_fetch.attributes, 5) == 1)
+			if (GameBoy::getInstance()->isCGB() && bit(_bgw_fetch.attributes, 5) == 1)
 			{
 				colorIndex = (bit(_bgw_fetch.hi, i) << 1) | (bit(_bgw_fetch.lo, i));
 			}
 
 			// lcd isnt used anymore (unless for compatibility) so use the actual cram data
 			u16 pixel = windowColorFetch(colorIndex);
-
 			// Adapt the color for sprites, window, etc.
 
 			if (!_lcd->lcdEnabled())
+			{
 				pixel = _lcd->getBGWindowColor(0);
+			}
 
-			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->getInstance()->isCGB();
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
+			{
 				pixel = spriteColorFetch(pixel, colorIndex);
+			}
 
 			_pixel_fifo.push(pixel);
 			_fifo_x++;
@@ -436,7 +435,6 @@ namespace jmpr
 			// Only render if pixel is visible with the scroll
 			if (_lx >= getCurrentScroll())
 			{
-
 				vbuffer.get()[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
 
 				_pushed_x++;

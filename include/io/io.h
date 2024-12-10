@@ -18,7 +18,7 @@ namespace jmpr {
 		u8 _serial_trans[2]; //
 		Timer* _timer;
 		APU* _apu;
-		LCD* _lcd;
+		std::shared_ptr<LCD> _lcd;
 		ObjectDMA* _odma;
 		VideoDMA* _vdma;
 		u8 _vram_select; // cgb
@@ -30,7 +30,7 @@ namespace jmpr {
 	public:
 
 		IO() {}
-		IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, ObjectDMA* odma, VideoDMA* vdma);
+		IO(Joypad* pad, Timer* tim, APU* apu, std::shared_ptr<LCD> lcd, ObjectDMA* odma, VideoDMA* vdma);
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);

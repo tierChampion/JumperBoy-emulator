@@ -24,7 +24,7 @@ namespace jmpr {
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, ObjectDMA* odma, VideoDMA* vdma) :
+	IO::IO(Joypad* pad, Timer* tim, APU* apu, std::shared_ptr<LCD> lcd, ObjectDMA* odma, VideoDMA* vdma) :
 		_serial_trans{ 0x00, 0x7E },
 		_vram_dma{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
 		_bg_obj_pallets{ 0xFF, 0xFF }

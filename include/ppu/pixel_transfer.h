@@ -33,7 +33,7 @@ namespace jmpr {
 
 	class PixelTransferHandler {
 
-		LCD* _lcd;
+		std::shared_ptr<LCD> _lcd;
 		VRAM* _vram;
 		CRAM* _crams;
 
@@ -61,7 +61,7 @@ namespace jmpr {
 	public:
 
 		PixelTransferHandler() {}
-		PixelTransferHandler(LCD* lcd, VRAM* vram, CRAM* crams);
+		PixelTransferHandler(std::shared_ptr<LCD> lcd, VRAM* vram, CRAM* crams);
 
 		void reboot();
 

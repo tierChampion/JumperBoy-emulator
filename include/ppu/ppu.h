@@ -18,7 +18,7 @@ namespace jmpr
 
 		// Main components
 		std::shared_ptr<u16> _vbuffer;
-		LCD _lcd;
+		std::shared_ptr<LCD> _lcd;
 		VRAM _vram;
 		OAM _oam;
 		CRAM _cram[2];
@@ -44,7 +44,7 @@ namespace jmpr
 
 		void reboot();
 
-		LCD *getLCD() { return &_lcd; }
+		std::shared_ptr<LCD> getLCD() { return _lcd; }
 		VRAM *getVRAM() { return &_vram; }
 		OAM *getOAM() { return &_oam; }
 		CRAM *getCRAM(u8 id) { return &_cram[id]; }
