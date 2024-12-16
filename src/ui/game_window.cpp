@@ -9,7 +9,7 @@ namespace jmpr
 {
     const u8 DEFAULT_SCALE = 4;
 
-    GameWindow::GameWindow(std::shared_ptr<PPU> ppu) : _ppu(ppu), _opened(false),
+    GameWindow::GameWindow(PPU* ppu) : _ppu(ppu), _opened(false),
                                        _debug(false),
                                        _bank(0),
                                        _pallet_id(0),

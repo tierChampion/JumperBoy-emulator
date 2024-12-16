@@ -1,5 +1,7 @@
 #include <cartridge/mbc.h>
 
+#include <cmath>
+
 namespace jmpr
 {
 	// MBC 1
@@ -40,7 +42,9 @@ namespace jmpr
 
 		else if (between(address, 0x4000, 0x7FFF))
 		{
-			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num;
+			u8 romMaskSize = static_cast<u8>(std::log2(_rom_banks.size() - 1)) + 1;
+			u8 romMask = (1 << romMaskSize) - 1;
+			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num & romMask;
 			return _rom_banks[bankId].get()[address - 0x4000];
 		}
 
@@ -93,7 +97,6 @@ namespace jmpr
 
 	MBC3::MBC3(u8 *romData, u32 romSize, u32 ramSize, bool hasBattery, bool hasTimer) : MBC(ramSize > 0, hasBattery)
 	{
-
 		_has_timer = hasTimer;
 
 		_rom_bank_num = 1;
@@ -166,7 +169,6 @@ namespace jmpr
 			_rom_bank_num = (data & 0x7F);
 			if (_rom_bank_num == 0)
 			{
-				std::cout << int(_rom_bank_num) << std::endl;
 				_rom_bank_num = 1;
 			}
 		}
@@ -181,7 +183,8 @@ namespace jmpr
 			{
 				_mode = RamRtcMode::RTC;
 			}
-			else {
+			else
+			{
 				_mode = RamRtcMode::NONE;
 			}
 		}

@@ -53,6 +53,7 @@ namespace jmpr
         _file_browser = ImGui::FileBrowser();
         _file_browser.SetTitle("Search for ROM");
         _file_browser.SetTypeFilters({".gb", ".gbc"});
+        _file_browser.SetPwd(DIRECTORY_PATH);
 
         _file_browser.Open();
         _controls.browser = true;

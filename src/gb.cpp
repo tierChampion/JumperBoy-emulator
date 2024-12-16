@@ -13,18 +13,18 @@ namespace jmpr
 
 	GameBoy::GameBoy() : _bus(),
 						 _cpu(),
-						 _apu(),
 						 _cart(),
 						 _ram()
 	{
-		_ppu = std::make_shared<PPU>(_cpu.getInterruptHandler());
+		_apu = std::make_unique<APU>();
+		_ppu = std::make_unique<PPU>(_cpu.getInterruptHandler());
 		_joypad = Joypad(_cpu.getInterruptHandler());
-		_timer = Timer(&_apu, _cpu.getInterruptHandler());
+		_timer = Timer(_apu.get(), _cpu.getInterruptHandler());
 		_odma = ObjectDMA(_ppu->getOAM());
 		_vdma = VideoDMA(_ppu->getVRAM());
-		_io = IO(&_joypad, &_timer, &_apu, _ppu->getLCD(), &_odma, &_vdma);
+		_io = IO(&_joypad, &_timer, _apu.get(), _ppu->getLCD(), &_odma, &_vdma);
 		_dbg = Debugger(&_bus, true);
-		_ui = UI(_ppu, &_apu);
+		_ui = UI(_ppu.get(), _apu.get());
 
 		_running = false;
 		_ticks = 0;
@@ -57,7 +57,7 @@ namespace jmpr
 	{
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
-		_bus.connectPPU(_ppu);
+		_bus.connectPPU(_ppu.get());
 		_bus.connectIO(&_io);
 
 		_cpu.connectBus(&_bus);
@@ -71,7 +71,7 @@ namespace jmpr
 	{
 		_cpu.reboot();
 		_ppu->reboot();
-		_apu.reboot();
+		_apu->reboot();
 		_joypad.reboot();
 		_timer.reboot();
 		_odma.reboot();
@@ -124,12 +124,12 @@ namespace jmpr
 
 	void GameBoy::setVolume(float volume)
 	{
-		_apu.setVolume(volume);
+		_apu->setVolume(volume);
 	}
 
 	void GameBoy::toggleAudioChannel(u8 id)
 	{
-		_apu.toggleChannel(id);
+		_apu->toggleChannel(id);
 	}
 
 	void GameBoy::pressButton(u8 button)
@@ -159,7 +159,7 @@ namespace jmpr
 			{
 				_timer.update();
 				_ppu->update();
-				_apu.update();
+				_apu->update();
 
 				_ticks++;
 			}

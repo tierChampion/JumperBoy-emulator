@@ -18,7 +18,7 @@ namespace jmpr
         SDL_Texture *_texture;
         SDL_Surface *_surface;
 
-        std::shared_ptr<PPU> _ppu;
+        PPU* _ppu;
 
         bool _opened;
         bool _debug;
@@ -31,7 +31,7 @@ namespace jmpr
 
     public:
         GameWindow() {}
-        GameWindow(std::shared_ptr<PPU> ppu);
+        GameWindow(PPU* ppu);
         void cleanup();
 
         void render();

@@ -7,7 +7,7 @@
 
 namespace jmpr
 {
-	UI::UI(std::shared_ptr<PPU> ppu, APU *apu)
+	UI::UI(PPU* ppu, APU *apu)
 		: _opened(true),
 		  _game_window(ppu),
 		  _audio_manager(apu),

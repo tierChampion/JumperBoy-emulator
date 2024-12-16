@@ -23,8 +23,8 @@ namespace jmpr
 		// Internal Components
 		Bus _bus;
 		CPU _cpu;
-		std::shared_ptr<PPU> _ppu;
-		APU _apu;
+		std::unique_ptr<PPU> _ppu;
+		std::unique_ptr<APU> _apu;
 		Cartridge _cart;
 		Joypad _joypad;
 		Timer _timer;
@@ -47,7 +47,7 @@ namespace jmpr
 		bool _capped;
 
 	public:
-		static GameBoy* getInstance();
+		static GameBoy *getInstance();
 		int runGameBoy();
 
 		void connectComponents();
