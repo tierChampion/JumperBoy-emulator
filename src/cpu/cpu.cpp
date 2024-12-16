@@ -8,7 +8,7 @@
 
 namespace jmpr
 {
-	// #define LOGGING
+	#define LOGGING
 
 	CPU::CPU()
 	{
@@ -108,6 +108,8 @@ namespace jmpr
 		else if (!_stopped)
 		{
 			GameBoy::getInstance()->cycle(1);
+		} else {
+			// speed switch
 		}
 
 		return true;

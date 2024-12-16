@@ -15,7 +15,7 @@ namespace jmpr {
 	class IO {
 
 		Joypad* _joypad;
-		u8 _serial_trans[2]; //
+		u8 _serial_trans[2]; // cgb?
 		Timer* _timer;
 		APU* _apu;
 		std::shared_ptr<LCD> _lcd;

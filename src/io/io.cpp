@@ -39,7 +39,7 @@ namespace jmpr
 		_vram_select = 0xFF;
 		_disable_bootrom = 0xFF;
 		_wram_select = 0xFF;
-		_key_1 = 0xFF;
+		_key_1 = 0x00;
 	}
 
 	u8 IO::read(u16 address) const
@@ -140,6 +140,7 @@ namespace jmpr
 		else if (range == 0x4D)
 		{
 			_key_1 = data;
+			std::cout << "trying to arm the speed mode " << (data & 1) << std::endl;
 		}
 		else if (range == 0x50)
 		{

@@ -226,6 +226,7 @@ namespace jmpr
 	 */
 	void CPU::STOP()
 	{
+		std::cout << "stopped! " << GameBoy::getInstance()->isCGB() << std::endl;
 		_stopped = true;
 	}
 
