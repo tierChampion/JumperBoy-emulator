@@ -26,6 +26,7 @@ namespace jmpr {
 		u8 _vram_dma[5]; // cgb
 		u8 _bg_obj_pallets[2]; // cgb
 		u8 _wram_select; // cgb
+		u8 _key_1; // cgb
 
 	public:
 

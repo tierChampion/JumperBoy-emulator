@@ -92,7 +92,6 @@ namespace jmpr
 
 		if (!_halted && !_vdma->inProcess() && !_stopped)
 		{
-
 			u16 programCounter = _PC;
 
 			fetchOpcode();
