@@ -8,7 +8,7 @@
 
 namespace jmpr
 {
-	#define LOGGING
+	// #define LOGGING
 
 	CPU::CPU()
 	{

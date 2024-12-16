@@ -21,6 +21,8 @@ namespace jmpr {
 		std::shared_ptr<LCD> _lcd;
 		ObjectDMA* _odma;
 		VideoDMA* _vdma;
+		// TODO add a new class / datastructure to hold these registers
+		// 		because they need to be accessed by the cpu for A. cycling and B. changing the stop
 		u8 _vram_select; // cgb
 		u8 _disable_bootrom;
 		u8 _vram_dma[5]; // cgb
