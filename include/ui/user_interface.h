@@ -62,7 +62,7 @@ namespace jmpr
 
 	public:
 		UI() {}
-		UI(PPU *ppu, APU* apu);
+		UI(std::shared_ptr<PPU> ppu, APU* apu);
 		void cleanup();
 
 		bool isOpened() { return _opened; }

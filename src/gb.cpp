@@ -17,14 +17,14 @@ namespace jmpr
 						 _cart(),
 						 _ram()
 	{
-		_ppu = PPU(_cpu.getInterruptHandler());
+		_ppu = std::make_shared<PPU>(_cpu.getInterruptHandler());
 		_joypad = Joypad(_cpu.getInterruptHandler());
 		_timer = Timer(&_apu, _cpu.getInterruptHandler());
-		_odma = ObjectDMA(_ppu.getOAM());
-		_vdma = VideoDMA(_ppu.getVRAM());
-		_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_odma, &_vdma);
+		_odma = ObjectDMA(_ppu->getOAM());
+		_vdma = VideoDMA(_ppu->getVRAM());
+		_io = IO(&_joypad, &_timer, &_apu, _ppu->getLCD(), &_odma, &_vdma);
 		_dbg = Debugger(&_bus, true);
-		_ui = UI(&_ppu, &_apu);
+		_ui = UI(_ppu, &_apu);
 
 		_running = false;
 		_ticks = 0;
@@ -57,12 +57,12 @@ namespace jmpr
 	{
 		_bus.connectCPU(&_cpu);
 		_bus.connectRAM(&_ram);
-		_bus.connectPPU(&_ppu);
+		_bus.connectPPU(_ppu);
 		_bus.connectIO(&_io);
 
 		_cpu.connectBus(&_bus);
 		_cpu.connectVideoDMA(&_vdma);
-		_ppu.connectVideoDMA(&_vdma);
+		_ppu->connectVideoDMA(&_vdma);
 		_odma.connectBus(&_bus);
 		_vdma.connectBus(&_bus);
 	}
@@ -70,7 +70,7 @@ namespace jmpr
 	void GameBoy::reboot()
 	{
 		_cpu.reboot();
-		_ppu.reboot();
+		_ppu->reboot();
 		_apu.reboot();
 		_joypad.reboot();
 		_timer.reboot();
@@ -158,7 +158,7 @@ namespace jmpr
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
 				_timer.update();
-				_ppu.update();
+				_ppu->update();
 				_apu.update();
 
 				_ticks++;

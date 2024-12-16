@@ -23,7 +23,7 @@ namespace jmpr
 		// Internal Components
 		Bus _bus;
 		CPU _cpu;
-		PPU _ppu;
+		std::shared_ptr<PPU> _ppu;
 		APU _apu;
 		Cartridge _cart;
 		Joypad _joypad;
