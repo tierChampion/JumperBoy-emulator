@@ -9,7 +9,7 @@ namespace jmpr
 {
     const u8 DEFAULT_SCALE = 4;
 
-    GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
+    GameWindow::GameWindow(PPU* ppu) : _ppu(ppu), _opened(false),
                                        _debug(false),
                                        _bank(0),
                                        _pallet_id(0),
@@ -59,7 +59,7 @@ namespace jmpr
 
     void GameWindow::close()
     {
-        GameBoy::pause();
+        GameBoy::getInstance()->pause();
         _opened = false;
         SDL_HideWindow(_window);
     }
@@ -150,7 +150,7 @@ namespace jmpr
             {
                 u16 color = _ppu->readBuffer(y * X_RESOLUTION + x);
 
-                if (!GameBoy::isCGB())
+                if (!GameBoy::getInstance()->isCGB())
                 {
                     SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
                 }
@@ -160,8 +160,6 @@ namespace jmpr
                     u16 green = (color & 0b1111100000) >> 5;
                     u16 blue = (color & 0b111110000000000) >> 10;
                     SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
-                    // SDL_SetRenderDrawColor(_renderer, red, green, blue, 1);
-                    // SDL_RenderFillRect(_renderer, &rect);
                 }
                 rect.x += _scale;
             }

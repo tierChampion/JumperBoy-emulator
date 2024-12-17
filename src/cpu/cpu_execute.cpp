@@ -2,12 +2,14 @@
 
 #include <gb.h>
 
-namespace jmpr {
+namespace jmpr
+{
 
 	/**
-	* Execute the current instruction.
-	*/
-	void CPU::execute() {
+	 * Execute the current instruction.
+	 */
+	void CPU::execute()
+	{
 
 		ProcessFunction process = _PROCESSES.at(_curr_instr->_type);
 
@@ -15,122 +17,141 @@ namespace jmpr {
 	}
 
 	/**
-	* Error operation. Stops the program.
-	*/
-	void CPU::XXX() {
+	 * Error operation. Stops the program.
+	 */
+	void CPU::XXX()
+	{
 
 		printf("Error: Unknown instruction trying to execute (%02X at %04X)\n", _curr_opcode, _PC);
 		exit(-3);
 	}
 
 	/**
-	* Perform no operation.
-	*/
+	 * Perform no operation.
+	 */
 	void CPU::NOP() {}
 
 	/**
-	* Load a value into a register.
-	*/
-	void CPU::LD() {
+	 * Load a value into a register.
+	 */
+	void CPU::LD()
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			// 16 bit registers need 2 writes
-			if (is16Bits(_curr_instr->_reg2)) {
+			if (is16Bits(_curr_instr->_reg2))
+			{
 
 				_bus->write(_mem_dest, loByte(_curr_fetch));
-				GameBoy::cycle(1);
+				GameBoy::getInstance()->cycle(1);
 				_bus->write(_mem_dest + 1, hiByte(_curr_fetch));
 			}
-			else {
+			else
+			{
 				_bus->write(_mem_dest, _curr_fetch);
 			}
 
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
-			if (_curr_instr->_mode == Mode::HL_SPR8) {
+			if (_curr_instr->_mode == Mode::HL_SPR8)
+			{
 
 				u8 half_carry = ((readRegister(_curr_instr->_reg2) & 0xF) >
-					(_curr_fetch & 0xF));
+								 (_curr_fetch & 0xF));
 
 				u8 full_carry = ((readRegister(_curr_instr->_reg2) & 0xFF) >
-					(_curr_fetch & 0xFF));
+								 (_curr_fetch & 0xFF));
 
 				setFlags(0, 0, half_carry, full_carry);
 			}
 
 			writeRegister(_curr_instr->_reg1, _curr_fetch);
 
-			if (is16Bits(_curr_instr->_reg1) && is16Bits(_curr_instr->_reg2)) {
-				GameBoy::cycle(1);
+			if (is16Bits(_curr_instr->_reg1) && is16Bits(_curr_instr->_reg2))
+			{
+				GameBoy::getInstance()->cycle(1);
 			}
 		}
 	}
 
 	/**
-	* Increment a register.
-	*/
-	void CPU::INC() {
+	 * Increment a register.
+	 */
+	void CPU::INC()
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			_bus->write(_mem_dest, _curr_fetch + 1);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			setFlags(loByte(_curr_fetch) == 0xFF, 0, loNibble(_curr_fetch) == 0xF, -1);
 			return;
 		}
-		else {
+		else
+		{
 			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) + 1);
 		}
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (is16 && !_dest_is_mem) {
-			GameBoy::cycle(1);
+		if (is16 && !_dest_is_mem)
+		{
+			GameBoy::getInstance()->cycle(1);
 		}
 
-		if (!is16) {
+		if (!is16)
+		{
 			setFlags(readRegister(_curr_instr->_reg1) == 0, 0,
-				(readRegister(_curr_instr->_reg1) & 0xF) == 0, -1);
+					 (readRegister(_curr_instr->_reg1) & 0xF) == 0, -1);
 		}
 	}
 
 	/**
-	* Decrement a register.
-	*/
-	void CPU::DEC() {
+	 * Decrement a register.
+	 */
+	void CPU::DEC()
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			_bus->write(_mem_dest, _curr_fetch - 1);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			setFlags(loByte(_curr_fetch) == 0x01, 1, loNibble(_curr_fetch) == 0x0, -1);
 			return;
 		}
-		else {
+		else
+		{
 			writeRegister(_curr_instr->_reg1, readRegister(_curr_instr->_reg1) - 1);
 		}
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (is16 && !_dest_is_mem) {
-			GameBoy::cycle(1);
+		if (is16 && !_dest_is_mem)
+		{
+			GameBoy::getInstance()->cycle(1);
 		}
 
-		if (!is16 || _dest_is_mem) {
+		if (!is16 || _dest_is_mem)
+		{
 			setFlags(readRegister(_curr_instr->_reg1) == 0, 1,
-				(readRegister(_curr_instr->_reg1) & 0xF) == 0xF, -1);
+					 (readRegister(_curr_instr->_reg1) & 0xF) == 0xF, -1);
 		}
 	}
 
 	/**
-	* Rotate the bits to the left.
-	*/
-	void CPU::RLCA() {
+	 * Rotate the bits to the left.
+	 */
+	void CPU::RLCA()
+	{
 
 		u8 c = bit(_registers._A, 7);
 		_registers._A = (_registers._A << 1) | c;
@@ -139,24 +160,28 @@ namespace jmpr {
 	}
 
 	/**
-	* Addition between two values.
-	*/
-	void CPU::ADD() {
+	 * Addition between two values.
+	 */
+	void CPU::ADD()
+	{
 
 		u32 val = readRegister(_curr_instr->_reg1) + _curr_fetch;
 
 		bool is16 = is16Bits(_curr_instr->_reg1);
 
-		if (_curr_instr->_reg1 == Register::HL) {
-			GameBoy::cycle(1);
+		if (_curr_instr->_reg1 == Register::HL)
+		{
+			GameBoy::getInstance()->cycle(1);
 		}
-		else if (_curr_instr->_reg1 == Register::SP) {
-			GameBoy::cycle(2);
+		else if (_curr_instr->_reg1 == Register::SP)
+		{
+			GameBoy::getInstance()->cycle(2);
 		}
 
 		bool toStackPointer = (_curr_instr->_reg1 == Register::SP);
 
-		if (toStackPointer) {
+		if (toStackPointer)
+		{
 			val = readRegister(_curr_instr->_reg1) + s8(_curr_fetch);
 		}
 
@@ -166,14 +191,17 @@ namespace jmpr {
 		u8 c = (readRegister(_curr_instr->_reg1) & 0xFF) + (_curr_fetch & 0xFF) >= 0x100;
 
 		// regular 16 bit flags
-		if (is16 && !toStackPointer) {
+		if (is16 && !toStackPointer)
+		{
 			z = -1;
 			h = (readRegister(_curr_instr->_reg1) & 0xFFF) + (_curr_fetch & 0xFFF) >= 0x1000;
 			c = (readRegister(_curr_instr->_reg1) & 0xFFFF) +
-				(_curr_fetch & 0xFFFF) >= 0x10000;
+					(_curr_fetch & 0xFFFF) >=
+				0x10000;
 		}
 		// special case
-		else if (toStackPointer) {
+		else if (toStackPointer)
+		{
 			z = 0;
 		}
 
@@ -182,9 +210,10 @@ namespace jmpr {
 	}
 
 	/**
-	* Rotate the bits right.
-	*/
-	void CPU::RRCA() {
+	 * Rotate the bits right.
+	 */
+	void CPU::RRCA()
+	{
 
 		u8 c = bit(_registers._A, 0);
 		_registers._A = (_registers._A >> 1) | (c << 7);
@@ -193,14 +222,21 @@ namespace jmpr {
 	}
 
 	/**
-	* Stop the cpu.
-	*/
-	void CPU::STOP() { _stopped = true; }
+	 * Stop the cpu.
+	 */
+	void CPU::STOP()
+	{
+		// TODO hard disabled the stop for now.
+		// 		This instruction is pretty much only used when switching speeds (which resumes after some time)
+		//		and the functionallity is not implemented. Simply hopping over is good enough and seems to be fine.
+		// _stopped = true;
+	}
 
 	/**
-	* Rotate the bits to the left. Add the carry at the LSB instead of the rotated bit.
-	*/
-	void CPU::RLA() {
+	 * Rotate the bits to the left. Add the carry at the LSB instead of the rotated bit.
+	 */
+	void CPU::RLA()
+	{
 
 		u8 c = carryFlag();
 
@@ -212,21 +248,24 @@ namespace jmpr {
 	}
 
 	/**
-	* Jump to a relative location.
-	*/
-	void CPU::JR() {
+	 * Jump to a relative location.
+	 */
+	void CPU::JR()
+	{
 
-		if (checkFlags(_curr_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond))
+		{
 			// check if it works
 			_PC += (s8)(_curr_fetch & 0xFF);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
 	}
 
 	/**
-	* Rotate the bits to the right. Add the carry at the MSB instead of the rotated bit.
-	*/
-	void CPU::RRA() {
+	 * Rotate the bits to the right. Add the carry at the MSB instead of the rotated bit.
+	 */
+	void CPU::RRA()
+	{
 
 		u8 c = carryFlag();
 
@@ -238,19 +277,22 @@ namespace jmpr {
 	}
 
 	/**
-	* Decimal addition adjust. Fix potential errors with BCD addition.
-	*/
-	void CPU::DAA() {
+	 * Decimal addition adjust. Fix potential errors with BCD addition.
+	 */
+	void CPU::DAA()
+	{
 
 		u8 correction = 0;
 		u8 full_carry = 0;
 
 		// Fix BCD decimal if there is a half carry or the value is not legal
-		if ((!negationFlag() && loNibble(_registers._A) > 0x9) || halfCarryFlag()) {
+		if ((!negationFlag() && loNibble(_registers._A) > 0x9) || halfCarryFlag())
+		{
 			correction = 0x6;
 		}
 
-		if ((!negationFlag() && _registers._A > 0x99) || carryFlag()) {
+		if ((!negationFlag() && _registers._A > 0x99) || carryFlag())
+		{
 			correction |= 0x60;
 			full_carry = 1;
 		}
@@ -261,26 +303,29 @@ namespace jmpr {
 	}
 
 	/**
-	* Complement the accumulator.
-	*/
-	void CPU::CPL() {
+	 * Complement the accumulator.
+	 */
+	void CPU::CPL()
+	{
 
 		_registers._A = ~_registers._A;
 		setFlags(-1, 1, 1, -1);
 	}
 
 	/**
-	* Set the carry flag.
-	*/
-	void CPU::SCF() {
+	 * Set the carry flag.
+	 */
+	void CPU::SCF()
+	{
 
 		setFlags(-1, 0, 0, 1);
 	}
 
 	/**
-	* Complement the carry flag.
-	*/
-	void CPU::CCF() {
+	 * Complement the carry flag.
+	 */
+	void CPU::CCF()
+	{
 
 		bool C = checkFlags(_curr_instr->_cond);
 
@@ -288,29 +333,31 @@ namespace jmpr {
 	}
 
 	/**
-	* Halt the CPU. Enter a low power stopped state.
-	*/
-	void CPU::HALT() {
+	 * Halt the CPU. Enter a low power stopped state.
+	 */
+	void CPU::HALT()
+	{
 		_halted = true;
 
 		// halt bug
-		_it_handler.checkHaltBug(_PC);
+		_it_handler->checkHaltBug(_PC);
 	}
 
 	/**
-	* Addition with carry.
-	*/
-	void CPU::ADC() {
+	 * Addition with carry.
+	 */
+	void CPU::ADC()
+	{
 
 		u16 add = (carryFlag() + _curr_fetch);
 
 		u8 res = (_registers._A + add) & 0xFF;
 
 		u8 half_carry = ((res & 0xF) < (_registers._A & 0xF)) ||
-			((res & 0xF) == (_registers._A & 0xF) && carryFlag());
+						((res & 0xF) == (_registers._A & 0xF) && carryFlag());
 
 		u8 full_carry = (res < _registers._A) ||
-			(res == _registers._A && carryFlag());
+						(res == _registers._A && carryFlag());
 
 		_registers._A = res;
 
@@ -318,9 +365,10 @@ namespace jmpr {
 	}
 
 	/**
-	* Substraction without carry.
-	*/
-	void CPU::SUB() {
+	 * Substraction without carry.
+	 */
+	void CPU::SUB()
+	{
 
 		u8 half_carry = (_curr_fetch & 0xF) > (_registers._A & 0xF);
 
@@ -332,19 +380,20 @@ namespace jmpr {
 	}
 
 	/**
-	* Substraction with carry.
-	*/
-	void CPU::SBC() {
+	 * Substraction with carry.
+	 */
+	void CPU::SBC()
+	{
 
 		u16 sub = (carryFlag() + _curr_fetch);
 
 		u8 res = (_registers._A - sub) & 0xFF;
 
 		u8 half_carry = ((_curr_fetch & 0xF) > (_registers._A & 0xF)) ||
-			((_curr_fetch & 0xF) == (_registers._A & 0xF) && carryFlag());
+						((_curr_fetch & 0xF) == (_registers._A & 0xF) && carryFlag());
 
 		u8 full_carry = (_curr_fetch > _registers._A) ||
-			(_curr_fetch == _registers._A && carryFlag());
+						(_curr_fetch == _registers._A && carryFlag());
 
 		_registers._A = res;
 
@@ -352,36 +401,40 @@ namespace jmpr {
 	}
 
 	/**
-	* AND logical operation. Result stored in the accumulator.
-	*/
-	void CPU::AND() {
+	 * AND logical operation. Result stored in the accumulator.
+	 */
+	void CPU::AND()
+	{
 
 		_registers._A &= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 1, 0);
 	}
 
 	/**
-	* XOR logical operation. Result stored in the accumulator.
-	*/
-	void CPU::XOR() {
+	 * XOR logical operation. Result stored in the accumulator.
+	 */
+	void CPU::XOR()
+	{
 
 		_registers._A ^= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
 	/**
-	* OR logical operation. Result stored in the accumulator.
-	*/
-	void CPU::OR() {
+	 * OR logical operation. Result stored in the accumulator.
+	 */
+	void CPU::OR()
+	{
 
 		_registers._A |= (_curr_fetch & 0xFF);
 		setFlags(_registers._A == 0, 0, 0, 0);
 	}
 
 	/**
-	* Compare two values. Check if the substraction is 0.
-	*/
-	void CPU::CP() {
+	 * Compare two values. Check if the substraction is 0.
+	 */
+	void CPU::CP()
+	{
 
 		u8 result = _registers._A - (_curr_fetch & 0xFF);
 		u8 half_res = (_registers._A & 0xF) - (_curr_fetch & 0xF);
@@ -390,103 +443,115 @@ namespace jmpr {
 	}
 
 	/**
-	* Return from a function. Jump to the location at the top of the stack
-	*/
-	void CPU::RET() {
+	 * Return from a function. Jump to the location at the top of the stack
+	 */
+	void CPU::RET()
+	{
 
-		if (checkFlags(_curr_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond))
+		{
 
-			if (_curr_instr->_cond != Condition::NONE) {
-				GameBoy::cycle(1);
+			if (_curr_instr->_cond != Condition::NONE)
+			{
+				GameBoy::getInstance()->cycle(1);
 			}
 
 			u8 lo = popStack8();
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 			u8 hi = popStack8();
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			_PC = merge16(hi, lo);
 		}
 
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 	}
 
 	/**
-	* Pop from the stack.
-	*/
-	void CPU::POP() {
+	 * Pop from the stack.
+	 */
+	void CPU::POP()
+	{
 
 		u8 lo = popStack8();
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 		u8 hi = popStack8();
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 
 		writeRegister(_curr_instr->_reg1, merge16(hi, lo));
 	}
 
 	/**
-	* Jump to a location.
-	*/
-	void CPU::JP() {
+	 * Jump to a location.
+	 */
+	void CPU::JP()
+	{
 
-		if (checkFlags(_curr_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond))
+		{
 			_PC = _curr_fetch;
 
-			if (_curr_instr->_reg1 != Register::HL) {
-				GameBoy::cycle(1);
+			if (_curr_instr->_reg1 != Register::HL)
+			{
+				GameBoy::getInstance()->cycle(1);
 			}
 		}
 	}
 
 	/**
-	* Jump to the beginning of a function and push the PC to the stack
-	*/
-	void CPU::CALL() {
+	 * Jump to the beginning of a function and push the PC to the stack
+	 */
+	void CPU::CALL()
+	{
 
-		if (checkFlags(_curr_instr->_cond)) {
+		if (checkFlags(_curr_instr->_cond))
+		{
 
 			pushStack8(hiByte(_PC));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 			pushStack8(loByte(_PC));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			_PC = _curr_fetch;
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
 	}
 
 	/**
-	* Push to the stack.
-	*/
-	void CPU::PUSH() {
+	 * Push to the stack.
+	 */
+	void CPU::PUSH()
+	{
 
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 		pushStack8(hiByte(_curr_fetch));
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 		pushStack8(loByte(_curr_fetch));
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 	}
 
 	/**
-	* Jump to the boot rom and reinitialize the cpu.
-	*/
-	void CPU::RST() {
+	 * Jump to the boot rom and reinitialize the cpu.
+	 */
+	void CPU::RST()
+	{
 
 		pushStack8(hiByte(_PC));
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 		pushStack8(loByte(_PC));
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 
 		u8 addr = ((_curr_opcode & 0x30)) | (_curr_opcode & 0x8);
 
 		_PC = addr;
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 	}
 
 	/**
-	* Launch a CB binary operation.
-	*/
-	void CPU::PREFIX() {
+	 * Launch a CB binary operation.
+	 */
+	void CPU::PREFIX()
+	{
 
 		// CB Instruction to execute
 		_curr_opcode = _curr_fetch & 0xFF;
@@ -494,21 +559,37 @@ namespace jmpr {
 		Register reg;
 
 		// Register affected
-		switch (_curr_opcode & 0x7) {
-		case 0: reg = Register::B; break;
-		case 1: reg = Register::C; break;
-		case 2: reg = Register::D; break;
-		case 3: reg = Register::E; break;
-		case 4: reg = Register::H; break;
-		case 5: reg = Register::L; break;
-		case 6: {
+		switch (_curr_opcode & 0x7)
+		{
+		case 0:
+			reg = Register::B;
+			break;
+		case 1:
+			reg = Register::C;
+			break;
+		case 2:
+			reg = Register::D;
+			break;
+		case 3:
+			reg = Register::E;
+			break;
+		case 4:
+			reg = Register::H;
+			break;
+		case 5:
+			reg = Register::L;
+			break;
+		case 6:
+		{
 
 			reg = Register::HL;
 			_mem_dest = readRegister(reg);
 			_dest_is_mem = true;
 			break;
 		}
-		default: reg = Register::A; break;
+		default:
+			reg = Register::A;
+			break;
 		}
 
 		// Bit checked / affected
@@ -540,72 +621,79 @@ namespace jmpr {
 	}
 
 	/**
-	* Return from a function and enable interrupts.
-	*/
-	void CPU::RETI() {
+	 * Return from a function and enable interrupts.
+	 */
+	void CPU::RETI()
+	{
 
 		u8 lo = popStack8();
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 		u8 hi = popStack8();
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 
 		_PC = merge16(hi, lo);
-		GameBoy::cycle(1);
+		GameBoy::getInstance()->cycle(1);
 
-		_it_handler.enableInterrupts(true);
+		_it_handler->enableInterrupts(true);
 	}
 
-
 	/**
-	* Load to the high ram.
-	*/
-	void CPU::LDH() {
+	 * Load to the high ram.
+	 */
+	void CPU::LDH()
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			_bus->write(_mem_dest, _curr_fetch);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
-
+		else
+		{
 			writeRegister(_curr_instr->_reg1, _curr_fetch);
 		}
 	}
 
 	/**
-	* Disable the interrupts.
-	*/
-	void CPU::DI() {
-		_it_handler.disableInterrupts(true); // change for the CGB
+	 * Disable the interrupts.
+	 */
+	void CPU::DI()
+	{
+		_it_handler->disableInterrupts(true); // TODO change for the CGB
 	}
 
 	/**
-	* Enable the interrupts.
-	*/
-	void CPU::EI() {
-		_it_handler.enableInterrupts(false);
+	 * Enable the interrupts.
+	 */
+	void CPU::EI()
+	{
+		_it_handler->enableInterrupts(false);
 	}
 
 	/**
-	* Rotate the bits to the left.
-	*/
-	void CPU::CB_RLC(Register reg) {
+	 * Rotate the bits to the left.
+	 */
+	void CPU::CB_RLC(Register reg)
+	{
 
 		u8 rotated = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			rotated = bit(data, 7);
 			isZ = data == 0;
 
 			_bus->write(_mem_dest, (data << 1) | rotated);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			rotated = bit(readRegister(reg), 7);
 			isZ = readRegister(reg) == 0;
@@ -617,25 +705,28 @@ namespace jmpr {
 	}
 
 	/**
-	* Rotate the bits to the right.
-	*/
-	void CPU::CB_RRC(Register reg) {
+	 * Rotate the bits to the right.
+	 */
+	void CPU::CB_RRC(Register reg)
+	{
 
 		u8 rotated = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			rotated = bit(data, 0);
 			isZ = data == 0;
 
 			_bus->write(_mem_dest, (data >> 1) | (rotated << 7));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			rotated = bit(readRegister(reg), 0);
 			isZ = readRegister(reg) == 0;
@@ -644,29 +735,31 @@ namespace jmpr {
 		}
 
 		setFlags(isZ, 0, 0, rotated);
-
 	}
 
 	/**
-	* Rotate the bits to the left. Set the LSB to the carry.
-	*/
-	void CPU::CB_RL(Register reg) {
+	 * Rotate the bits to the left. Set the LSB to the carry.
+	 */
+	void CPU::CB_RL(Register reg)
+	{
 
 		u8 rotated = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			rotated = bit(data, 7);
 			isZ = (data & 0x7F) == 0 && !carryFlag();
 
 			_bus->write(_mem_dest, (data << 1) | carryFlag());
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			rotated = bit(readRegister(reg), 7);
 
@@ -675,29 +768,31 @@ namespace jmpr {
 		}
 
 		setFlags(isZ, 0, 0, rotated);
-
 	}
 
 	/**
-	* Rotate the bits right. Set the MSB to the carry.
-	*/
-	void CPU::CB_RR(Register reg) {
+	 * Rotate the bits right. Set the MSB to the carry.
+	 */
+	void CPU::CB_RR(Register reg)
+	{
 
 		u8 rotated = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			rotated = bit(data, 0);
 			isZ = (data & 0xFE) == 0 && !carryFlag();
 
 			_bus->write(_mem_dest, (data >> 1) | (carryFlag() << 7));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			rotated = bit(readRegister(reg), 0);
 
@@ -708,27 +803,29 @@ namespace jmpr {
 		setFlags(isZ, 0, 0, rotated);
 	}
 
-
 	/**
-	* Left shift a register by 1. Set the LSB at 0.
-	*/
-	void CPU::CB_SLA(Register reg) {
+	 * Left shift a register by 1. Set the LSB at 0.
+	 */
+	void CPU::CB_SLA(Register reg)
+	{
 
 		u8 shifted = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			shifted = bit(data, 7);
 			isZ = (data & 0x7F) == 0;
 
 			_bus->write(_mem_dest, data << 1);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			shifted = bit(readRegister(reg), 7);
 			isZ = (readRegister(reg) & 0x7F) == 0;
@@ -739,19 +836,20 @@ namespace jmpr {
 		setFlags(isZ, 0, 0, shifted);
 	}
 
-
 	/**
-	* Right shift a register by 1. Leave the MSB at its old value.
-	*/
-	void CPU::CB_SRA(Register reg) {
+	 * Right shift a register by 1. Leave the MSB at its old value.
+	 */
+	void CPU::CB_SRA(Register reg)
+	{
 
 		u8 shifted = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			shifted = bit(data, 0);
 			isZ = data < 0x02;
@@ -759,9 +857,10 @@ namespace jmpr {
 			u8 shift = setBit(data >> 1, 7, bit(data, 7));
 
 			_bus->write(_mem_dest, shift);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			shifted = bit(readRegister(reg), 0);
 			isZ = readRegister(reg) < 0x02;
@@ -774,27 +873,29 @@ namespace jmpr {
 		setFlags(isZ, 0, 0, shifted);
 	}
 
-
 	/**
-	* Swap the hi nibble and the lo nibble of a register.
-	*/
-	void CPU::CB_SWAP(Register reg) {
+	 * Swap the hi nibble and the lo nibble of a register.
+	 */
+	void CPU::CB_SWAP(Register reg)
+	{
 
 		u8 hi = 0;
 		u8 lo = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			hi = hiNibble(data);
 			lo = loNibble(data);
 
 			_bus->write(_mem_dest, merge8(lo, hi));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 			hi = hiNibble(readRegister(reg));
 			lo = loNibble(readRegister(reg));
 
@@ -804,27 +905,29 @@ namespace jmpr {
 		setFlags(hi == 0 && lo == 0, 0, 0, 0);
 	}
 
-
 	/**
-	* Right shift a register by 1. Set the MSB at 0.
-	*/
-	void CPU::CB_SRL(Register reg) {
+	 * Right shift a register by 1. Set the MSB at 0.
+	 */
+	void CPU::CB_SRL(Register reg)
+	{
 
 		u8 shifted = 0;
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			shifted = bit(data, 0);
 			isZ = data < 0x02;
 
 			_bus->write(_mem_dest, data >> 1);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			shifted = bit(readRegister(reg), 0);
 			isZ = readRegister(reg) < 0x02;
@@ -835,62 +938,67 @@ namespace jmpr {
 		setFlags(isZ, 0, 0, shifted);
 	}
 
-
 	/**
-	* Check if a bit is 0 in a register.
-	*/
-	void CPU::CB_BIT(Register reg) {
+	 * Check if a bit is 0 in a register.
+	 */
+	void CPU::CB_BIT(Register reg)
+	{
 
 		u8 isZ = 0;
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			isZ = bit(_bus->read(_mem_dest), _curr_fetch);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 			isZ = bit(readRegister(reg), _curr_fetch);
 		}
 		setFlags((isZ == 0), 0, 1, -1);
 	}
 
-
 	/**
-	* Reset a bit in a register.
-	*/
-	void CPU::CB_RES(Register reg) {
+	 * Reset a bit in a register.
+	 */
+	void CPU::CB_RES(Register reg)
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 			_bus->write(_mem_dest, reset(data, _curr_fetch));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 
 			writeRegister(reg, reset(readRegister(reg), _curr_fetch));
 		}
 	}
 
-
 	/**
-	* Set a bit in a register.
-	*/
-	void CPU::CB_SET(Register reg) {
+	 * Set a bit in a register.
+	 */
+	void CPU::CB_SET(Register reg)
+	{
 
-		if (_dest_is_mem) {
+		if (_dest_is_mem)
+		{
 
 			u8 data = _bus->read(_mem_dest);
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 			_bus->write(_mem_dest, data | (1 << _curr_fetch));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
-		else {
+		else
+		{
 			writeRegister(reg, readRegister(reg) | (1 << _curr_fetch));
 		}
 	}
-
 
 	// Function Mapping
 	const std::unordered_map<InstrType, CPU::ProcessFunction> CPU::_PROCESSES = {

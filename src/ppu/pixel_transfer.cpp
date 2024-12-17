@@ -9,7 +9,7 @@
 namespace jmpr
 {
 
-	PixelTransferHandler::PixelTransferHandler(LCD *lcd, VRAM *vram, CRAM *crams)
+	PixelTransferHandler::PixelTransferHandler(LCD* lcd, VRAM *vram, const std::array<std::shared_ptr<CRAM>, 2>& crams)
 	{
 		_lcd = lcd;
 		_vram = vram;
@@ -54,7 +54,6 @@ namespace jmpr
 
 	void PixelTransferHandler::prepareForTransfer()
 	{
-
 		_phase = FifoPhase::GET_TILE;
 		_lx = 0;
 		_pushed_x = 0;
@@ -74,20 +73,19 @@ namespace jmpr
 
 	void PixelTransferHandler::resetFifo()
 	{
-
 		_pixel_fifo = {};
 		_visible_sprites.clear();
 	}
 
 	void PixelTransferHandler::resetWindow()
 	{
-
 		_window_y = 0;
 	}
 
 	// Main transfer function
 
-	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots)
+	// TODO apparently the slowest function!
+	void PixelTransferHandler::pixelTransferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer, u16 lineDots)
 	{
 
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
@@ -170,7 +168,7 @@ namespace jmpr
 	void PixelTransferHandler::tileIdFetch()
 	{
 		// change for cgb
-		if (_lcd->bgWindowPriority() || GameBoy::isCGB())
+		if (_lcd->bgWindowPriority() || GameBoy::getInstance()->isCGB())
 		{
 
 			u16 idx = _lcd->bgTileMapAreaBegin() +
@@ -211,7 +209,7 @@ namespace jmpr
 
 		u8 bank = 0;
 
-		if (GameBoy::isCGB())
+		if (GameBoy::getInstance()->isCGB())
 		{
 			// y flip
 			if (bit(_bgw_fetch.attributes, 6) == 1)
@@ -255,7 +253,7 @@ namespace jmpr
 		}
 
 		// Sort fetches by sprite x, not done in cgb mode
-		if (_spr_fetch.size() > 1 && !GameBoy::isCGB())
+		if (_spr_fetch.size() > 1 && !GameBoy::getInstance()->isCGB())
 		{
 			std::sort(_spr_fetch.begin(),
 					  _spr_fetch.end(),
@@ -291,7 +289,7 @@ namespace jmpr
 				tileId &= ~(1);
 			}
 
-			u8 bank = GameBoy::isCGB() ? fetch->spr->bank() : 0;
+			u8 bank = GameBoy::getInstance()->isCGB() ? fetch->spr->bank() : 0;
 
 			// use the same formula to get the pixel as the bg
 			if (id == 0)
@@ -307,31 +305,30 @@ namespace jmpr
 
 	u16 PixelTransferHandler::windowColorFetch(u8 colorId) const
 	{
-		if (!GameBoy::isCGB())
+		if (!GameBoy::getInstance()->isCGB())
 		{
 			return _lcd->getBGWindowColor(colorId);
 		}
 		else
 		{
-			u8 lo = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 0);
-			u8 hi = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 1);
+			u8 lo = _crams[0]->ppuRead(_bgw_fetch.attributes & 0b111, colorId, 0);
+			u8 hi = _crams[0]->ppuRead(_bgw_fetch.attributes & 0b111, colorId, 1);
 			return lo | (hi << 8);
 		}
 	}
 
 	u16 PixelTransferHandler::spriteColor(u8 colorId, SpriteFetch spr) const
 	{
-		if (!GameBoy::isCGB())
+		if (!GameBoy::getInstance()->isCGB())
 		{
 			return _lcd->getOBJcolor(spr.spr->pallet(), colorId);
 		}
 		else
 		{
 			// return 0xFFFF;
-			u8 lo = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 0);
-			u8 hi = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 1);
+			u8 lo = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 0);
+			u8 hi = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 1);
 			return lo | (hi << 8);
-			
 		}
 	}
 
@@ -395,23 +392,26 @@ namespace jmpr
 		for (u8 i = 0; i < 8; i++)
 		{
 			u8 colorIndex = (bit(_bgw_fetch.hi, 7 - i) << 1) | (bit(_bgw_fetch.lo, 7 - i));
-			if (GameBoy::isCGB() && bit(_bgw_fetch.attributes, 5) == 1)
+			if (GameBoy::getInstance()->isCGB() && bit(_bgw_fetch.attributes, 5) == 1)
 			{
 				colorIndex = (bit(_bgw_fetch.hi, i) << 1) | (bit(_bgw_fetch.lo, i));
 			}
 
 			// lcd isnt used anymore (unless for compatibility) so use the actual cram data
 			u16 pixel = windowColorFetch(colorIndex);
-
 			// Adapt the color for sprites, window, etc.
 
 			if (!_lcd->lcdEnabled())
+			{
 				pixel = _lcd->getBGWindowColor(0);
+			}
 
-			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::isCGB();
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
+			{
 				pixel = spriteColorFetch(pixel, colorIndex);
+			}
 
 			_pixel_fifo.push(pixel);
 			_fifo_x++;
@@ -422,7 +422,7 @@ namespace jmpr
 		return true;
 	}
 
-	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u16> vbuffer)
+	void PixelTransferHandler::pushToVBufferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer)
 	{
 
 		// switch to a general pixel fifo
@@ -436,8 +436,7 @@ namespace jmpr
 			// Only render if pixel is visible with the scroll
 			if (_lx >= getCurrentScroll())
 			{
-
-				vbuffer.get()[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
+				vbuffer[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
 
 				_pushed_x++;
 			}
@@ -469,7 +468,7 @@ namespace jmpr
 	bool PixelTransferHandler::isWindowVisible() const
 	{
 		// change for cgb
-		return _lcd->windowEnabled() && (_lcd->bgWindowPriority() || GameBoy::isCGB()) &&
+		return _lcd->windowEnabled() && (_lcd->bgWindowPriority() || GameBoy::getInstance()->isCGB()) &&
 			   between(_lcd->getWindowX(), 0, 166) &&
 			   between(_lcd->getWindowY(), 0, 143);
 	}

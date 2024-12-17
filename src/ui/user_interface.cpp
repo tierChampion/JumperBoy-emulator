@@ -7,9 +7,9 @@
 
 namespace jmpr
 {
-	UI::UI(PPU *ppu, APU *apu)
+	UI::UI(PPU* ppu, APU *apu)
 		: _opened(true),
-		  _game_window(GameWindow(ppu)),
+		  _game_window(ppu),
 		  _audio_manager(apu),
 		  _input_preset(0),
 		  _last_input(SDL_KeyboardEvent())

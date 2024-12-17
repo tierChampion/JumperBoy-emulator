@@ -4,7 +4,7 @@ namespace jmpr
 {
 
 	RAM::RAM()
-	: _wram_bank(0), _wram(std::array<std::array<u8, 0x1000>, 8>())
+	: _wram_bank(0), _wram(std::array<std::array<u8, 0x1000>, 8>()), _hram(std::array<u8, 0x80>())
 	{
 	}
 

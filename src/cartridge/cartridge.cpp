@@ -11,7 +11,7 @@ namespace jmpr
 	// 0x0149: how much ram is present on the cartridge in bytes.
 	static const u32 RAM_SIZES[5] = {
 		0,
-		0x800, // Unofficial value. Somtimes used in homebrew
+		0x800, // Unofficial value. Sometimes used in homebrew
 		0x8000,
 		0x20000,
 		0x10000};
@@ -38,13 +38,13 @@ namespace jmpr
 		auto end = stream.tellg();
 		stream.seekg(0, std::ios::beg);
 
-		_rom_size = (u32)(end - begin);
+		u32 rom_size = (u32)(end - begin);
 
-		_rom_data = std::unique_ptr<u8>(new u8[_rom_size]);
+		_rom_data = std::vector<u8>(rom_size);
 
-		stream.read((char *)_rom_data.get(), _rom_size);
+		stream.read((char *)_rom_data.data(), _rom_data.size());
 
-		_header.formatHeader(&_rom_data.get()[0x100]);
+		_header.formatHeader(_rom_data.begin() + 0x100);
 
 		_filename = file;
 
@@ -52,9 +52,7 @@ namespace jmpr
 
 		stream.close();
 
-		std::cout << *this << std::endl;
-
-		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_size, _rom_data.get(), RAM_SIZES[_header._ram_size]);
+		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_data, RAM_SIZES[_header._ram_size]);
 
 		if (_mbc == nullptr)
 		{
@@ -106,7 +104,7 @@ namespace jmpr
 	 * rom.
 	 * @param header Bytes to decode starting at location 0x0100
 	 */
-	void CartridgeHeader::formatHeader(u8 *header)
+	void CartridgeHeader::formatHeader(const std::vector<u8>::iterator& header)
 	{
 
 		for (int i = 0; i < 4; i++)
@@ -462,7 +460,7 @@ namespace jmpr
 	 */
 	bool Cartridge::isValid() const
 	{
-		if (_error || _rom_size == 0)
+		if (_error || _rom_data.size() == 0)
 			return false;
 
 		return std::equal(std::begin(_header._nintendo_logo),
@@ -476,7 +474,7 @@ namespace jmpr
 	 */
 	bool Cartridge::isColor() const
 	{
-		return _header._cgb_flag == 0x80 || _header._cgb_flag == 0xC0;
+		return _header._cgb_flag == 0xC0 || _header._cgb_flag == 0x80;
 	}
 
 	std::ostream &operator<<(std::ostream &os, const Cartridge &cartridge)

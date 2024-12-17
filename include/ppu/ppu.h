@@ -17,11 +17,11 @@ namespace jmpr
 	{
 
 		// Main components
-		std::shared_ptr<u16> _vbuffer;
-		LCD _lcd;
-		VRAM _vram;
-		OAM _oam;
-		CRAM _cram[2];
+		std::array<u16, PIXEL_COUNT> _vbuffer;
+		std::unique_ptr<LCD> _lcd;
+		std::unique_ptr<VRAM> _vram;
+		std::unique_ptr<OAM> _oam;
+		std::array<std::shared_ptr<CRAM>, 2> _cram;
 
 		// Timing
 		u16 _line_dots;
@@ -44,10 +44,10 @@ namespace jmpr
 
 		void reboot();
 
-		LCD *getLCD() { return &_lcd; }
-		VRAM *getVRAM() { return &_vram; }
-		OAM *getOAM() { return &_oam; }
-		CRAM *getCRAM(u8 id) { return &_cram[id]; }
+		LCD* getLCD() { return _lcd.get(); }
+		VRAM *getVRAM() { return _vram.get(); }
+		OAM *getOAM() { return _oam.get(); }
+		CRAM *getCRAM(u8 id) { return _cram[id].get(); }
 
 		u16 readBuffer(u32 index);
 

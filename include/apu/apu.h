@@ -19,7 +19,7 @@ namespace jmpr
 		static const u16 MAX_SAMPLES = 2048;
 
 	private:
-		float _samples[2 * APU::MAX_SAMPLES];
+		std::array<float, 2 * APU::MAX_SAMPLES> _samples;
 		u16 _sample_pointer;
 		u8 _sample_counter;
 

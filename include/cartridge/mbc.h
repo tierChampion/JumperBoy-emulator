@@ -9,8 +9,8 @@ namespace jmpr {
 
 	protected:
 
-		std::vector<std::unique_ptr<u8>> _rom_banks;
-		std::vector<std::unique_ptr<u8>> _ram_banks;
+		std::vector<std::vector<u8>> _rom_banks;
+		std::vector<std::vector<u8>> _ram_banks;
 
 		bool _has_ram;
 		bool _has_battery;
@@ -33,7 +33,7 @@ namespace jmpr {
 
 	public:
 
-		NoMBC(u8* romData, bool hasRam, bool hasBattery);
+		NoMBC(const std::vector<u8>& romData, bool hasRam, bool hasBattery);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
@@ -48,7 +48,7 @@ namespace jmpr {
 
 	public:
 
-		MBC1(u8* romData, u32 romSize, u32 ramSize, bool hasBattery);
+		MBC1(const std::vector<u8>& romData, u32 ramSize, bool hasBattery);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
@@ -75,7 +75,7 @@ namespace jmpr {
 
 	public:
 
-		MBC3(u8* romData, u32 romSize, u32 ramSize, bool hasBattery, bool hasTimer);
+		MBC3(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
@@ -83,11 +83,11 @@ namespace jmpr {
 
 	class MBC5 : public MBC {
 
-		MBC5(u8* romData, u32 romSize, u32 ramSize, bool hasBattery, bool hasTimer);
+		MBC5(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
 	};
 
-	MBC* giveAppropriateMBC(u8 cartridgeHardware, u32 romSize, u8* romData, u32 ramSize);
+	MBC* giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize);
 }

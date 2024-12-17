@@ -97,7 +97,7 @@ namespace jmpr
 
 	void VideoDMA::requestDMA(u8 source)
 	{
-		std::cout << "VDMA REQUEST: " << int(bit(source, 7)) << std::endl;
+		// std::cout << "VDMA REQUEST: " << int(bit(source, 7)) << std::endl;
 		if (_mode == 1 && _total_length > 0 && bit(source, 7) == 0)
 		{
 			_total_length = 0;

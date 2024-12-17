@@ -51,7 +51,7 @@ namespace jmpr {
 		bool _dest_is_mem;
 
 		// Interrupts
-		InterruptHandler _it_handler;
+		std::unique_ptr<InterruptHandler> _it_handler;
 
 		// Status
 		bool _halted;
@@ -66,7 +66,7 @@ namespace jmpr {
 		void connectBus(Bus* bus) { _bus = bus; }
 		void connectVideoDMA(VideoDMA* vdma) { _vdma = vdma; }
 
-		InterruptHandler* getInterruptHandler() { return &_it_handler; }
+		InterruptHandler* getInterruptHandler() { return _it_handler.get(); }
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);

@@ -18,7 +18,7 @@ namespace jmpr
         SDL_Texture *_texture;
         SDL_Surface *_surface;
 
-        PPU *_ppu;
+        PPU* _ppu;
 
         bool _opened;
         bool _debug;
@@ -30,7 +30,8 @@ namespace jmpr
         u8 _scale;
 
     public:
-        GameWindow(PPU *ppu);
+        GameWindow() {}
+        GameWindow(PPU* ppu);
         void cleanup();
 
         void render();

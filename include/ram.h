@@ -13,7 +13,7 @@ namespace jmpr
 		u8 _wram_bank;
 
 		// From 0xFF80 to 0xFFFE
-		u8 _hram[0x80];
+		std::array<u8, 0x80> _hram;
 
 	public:
 		RAM();

@@ -149,21 +149,21 @@ namespace jmpr {
 	void CPU::executeInterrupt(bool enabled, InterruptType type, u16 location) {
 
 		if (_halted)
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 		_halted = false;
 
 		if (enabled) {
 
-			GameBoy::cycle(2);
+			GameBoy::getInstance()->cycle(2);
 
 			pushStack8(hiByte(_PC));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 			pushStack8(loByte(_PC));
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 
 			_PC = location;
-			GameBoy::cycle(1);
+			GameBoy::getInstance()->cycle(1);
 		}
 
 		if (type == InterruptType::JOYPAD)

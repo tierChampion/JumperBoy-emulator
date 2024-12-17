@@ -15,17 +15,20 @@ namespace jmpr {
 	class IO {
 
 		Joypad* _joypad;
-		u8 _serial_trans[2]; //
+		u8 _serial_trans[2]; // cgb?
 		Timer* _timer;
 		APU* _apu;
 		LCD* _lcd;
 		ObjectDMA* _odma;
 		VideoDMA* _vdma;
+		// TODO add a new class / datastructure to hold these registers
+		// 		because they need to be accessed by the cpu for A. cycling and B. changing the stop
 		u8 _vram_select; // cgb
 		u8 _disable_bootrom;
 		u8 _vram_dma[5]; // cgb
 		u8 _bg_obj_pallets[2]; // cgb
 		u8 _wram_select; // cgb
+		u8 _key_1; // cgb
 
 	public:
 

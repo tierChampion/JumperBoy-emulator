@@ -2,5 +2,5 @@
 
 int main(int argc, char* args[])
 {
-	return jmpr::GameBoy::runGameBoy();
+	return jmpr::GameBoy::getInstance()->runGameBoy();
 }

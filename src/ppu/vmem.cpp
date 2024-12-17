@@ -132,7 +132,7 @@ namespace jmpr
 
 	// OAM
 
-	OAM::OAM() : _oam{0}
+	OAM::OAM() : _oam(std::array<Sprite, 40>())
 	{
 	}
 

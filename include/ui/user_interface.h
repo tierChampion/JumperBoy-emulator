@@ -61,7 +61,8 @@ namespace jmpr
 		u8 _input_preset;
 
 	public:
-		UI(PPU *ppu, APU* apu);
+		UI() {}
+		UI(PPU* ppu, APU* apu);
 		void cleanup();
 
 		bool isOpened() { return _opened; }

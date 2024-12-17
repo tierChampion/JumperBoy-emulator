@@ -4,36 +4,46 @@
 
 namespace jmpr
 {
-	Bus GameBoy::_bus = Bus();
-	CPU GameBoy::_cpu = CPU();
-	PPU GameBoy::_ppu = PPU(_cpu.getInterruptHandler());
-	APU GameBoy::_apu = APU();
-	Cartridge GameBoy::_cart = Cartridge();
-	Joypad GameBoy::_joypad = Joypad(_cpu.getInterruptHandler());
-	Timer GameBoy::_timer = Timer(&_apu, _cpu.getInterruptHandler());
-	RAM GameBoy::_ram = RAM();
-	ObjectDMA GameBoy::_odma = ObjectDMA(_ppu.getOAM());
-	VideoDMA GameBoy::_vdma = VideoDMA(_ppu.getVRAM());
-	IO GameBoy::_io = IO(&_joypad, &_timer, &_apu, _ppu.getLCD(), &_odma, &_vdma);
 
-	Debugger GameBoy::_dbg = Debugger(&_bus, true);
+	GameBoy *GameBoy::getInstance()
+	{
+		static GameBoy instance;
+		return &instance;
+	}
 
-	UI GameBoy::_ui = UI(&_ppu, &_apu);
+	GameBoy::GameBoy()
+	{
+		_bus = std::make_unique<Bus>();
+		_cpu = std::make_unique<CPU>();
+		_cart = std::make_unique<Cartridge>();
+		_ram = std::make_unique<RAM>();
+		_apu = std::make_unique<APU>();
+		_ppu = std::make_unique<PPU>(_cpu->getInterruptHandler());
+		_joypad = std::make_unique<Joypad>(_cpu->getInterruptHandler());
+		_timer = std::make_unique<Timer>(_apu.get(), _cpu->getInterruptHandler());
+		_odma = std::make_unique<ObjectDMA>(_ppu->getOAM());
+		_vdma = std::make_unique<VideoDMA>(_ppu->getVRAM());
+		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get());
+		_dbg = Debugger(_bus.get(), true);
+		_ui = UI(_ppu.get(), _apu.get());
 
-	bool GameBoy::_running = false;
-	u64 GameBoy::_ticks = 0;
-	bool GameBoy::_cgb_mode = false;
-	float GameBoy::_fps = 59.7f;
-	bool GameBoy::_capped = true;
+		_running = false;
+		_ticks = 0;
+		_cgb_mode = false;
+		_fps = 59.7f;
+		_capped = true;
+	}
 
 	int GameBoy::runGameBoy()
 	{
 		_running = false;
 		_ticks = 0;
 
+		reboot();
 		connectComponents();
 
-		std::thread cpuThread(&cpuLoop);
+		std::thread cpuThread([this]()
+							  { cpuLoop(); });
 
 		cpuThread.detach();
 
@@ -46,27 +56,27 @@ namespace jmpr
 
 	void GameBoy::connectComponents()
 	{
-		_bus.connectCPU(&_cpu);
-		_bus.connectRAM(&_ram);
-		_bus.connectPPU(&_ppu);
-		_bus.connectIO(&_io);
+		_bus->connectCPU(_cpu.get());
+		_bus->connectRAM(_ram.get());
+		_bus->connectPPU(_ppu.get());
+		_bus->connectIO(_io.get());
 
-		_cpu.connectBus(&_bus);
-		_cpu.connectVideoDMA(&_vdma);
-		_ppu.connectVideoDMA(&_vdma);
-		_odma.connectBus(&_bus);
-		_vdma.connectBus(&_bus);
+		_cpu->connectBus(_bus.get());
+		_cpu->connectVideoDMA(_vdma.get());
+		_ppu->connectVideoDMA(_vdma.get());
+		_odma->connectBus(_bus.get());
+		_vdma->connectBus(_bus.get());
 	}
 
 	void GameBoy::reboot()
 	{
-		_cpu.reboot();
-		_ppu.reboot();
-		_apu.reboot();
-		_joypad.reboot();
-		_timer.reboot();
-		_odma.reboot();
-		_vdma.reboot();
+		_cpu->reboot();
+		_ppu->reboot();
+		_apu->reboot();
+		_joypad->reboot();
+		_timer->reboot();
+		_odma->reboot();
+		_vdma->reboot();
 	}
 
 	void GameBoy::cpuLoop()
@@ -75,7 +85,7 @@ namespace jmpr
 		{
 			if (_running)
 			{
-				_cpu.cycle();
+				_cpu->cycle();
 			}
 			else
 			{
@@ -96,17 +106,17 @@ namespace jmpr
 	{
 		pause();
 
-		delay(100);
+		SDL_Delay(100);
 
-		_cart = Cartridge(rom_file);
+		_cart = std::make_unique<Cartridge>(rom_file);
 
-		if (!_cart.isValid())
+		if (!_cart->isValid())
 			return false;
 
-		_cgb_mode = _cart.isColor();
+		_cgb_mode = _cart->isColor();
 
 		reboot();
-		_bus.connectCartridge(&_cart);
+		_bus->connectCartridge(_cart.get());
 
 		_ticks = 0;
 
@@ -115,22 +125,27 @@ namespace jmpr
 
 	void GameBoy::setVolume(float volume)
 	{
-		_apu.setVolume(volume);
+		_apu->setVolume(volume);
 	}
 
 	void GameBoy::toggleAudioChannel(u8 id)
 	{
-		_apu.toggleChannel(id);
+		_apu->toggleChannel(id);
 	}
 
 	void GameBoy::pressButton(u8 button)
 	{
-		_joypad.pressInput(button);
+		_joypad->pressInput(button);
 	}
 
 	void GameBoy::releaseButton(u8 button)
 	{
-		_joypad.releaseInput(button);
+		_joypad->releaseInput(button);
+	}
+
+	float GameBoy::getDesiredFrameLength()
+	{
+		return 1000.0f / GameBoy::getDesiredFPS();
 	}
 
 	/**
@@ -143,15 +158,15 @@ namespace jmpr
 		{
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
-				_timer.update();
-				_ppu.update();
-				_apu.update();
+				_timer->update();
+				_ppu->update();
+				_apu->update();
 
 				_ticks++;
 			}
 
-			_odma.processDMA();
-			_vdma.processDMA();
+			_odma->processDMA();
+			_vdma->processDMA();
 		}
 	}
 }
