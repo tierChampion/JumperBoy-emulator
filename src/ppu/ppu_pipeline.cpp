@@ -40,14 +40,15 @@ namespace jmpr {
 
 	void PPU::manageFrameTiming() {
 
-		u32 frameEnd = GameBoy::getInstance()->getCurrentTime();
+		u32 frameEnd = SDL_GetTicks();
 		u32 frameLength = frameEnd - _last_frame_time;
 
+
 		if (frameLength < GameBoy::getInstance()->getDesiredFrameLength()) {
-			GameBoy::getInstance()->delay(GameBoy::getInstance()->getDesiredFrameLength() - frameLength);
+			SDL_Delay(GameBoy::getInstance()->getDesiredFrameLength() - frameLength);
 		}
 
-		_last_frame_time = GameBoy::getInstance()->getCurrentTime();
+		_last_frame_time = SDL_GetTicks();
 	}
 
 	void PPU::VBlankProcess() {

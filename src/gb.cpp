@@ -11,19 +11,20 @@ namespace jmpr
 		return &instance;
 	}
 
-	GameBoy::GameBoy() : _bus(),
-						 _cpu(),
-						 _cart(),
-						 _ram()
+	GameBoy::GameBoy()
 	{
+		_bus = std::make_unique<Bus>();
+		_cpu = std::make_unique<CPU>();
+		_cart = std::make_unique<Cartridge>();
+		_ram = std::make_unique<RAM>();
 		_apu = std::make_unique<APU>();
-		_ppu = std::make_unique<PPU>(_cpu.getInterruptHandler());
-		_joypad = Joypad(_cpu.getInterruptHandler());
-		_timer = Timer(_apu.get(), _cpu.getInterruptHandler());
-		_odma = ObjectDMA(_ppu->getOAM());
-		_vdma = VideoDMA(_ppu->getVRAM());
-		_io = IO(&_joypad, &_timer, _apu.get(), _ppu->getLCD(), &_odma, &_vdma);
-		_dbg = Debugger(&_bus, true);
+		_ppu = std::make_unique<PPU>(_cpu->getInterruptHandler());
+		_joypad = std::make_unique<Joypad>(_cpu->getInterruptHandler());
+		_timer = std::make_unique<Timer>(_apu.get(), _cpu->getInterruptHandler());
+		_odma = std::make_unique<ObjectDMA>(_ppu->getOAM());
+		_vdma = std::make_unique<VideoDMA>(_ppu->getVRAM());
+		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get());
+		_dbg = Debugger(_bus.get(), true);
 		_ui = UI(_ppu.get(), _apu.get());
 
 		_running = false;
@@ -55,27 +56,27 @@ namespace jmpr
 
 	void GameBoy::connectComponents()
 	{
-		_bus.connectCPU(&_cpu);
-		_bus.connectRAM(&_ram);
-		_bus.connectPPU(_ppu.get());
-		_bus.connectIO(&_io);
+		_bus->connectCPU(_cpu.get());
+		_bus->connectRAM(_ram.get());
+		_bus->connectPPU(_ppu.get());
+		_bus->connectIO(_io.get());
 
-		_cpu.connectBus(&_bus);
-		_cpu.connectVideoDMA(&_vdma);
-		_ppu->connectVideoDMA(&_vdma);
-		_odma.connectBus(&_bus);
-		_vdma.connectBus(&_bus);
+		_cpu->connectBus(_bus.get());
+		_cpu->connectVideoDMA(_vdma.get());
+		_ppu->connectVideoDMA(_vdma.get());
+		_odma->connectBus(_bus.get());
+		_vdma->connectBus(_bus.get());
 	}
 
 	void GameBoy::reboot()
 	{
-		_cpu.reboot();
+		_cpu->reboot();
 		_ppu->reboot();
 		_apu->reboot();
-		_joypad.reboot();
-		_timer.reboot();
-		_odma.reboot();
-		_vdma.reboot();
+		_joypad->reboot();
+		_timer->reboot();
+		_odma->reboot();
+		_vdma->reboot();
 	}
 
 	void GameBoy::cpuLoop()
@@ -84,7 +85,7 @@ namespace jmpr
 		{
 			if (_running)
 			{
-				_cpu.cycle();
+				_cpu->cycle();
 			}
 			else
 			{
@@ -105,17 +106,17 @@ namespace jmpr
 	{
 		pause();
 
-		delay(100);
+		SDL_Delay(100);
 
-		_cart = Cartridge(rom_file);
+		_cart = std::make_unique<Cartridge>(rom_file);
 
-		if (!_cart.isValid())
+		if (!_cart->isValid())
 			return false;
 
-		_cgb_mode = _cart.isColor();
+		_cgb_mode = _cart->isColor();
 
 		reboot();
-		_bus.connectCartridge(&_cart);
+		_bus->connectCartridge(_cart.get());
 
 		_ticks = 0;
 
@@ -134,12 +135,12 @@ namespace jmpr
 
 	void GameBoy::pressButton(u8 button)
 	{
-		_joypad.pressInput(button);
+		_joypad->pressInput(button);
 	}
 
 	void GameBoy::releaseButton(u8 button)
 	{
-		_joypad.releaseInput(button);
+		_joypad->releaseInput(button);
 	}
 
 	float GameBoy::getDesiredFrameLength()
@@ -157,15 +158,15 @@ namespace jmpr
 		{
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
-				_timer.update();
+				_timer->update();
 				_ppu->update();
 				_apu->update();
 
 				_ticks++;
 			}
 
-			_odma.processDMA();
-			_vdma.processDMA();
+			_odma->processDMA();
+			_vdma->processDMA();
 		}
 	}
 }

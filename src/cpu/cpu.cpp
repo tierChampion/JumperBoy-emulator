@@ -12,11 +12,8 @@ namespace jmpr
 
 	CPU::CPU()
 	{
-
 		_bus = nullptr;
-		_it_handler = InterruptHandler(this);
-
-		// reboot();
+		_it_handler = std::make_unique<InterruptHandler>(this);
 	}
 
 	/**
@@ -62,7 +59,7 @@ namespace jmpr
 		_halted = false;
 		_stopped = false;
 
-		_it_handler.reboot();
+		_it_handler->reboot();
 	}
 
 	/**
@@ -75,7 +72,7 @@ namespace jmpr
 		GameBoy::getInstance()->cycle(1);
 
 		// Halt bug, fails to increment PC
-		if (!_it_handler.haltBugged(_PC))
+		if (!_it_handler->haltBugged(_PC))
 		{
 			_PC++;
 		}
@@ -88,7 +85,7 @@ namespace jmpr
 	 */
 	bool CPU::cycle()
 	{
-		_it_handler.checkInterrupts();
+		_it_handler->checkInterrupts();
 
 		if (!_halted && !_vdma->inProcess() && !_stopped)
 		{

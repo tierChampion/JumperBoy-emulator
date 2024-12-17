@@ -21,18 +21,18 @@ namespace jmpr
 	class GameBoy
 	{
 		// Internal Components
-		Bus _bus;
-		CPU _cpu;
+		std::unique_ptr<Bus> _bus;
+		std::unique_ptr<CPU> _cpu;
 		std::unique_ptr<PPU> _ppu;
 		std::unique_ptr<APU> _apu;
-		Cartridge _cart;
-		Joypad _joypad;
-		Timer _timer;
-		RAM _ram;
-		ObjectDMA _odma;
-		VideoDMA _vdma;
-		IO _io;
-		InterruptHandler _it_handler;
+		std::unique_ptr<Cartridge> _cart;
+		std::unique_ptr<Joypad> _joypad;
+		std::unique_ptr<Timer> _timer;
+		std::unique_ptr<RAM> _ram;
+		std::unique_ptr<ObjectDMA> _odma;
+		std::unique_ptr<VideoDMA> _vdma;
+		std::unique_ptr<IO> _io;
+		std::unique_ptr<InterruptHandler> _it_handler;
 
 		Debugger _dbg;
 
@@ -77,11 +77,7 @@ namespace jmpr
 		bool isCapped() { return _capped; }
 		void setCapped(bool newCapped) { _capped = newCapped; }
 
-		void delay(u32 milliseconds) { SDL_Delay(milliseconds); }
-
-		u32 getCurrentTime() { return SDL_GetTicks(); }
-
-		void requestSaveHandling() { _cart.handleSaves(); }
+		void requestSaveHandling() { _cart->handleSaves(); }
 
 	private:
 		GameBoy();

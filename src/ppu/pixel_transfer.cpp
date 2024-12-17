@@ -84,6 +84,7 @@ namespace jmpr
 
 	// Main transfer function
 
+	// TODO apparently the slowest function!
 	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots)
 	{
 

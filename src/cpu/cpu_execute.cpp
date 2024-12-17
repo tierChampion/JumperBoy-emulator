@@ -340,7 +340,7 @@ namespace jmpr
 		_halted = true;
 
 		// halt bug
-		_it_handler.checkHaltBug(_PC);
+		_it_handler->checkHaltBug(_PC);
 	}
 
 	/**
@@ -634,7 +634,7 @@ namespace jmpr
 		_PC = merge16(hi, lo);
 		GameBoy::getInstance()->cycle(1);
 
-		_it_handler.enableInterrupts(true);
+		_it_handler->enableInterrupts(true);
 	}
 
 	/**
@@ -660,7 +660,7 @@ namespace jmpr
 	 */
 	void CPU::DI()
 	{
-		_it_handler.disableInterrupts(true); // change for the CGB
+		_it_handler->disableInterrupts(true); // TODO change for the CGB
 	}
 
 	/**
@@ -668,7 +668,7 @@ namespace jmpr
 	 */
 	void CPU::EI()
 	{
-		_it_handler.enableInterrupts(false);
+		_it_handler->enableInterrupts(false);
 	}
 
 	/**
