@@ -4,7 +4,7 @@
 
 namespace jmpr {
 
-	MBC* giveAppropriateMBC(u8 cartridgeHardware, u32 romSize, u8* romData, u32 ramSize) {
+	MBC* giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize) {
 
 		// No MBC
 		if (cartridgeHardware == 0x00 || cartridgeHardware == 0x08 || cartridgeHardware == 0x09) {
@@ -14,11 +14,11 @@ namespace jmpr {
 		// MBC1
 		else if (between(cartridgeHardware, 0x01, 0x03)) {
 
-			return new MBC1(romData, romSize, ramSize, cartridgeHardware == 0x03);
+			return new MBC1(romData, ramSize, cartridgeHardware == 0x03);
 		}
 		else if (between(cartridgeHardware, 0x0F, 0x13)) {
 
-			return new MBC3(romData, romSize, ramSize,
+			return new MBC3(romData, ramSize,
 				cartridgeHardware == 0x0F || cartridgeHardware == 0x10 || cartridgeHardware == 0x13,
 				cartridgeHardware == 0x0F || cartridgeHardware == 0x10);
 		}
@@ -31,8 +31,8 @@ namespace jmpr {
 
 	MBC::MBC(bool hasRam, bool hasBattery) {
 
-		_rom_banks = std::vector<std::unique_ptr<u8>>();
-		_ram_banks = std::vector<std::unique_ptr<u8>>();
+		_rom_banks = std::vector<std::vector<u8>>();
+		_ram_banks = std::vector<std::vector<u8>>();
 
 		_has_ram = hasRam;
 		_has_battery = hasBattery;
@@ -63,7 +63,7 @@ namespace jmpr {
 
 		for (u8 i = 0; i < _ram_banks.size(); i++) {
 
-			outSave.write(reinterpret_cast<const char*>(_ram_banks[i].get()), 0x2000);
+			outSave.write(reinterpret_cast<const char*>(_ram_banks[i].data()), 0x2000);
 		}
 		outSave.close();
 
@@ -80,7 +80,7 @@ namespace jmpr {
 
 			for (u8 i = 0; i < _ram_banks.size(); i++) {
 
-				inSave.read(reinterpret_cast<char*>(_ram_banks[i].get()), 0x2000);
+				inSave.read(reinterpret_cast<char*>(_ram_banks[i].data()), 0x2000);
 			}
 
 			inSave.close();
@@ -97,24 +97,24 @@ namespace jmpr {
 
 	// No MBC
 
-	NoMBC::NoMBC(u8* romData, bool hasRam, bool hasBattery) : MBC(hasRam, hasBattery) {
+	NoMBC::NoMBC(const std::vector<u8>& romData, bool hasRam, bool hasBattery) : MBC(hasRam, hasBattery) {
 
 		// Only a single ROM bank.
-		_rom_banks.push_back(std::unique_ptr<u8>(romData));
+		_rom_banks.push_back(romData);
 
 		// Add a possible 8 KiB of ram
 		if (_has_ram) {
-			_ram_banks.push_back(std::unique_ptr<u8>(new u8[0x2000]));
+			_ram_banks.push_back(std::vector<u8>(0x2000));
 		}
 	}
 
 	u8 NoMBC::read(u16 address) const {
 
 		if (between(address, 0x0000, 0x7FFF)) {
-			return _rom_banks[0].get()[address];
+			return _rom_banks[0][address];
 		}
 		else if (between(address, 0xA000, 0xBFFF) && _has_ram) {
-			return _ram_banks[0].get()[address - 0xA000];
+			return _ram_banks[0][address - 0xA000];
 		}
 
 		return 0xFF;
@@ -125,7 +125,7 @@ namespace jmpr {
 		// Only RAM is writeable
 		if (between(address, 0xA000, 0xBFFF) && _has_ram) {
 
-			_ram_banks[0].get()[address - 0xA000] = data;
+			_ram_banks[0][address - 0xA000] = data;
 
 			if (_has_battery) _waiting_for_save = true;
 		}

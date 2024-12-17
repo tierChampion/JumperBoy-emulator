@@ -6,18 +6,18 @@ namespace jmpr
 {
 	// MBC 1
 
-	MBC1::MBC1(u8 *romData, u32 romSize, u32 ramSize, bool hasBattery) : MBC(ramSize > 0, hasBattery)
+	MBC1::MBC1(const std::vector<u8>& romData, u32 ramSize, bool hasBattery) : MBC(ramSize > 0, hasBattery)
 	{
 		_rom_bank_num = 1;
 		_ram_enabled = 0;
 		_ram_bank_num = 0;
 		_banking_mode = 0;
 
-		u8 romBankCount = romSize / 0x4000;
+		u8 romBankCount = romData.size() / 0x4000;
 
 		for (u8 i = 0; i < romBankCount; i++)
 		{
-			_rom_banks.push_back(std::unique_ptr<u8>(&romData[0x4000 * i]));
+			_rom_banks.push_back(std::vector<u8>(romData.begin() + i * 0x4000, romData.begin() + (i + 1) * 0x4000));
 		}
 
 		// Only allocate RAM if needed
@@ -28,7 +28,7 @@ namespace jmpr
 
 		for (u8 i = 0; i < ramBankCount; i++)
 		{
-			_ram_banks.push_back(std::unique_ptr<u8>(new u8[0x2000]));
+			_ram_banks.push_back(std::vector<u8>(0x2000));
 		}
 	}
 
@@ -37,7 +37,7 @@ namespace jmpr
 		if (between(address, 0x0000, 0x3FFF))
 		{
 			u8 bankId = _banking_mode ? _ram_bank_num : 0;
-			return _rom_banks[bankId].get()[address];
+			return _rom_banks[bankId][address];
 		}
 
 		else if (between(address, 0x4000, 0x7FFF))
@@ -45,13 +45,13 @@ namespace jmpr
 			u8 romMaskSize = static_cast<u8>(std::log2(_rom_banks.size() - 1)) + 1;
 			u8 romMask = (1 << romMaskSize) - 1;
 			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num & romMask;
-			return _rom_banks[bankId].get()[address - 0x4000];
+			return _rom_banks[bankId][address - 0x4000];
 		}
 
 		else if (between(address, 0xA000, 0xBFFF) && _ram_enabled == 0x0A && _has_ram)
 		{
 			u8 bankId = _banking_mode ? _ram_bank_num : 0;
-			return _ram_banks[bankId].get()[address - 0xA000];
+			return _ram_banks[bankId][address - 0xA000];
 		}
 
 		return 0xFF;
@@ -86,7 +86,7 @@ namespace jmpr
 		else if (between(address, 0xA000, 0xBFFF) && _ram_enabled && _has_ram)
 		{
 
-			_ram_banks[_ram_bank_num].get()[address - 0xA000] = data;
+			_ram_banks[_ram_bank_num][address - 0xA000] = data;
 
 			if (_has_battery)
 				_waiting_for_save = true;
@@ -95,7 +95,7 @@ namespace jmpr
 
 	// MBC 3
 
-	MBC3::MBC3(u8 *romData, u32 romSize, u32 ramSize, bool hasBattery, bool hasTimer) : MBC(ramSize > 0, hasBattery)
+	MBC3::MBC3(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer) : MBC(ramSize > 0, hasBattery)
 	{
 		_has_timer = hasTimer;
 
@@ -112,11 +112,11 @@ namespace jmpr
 		_clk_registers[3] = 0;
 		_clk_registers[4] = 0;
 
-		u8 romBankCount = romSize / 0x4000;
+		u8 romBankCount = romData.size() / 0x4000;
 
 		for (u8 i = 0; i < romBankCount; i++)
 		{
-			_rom_banks.push_back(std::unique_ptr<u8>(&romData[0x4000 * i]));
+			_rom_banks.push_back(std::vector<u8>(romData.begin() + i * 0x4000, romData.begin() + (i + 1) * 0x4000));
 		}
 
 		// Only allocate RAM if needed
@@ -127,7 +127,7 @@ namespace jmpr
 
 		for (u8 i = 0; i < ramBankCount; i++)
 		{
-			_ram_banks.push_back(std::unique_ptr<u8>(new u8[0x2000]));
+			_ram_banks.push_back(std::vector<u8>(0x2000));
 		}
 	}
 
@@ -136,18 +136,18 @@ namespace jmpr
 
 		if (between(address, 0x0000, 0x3FFF))
 		{
-			return _rom_banks[0].get()[address];
+			return _rom_banks[0][address];
 		}
 		else if (between(address, 0x4000, 0x7FFF))
 		{
-			return _rom_banks[_rom_bank_num].get()[address - 0x4000];
+			return _rom_banks[_rom_bank_num][address - 0x4000];
 		}
 
 		else if (between(address, 0xA000, 0xBFFF) && _ram_timer_enabled == 0x0A)
 		{
 			if (_mode == RamRtcMode::RAM && _has_ram)
 			{
-				return _ram_banks[_ram_rtc_select].get()[address - 0xA000];
+				return _ram_banks[_ram_rtc_select][address - 0xA000];
 			}
 			else if (_mode == RamRtcMode::RTC && _has_timer)
 			{
@@ -196,7 +196,7 @@ namespace jmpr
 		{
 			if (_mode == RamRtcMode::RAM && _has_ram)
 			{
-				_ram_banks[_ram_rtc_select].get()[address - 0xA000] = data;
+				_ram_banks[_ram_rtc_select][address - 0xA000] = data;
 
 				if (_has_battery && _has_ram)
 					_waiting_for_save = true;

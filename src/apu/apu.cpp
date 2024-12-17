@@ -3,7 +3,9 @@
 namespace jmpr
 {
 	APU::APU()
-	: _sample_pointer(0),
+	: 
+	_samples(std::array<float, 2 * APU::MAX_SAMPLES>()),
+	_sample_pointer(0),
 	_sample_counter(0),
 	_ready_buffer(0),
 	_apu_power(true),
@@ -19,14 +21,13 @@ namespace jmpr
 
 	void APU::reboot()
 	{
-		// todo
 		_sample_pointer = 0;
 		_sample_counter = 0;
 		_ready_buffer = 0;
 		_left_vol = 0b111;
 		_right_vol = 0b111;
 
-		memset(_samples, 0, 4096 * sizeof(float));
+		_samples.fill(0);
 	}
 
 	void APU::toggleChannel(u8 channelId)

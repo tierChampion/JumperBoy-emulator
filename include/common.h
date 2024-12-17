@@ -2,6 +2,7 @@
 
 #include <cinttypes>
 #include <iostream>
+#include <vector>
 #include <memory>
 
 #ifdef __linux__

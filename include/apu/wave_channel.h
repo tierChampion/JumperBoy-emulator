@@ -6,7 +6,7 @@ namespace jmpr {
 
 	class WaveChannel : public AudioChannel {
 
-		u8 _waveRAM[0x10];
+		std::array<u8, 0x10> _waveRAM;
 
 		u8 _output_level;
 
