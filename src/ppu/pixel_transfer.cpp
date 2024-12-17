@@ -9,7 +9,7 @@
 namespace jmpr
 {
 
-	PixelTransferHandler::PixelTransferHandler(std::shared_ptr<LCD> lcd, VRAM *vram, CRAM *crams)
+	PixelTransferHandler::PixelTransferHandler(LCD* lcd, VRAM *vram, const std::array<std::shared_ptr<CRAM>, 2>& crams)
 	{
 		_lcd = lcd;
 		_vram = vram;
@@ -85,7 +85,7 @@ namespace jmpr
 	// Main transfer function
 
 	// TODO apparently the slowest function!
-	void PixelTransferHandler::pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots)
+	void PixelTransferHandler::pixelTransferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer, u16 lineDots)
 	{
 
 		_map_y = _lcd->getScanline() + _lcd->getBGScrollY();
@@ -311,8 +311,8 @@ namespace jmpr
 		}
 		else
 		{
-			u8 lo = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 0);
-			u8 hi = _crams[0].ppuRead(_bgw_fetch.attributes & 0b111, colorId, 1);
+			u8 lo = _crams[0]->ppuRead(_bgw_fetch.attributes & 0b111, colorId, 0);
+			u8 hi = _crams[0]->ppuRead(_bgw_fetch.attributes & 0b111, colorId, 1);
 			return lo | (hi << 8);
 		}
 	}
@@ -326,8 +326,8 @@ namespace jmpr
 		else
 		{
 			// return 0xFFFF;
-			u8 lo = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 0);
-			u8 hi = _crams[1].ppuRead(spr.spr->cgbPallet(), colorId, 1);
+			u8 lo = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 0);
+			u8 hi = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 1);
 			return lo | (hi << 8);
 		}
 	}
@@ -422,7 +422,7 @@ namespace jmpr
 		return true;
 	}
 
-	void PixelTransferHandler::pushToVBufferProcedure(std::shared_ptr<u16> vbuffer)
+	void PixelTransferHandler::pushToVBufferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer)
 	{
 
 		// switch to a general pixel fifo
@@ -436,7 +436,7 @@ namespace jmpr
 			// Only render if pixel is visible with the scroll
 			if (_lx >= getCurrentScroll())
 			{
-				vbuffer.get()[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
+				vbuffer[_lcd->getScanline() * X_RESOLUTION + _pushed_x] = color;
 
 				_pushed_x++;
 			}

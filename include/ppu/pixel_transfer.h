@@ -33,9 +33,9 @@ namespace jmpr {
 
 	class PixelTransferHandler {
 
-		std::shared_ptr<LCD> _lcd;
+		LCD* _lcd;
 		VRAM* _vram;
-		CRAM* _crams;
+		std::array<std::shared_ptr<CRAM>, 2> _crams;
 
 		FifoPhase _phase;
 		std::queue<u16> _pixel_fifo;
@@ -61,7 +61,7 @@ namespace jmpr {
 	public:
 
 		PixelTransferHandler() {}
-		PixelTransferHandler(std::shared_ptr<LCD> lcd, VRAM* vram, CRAM* crams);
+		PixelTransferHandler(LCD* lcd, VRAM* vram, const std::array<std::shared_ptr<CRAM>, 2>& crams);
 
 		void reboot();
 
@@ -71,7 +71,7 @@ namespace jmpr {
 		void resetFifo();
 		void resetWindow();
 
-		void pixelTransferProcedure(std::shared_ptr<u16> vbuffer, u16 lineDots);
+		void pixelTransferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer, u16 lineDots);
 
 		void jumpWindowScanline();
 
@@ -95,7 +95,7 @@ namespace jmpr {
 		// Pushing
 
 		bool pushToFifoProcedure();
-		void pushToVBufferProcedure(std::shared_ptr<u16> vbuffer);
+		void pushToVBufferProcedure(std::array<u16, PIXEL_COUNT>& vbuffer);
 
 
 		// Window status

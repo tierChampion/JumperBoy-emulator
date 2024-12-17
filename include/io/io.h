@@ -18,7 +18,7 @@ namespace jmpr {
 		u8 _serial_trans[2]; // cgb?
 		Timer* _timer;
 		APU* _apu;
-		std::shared_ptr<LCD> _lcd;
+		LCD* _lcd;
 		ObjectDMA* _odma;
 		VideoDMA* _vdma;
 		// TODO add a new class / datastructure to hold these registers
@@ -33,7 +33,7 @@ namespace jmpr {
 	public:
 
 		IO() {}
-		IO(Joypad* pad, Timer* tim, APU* apu, std::shared_ptr<LCD> lcd, ObjectDMA* odma, VideoDMA* vdma);
+		IO(Joypad* pad, Timer* tim, APU* apu, LCD* lcd, ObjectDMA* odma, VideoDMA* vdma);
 
 		u8 read(u16 address) const;
 		void write(u16 address, u8 data);

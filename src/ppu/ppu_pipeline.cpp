@@ -86,7 +86,7 @@ namespace jmpr {
 				// One scan takes two dots.
 				u16 id = _line_dots / 2;
 
-				Sprite spr = _oam.ppuRead(id);
+				Sprite spr = _oam->ppuRead(id);
 
 				if (spr._xpos != 0 &&
 					_lcd->getScanline() + 16 >= spr._ypos &&

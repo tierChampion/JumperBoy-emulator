@@ -50,7 +50,7 @@ namespace jmpr
 
 	class OAM
 	{
-		Sprite _oam[40];
+		std::array<Sprite, 40> _oam;
 
 	public:
 		OAM();
@@ -66,7 +66,7 @@ namespace jmpr
 
 	class CRAM
 	{
-		u8 _cram[0x40];
+		std::array<u8, 0x40> _cram;
 		u8 _bcps;
 		bool _obj;
 

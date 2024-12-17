@@ -21,7 +21,6 @@ namespace jmpr
 
 	void WaveChannel::update()
 	{
-
 		_timer--;
 
 		if (_timer == 0)

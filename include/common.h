@@ -27,6 +27,7 @@ namespace jmpr
 
 	static const u8 X_RESOLUTION = 160;
 	static const u8 Y_RESOLUTION = 144;
+	static const u16 PIXEL_COUNT = X_RESOLUTION * Y_RESOLUTION;
 	static const float GB_FPS = 59.7f;
 
 	inline u16 merge16(u8 high, u8 low)

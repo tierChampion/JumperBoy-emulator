@@ -5,16 +5,18 @@
 
 namespace jmpr
 {
-	PPU::PPU(InterruptHandler *intHandler) : _vram(), _oam()
+	PPU::PPU(InterruptHandler *intHandler)
 	{
-		_cram[0] = CRAM(false);
-		_cram[1] = CRAM(true);
+		_vram = std::make_unique<VRAM>();
+		_oam = std::make_unique<OAM>();
+		_cram[0] = std::make_shared<CRAM>(false);
+		_cram[1] = std::make_shared<CRAM>(true);
 
-		_vbuffer = std::shared_ptr<u16>(new u16[X_RESOLUTION * Y_RESOLUTION]);
+		_vbuffer = std::array<u16, PIXEL_COUNT>();
 
-		_lcd = std::make_shared<LCD>(intHandler);
+		_lcd = std::make_unique<LCD>(intHandler);
 
-		_pt_handler = PixelTransferHandler(_lcd, &_vram, _cram);
+		_pt_handler = PixelTransferHandler(_lcd.get(), _vram.get(), _cram);
 
 		_it_handler = intHandler;
 
@@ -73,6 +75,6 @@ namespace jmpr
 
 	u16 PPU::readBuffer(u32 index)
 	{
-		return _vbuffer.get()[index];
+		return _vbuffer[index];
 	}
 }
