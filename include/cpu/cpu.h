@@ -50,7 +50,7 @@ namespace jmpr {
 		u16 _mem_dest;
 		bool _dest_is_mem;
 
-		// Interrupts TODO switch to unique_ptr
+		// Interrupts
 		std::unique_ptr<InterruptHandler> _it_handler;
 
 		// Status

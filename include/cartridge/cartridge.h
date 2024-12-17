@@ -36,7 +36,6 @@ namespace jmpr {
 		bool _error;
 		std::string _filename;
 		std::string _savename;
-		// u32 _rom_size = 0; // TODO
 		std::vector<u8> _rom_data;
 		CartridgeHeader _header;
 		MBC* _mbc;
