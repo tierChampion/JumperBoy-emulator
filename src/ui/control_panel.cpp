@@ -197,7 +197,6 @@ namespace jmpr
                         ("(" + inputToName(static_cast<JumperInput>(i)) + ") " + _controls.inputs[i - 1]).c_str()))
                 {
                     _controls.inputs[i - 1] = std::toupper(_last_input.keysym.sym);
-                    std::cout << i - 1 << std::endl;
                 }
             }
 

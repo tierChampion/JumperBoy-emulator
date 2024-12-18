@@ -14,6 +14,8 @@ namespace jmpr
 		_banking_mode = 0;
 
 		u8 romBankCount = romData.size() / 0x4000;
+		u8 romMaskSize = static_cast<u8>(std::log2(romBankCount - 1)) + 1;
+		_rom_bank_mask = (1 << romMaskSize) - 1;
 
 		for (u8 i = 0; i < romBankCount; i++)
 		{
@@ -36,16 +38,16 @@ namespace jmpr
 	{
 		if (between(address, 0x0000, 0x3FFF))
 		{
-			u8 bankId = _banking_mode ? _ram_bank_num : 0;
-			return _rom_banks[bankId][address];
+			u8 bankId = _banking_mode ? (_ram_bank_num << 5) : 0;
+			return _rom_banks[bankId & _rom_bank_mask][address];
 		}
 
 		else if (between(address, 0x4000, 0x7FFF))
 		{
 			u8 romMaskSize = static_cast<u8>(std::log2(_rom_banks.size() - 1)) + 1;
 			u8 romMask = (1 << romMaskSize) - 1;
-			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num & romMask;
-			return _rom_banks[bankId][address - 0x4000];
+			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num;
+			return _rom_banks[bankId & _rom_bank_mask][address - 0x4000];
 		}
 
 		else if (between(address, 0xA000, 0xBFFF) && _ram_enabled == 0x0A && _has_ram)
@@ -113,6 +115,8 @@ namespace jmpr
 		_clk_registers[4] = 0;
 
 		u8 romBankCount = romData.size() / 0x4000;
+		u8 romMaskSize = static_cast<u8>(std::log2(romBankCount - 1)) + 1;
+		_rom_bank_mask = (1 << romMaskSize) - 1;
 
 		for (u8 i = 0; i < romBankCount; i++)
 		{
@@ -140,7 +144,7 @@ namespace jmpr
 		}
 		else if (between(address, 0x4000, 0x7FFF))
 		{
-			return _rom_banks[_rom_bank_num][address - 0x4000];
+			return _rom_banks[_rom_bank_num & _rom_bank_mask][address - 0x4000];
 		}
 
 		else if (between(address, 0xA000, 0xBFFF) && _ram_timer_enabled == 0x0A)

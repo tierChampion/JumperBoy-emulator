@@ -38,6 +38,7 @@ namespace jmpr {
 		_has_battery = hasBattery;
 
 		_waiting_for_save = false;
+		_rom_bank_mask = 0;
 	}
 
 	bool MBC::hasSavePending() const {

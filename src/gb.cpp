@@ -113,6 +113,7 @@ namespace jmpr
 		if (!_cart->isValid())
 			return false;
 
+		std::cout << *_cart.get() << std::endl;
 		_cgb_mode = _cart->isColor();
 
 		reboot();

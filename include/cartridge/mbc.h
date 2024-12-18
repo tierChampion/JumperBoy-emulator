@@ -16,6 +16,7 @@ namespace jmpr {
 		bool _has_battery;
 
 		bool _waiting_for_save;
+		u8 _rom_bank_mask;
 
 	public:
 
