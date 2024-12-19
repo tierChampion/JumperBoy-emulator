@@ -37,7 +37,6 @@ namespace jmpr
 		_vdma = vdma;
 
 		_vram_select = 0xFF;
-		_disable_bootrom = 0xFF;
 		_wram_select = 0xFF;
 		_key_1 = 0x00;
 	}
@@ -80,10 +79,10 @@ namespace jmpr
 		{
 			out = _vram_select;
 		}
-		else if (range == 0x50)
-		{
-			out = _disable_bootrom;
-		}
+		// else if (range == 0x50)
+		// {
+		// 	out = _disable_bootrom;
+		// }
 		else if (range == 0x55)
 		{
 			out = _vdma->readDMA();
@@ -142,10 +141,10 @@ namespace jmpr
 			_key_1 = data;
 			std::cout << "trying to arm the speed mode " << (data & 1) << std::endl;
 		}
-		else if (range == 0x50)
-		{
-			_disable_bootrom = data;
-		}
+		// else if (range == 0x50)
+		// {
+		// 	_disable_bootrom = data;
+		// }
 		else if (between(range, 0x51, 0x55))
 		{
 			_vdma->write(range, data);

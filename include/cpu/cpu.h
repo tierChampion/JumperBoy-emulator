@@ -15,6 +15,7 @@ namespace jmpr {
 	class RAM;
 	class InterruptHandler;
 	class VideoDMA;
+	class BootRom;
 
 	struct CpuRegisters {
 		u8 _A; // Accumulator
@@ -40,6 +41,7 @@ namespace jmpr {
 
 		Bus* _bus;
 		VideoDMA* _vdma;
+		BootRom* _boot;
 
 		// Current Instruction
 		u8 _curr_opcode;
@@ -65,6 +67,7 @@ namespace jmpr {
 
 		void connectBus(Bus* bus) { _bus = bus; }
 		void connectVideoDMA(VideoDMA* vdma) { _vdma = vdma; }
+		void connectBoot(BootRom* boot) { _boot = boot; }
 
 		InterruptHandler* getInterruptHandler() { return _it_handler.get(); }
 

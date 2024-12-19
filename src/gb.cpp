@@ -16,6 +16,7 @@ namespace jmpr
 		_bus = std::make_unique<Bus>();
 		_cpu = std::make_unique<CPU>();
 		_cart = std::make_unique<Cartridge>();
+		_boot = std::make_unique<BootRom>();
 		_ram = std::make_unique<RAM>();
 		_apu = std::make_unique<APU>();
 		_ppu = std::make_unique<PPU>(_cpu->getInterruptHandler());
@@ -32,6 +33,9 @@ namespace jmpr
 		_cgb_mode = false;
 		_fps = 59.7f;
 		_capped = true;
+
+		// TODO add a ui component for this operation
+		// _boot->load(std::string(DIRECTORY_PATH) + "/roms/boot/dmg.bin");
 	}
 
 	int GameBoy::runGameBoy()
@@ -39,8 +43,8 @@ namespace jmpr
 		_running = false;
 		_ticks = 0;
 
-		reboot();
 		connectComponents();
+		reboot();
 
 		std::thread cpuThread([this]()
 							  { cpuLoop(); });
@@ -60,23 +64,28 @@ namespace jmpr
 		_bus->connectRAM(_ram.get());
 		_bus->connectPPU(_ppu.get());
 		_bus->connectIO(_io.get());
+		_bus->connectCartridge(_cart.get());
+		_bus->connectBoot(_boot.get());
 
 		_cpu->connectBus(_bus.get());
 		_cpu->connectVideoDMA(_vdma.get());
+		_cpu->connectBoot(_boot.get());
 		_ppu->connectVideoDMA(_vdma.get());
 		_odma->connectBus(_bus.get());
 		_vdma->connectBus(_bus.get());
+		_cart->connectBoot(_boot.get());
 	}
 
 	void GameBoy::reboot()
 	{
-		_cpu->reboot();
-		_ppu->reboot();
-		_apu->reboot();
+		_boot->reboot();
 		_joypad->reboot();
-		_timer->reboot();
 		_odma->reboot();
 		_vdma->reboot();
+		_timer->reboot();
+		_apu->reboot();
+		_ppu->reboot();
+		_cpu->reboot();
 	}
 
 	void GameBoy::cpuLoop()
@@ -108,7 +117,7 @@ namespace jmpr
 
 		SDL_Delay(100);
 
-		_cart = std::make_unique<Cartridge>(rom_file);
+		_cart->load(rom_file);
 
 		if (!_cart->isValid())
 			return false;
@@ -117,11 +126,32 @@ namespace jmpr
 		_cgb_mode = _cart->isColor();
 
 		reboot();
-		_bus->connectCartridge(_cart.get());
 
 		_ticks = 0;
 
 		return true;
+	}
+
+	void GameBoy::setBootRom(const std::string &rom_file)
+	{
+		// pause();
+
+		// SDL_Delay(100);
+
+		// _cart = std::make_unique<Cartridge>(rom_file);
+
+		// if (!_cart->isValid())
+		// 	return false;
+
+		// std::cout << *_cart.get() << std::endl;
+		// _cgb_mode = _cart->isColor();
+
+		// reboot();
+		// _bus->connectCartridge(_cart.get());
+
+		// _ticks = 0;
+
+		// return true;
 	}
 
 	void GameBoy::setVolume(float volume)

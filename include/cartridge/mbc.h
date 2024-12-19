@@ -90,5 +90,5 @@ namespace jmpr {
 		void write(u16 address, u8 data) override;
 	};
 
-	MBC* giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize);
+	std::unique_ptr<MBC> giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize);
 }

@@ -6,6 +6,7 @@
 #include <ppu/ppu.h>
 #include <apu/apu.h>
 #include <cartridge/cartridge.h>
+#include <cartridge/boot.h>
 #include <io/joypad.h>
 #include <io/timer.h>
 #include <ram.h>
@@ -26,6 +27,7 @@ namespace jmpr
 		std::unique_ptr<PPU> _ppu;
 		std::unique_ptr<APU> _apu;
 		std::unique_ptr<Cartridge> _cart;
+		std::unique_ptr<BootRom> _boot;
 		std::unique_ptr<Joypad> _joypad;
 		std::unique_ptr<Timer> _timer;
 		std::unique_ptr<RAM> _ram;
@@ -57,6 +59,7 @@ namespace jmpr
 		void uiLoop();
 
 		bool insertCartridge(const std::string &rom_file);
+		void setBootRom(const std::string &rom_file);
 		void setVolume(float volume);
 		void toggleAudioChannel(u8 id);
 

@@ -4,27 +4,27 @@
 
 namespace jmpr {
 
-	MBC* giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize) {
+	std::unique_ptr<MBC> giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize) {
 
 		// No MBC
 		if (cartridgeHardware == 0x00 || cartridgeHardware == 0x08 || cartridgeHardware == 0x09) {
 
-			return new NoMBC(romData, ramSize, cartridgeHardware == 0x09);
+			return std::make_unique<NoMBC>(romData, ramSize, cartridgeHardware == 0x09);
 		}
 		// MBC1
 		else if (between(cartridgeHardware, 0x01, 0x03)) {
 
-			return new MBC1(romData, ramSize, cartridgeHardware == 0x03);
+			return std::make_unique<MBC1>(romData, ramSize, cartridgeHardware == 0x03);
 		}
 		else if (between(cartridgeHardware, 0x0F, 0x13)) {
 
-			return new MBC3(romData, ramSize,
+			return std::make_unique<MBC3>(romData, ramSize,
 				cartridgeHardware == 0x0F || cartridgeHardware == 0x10 || cartridgeHardware == 0x13,
 				cartridgeHardware == 0x0F || cartridgeHardware == 0x10);
 		}
 
 		std::cerr << "Error: The game requested has unsupported cartridge hardware. \n" << std::endl;
-		return nullptr;
+		return std::unique_ptr<MBC>(nullptr);
 	}
 
 	// MBC template

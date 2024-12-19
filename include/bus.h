@@ -6,6 +6,7 @@ namespace jmpr {
 
 	class CPU;
 	class Cartridge;
+	class BootRom;
 	class RAM;
 	class PPU;
 	class IO;
@@ -14,6 +15,7 @@ namespace jmpr {
 
 		CPU* _cpu;
 		Cartridge* _cart;
+		BootRom* _boot;
 		RAM* _ram;
 		PPU* _ppu;
 		IO* _io;
@@ -24,6 +26,7 @@ namespace jmpr {
 
 		void connectCPU(CPU* cpu) { _cpu = cpu; }
 		void connectCartridge(Cartridge* cart) { _cart = cart; }
+		void connectBoot(BootRom* boot) { _boot = boot; }
 		void connectRAM(RAM* ram) { _ram = ram; }
 		void connectPPU(PPU* ppu) { _ppu = ppu; }
 		void connectIO(IO* io) { _io = io; }

@@ -16,6 +16,7 @@ add_executable(JumperBoy
 "io/timer.cpp" 
 "io/joypad.cpp" 
 "cartridge/cartridge.cpp" 
+"cartridge/boot.cpp" 
 "cartridge/mbc_commons.cpp" 
 "cartridge/mbc.cpp" 
 "ppu/ppu.cpp" 
