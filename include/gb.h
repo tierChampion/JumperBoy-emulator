@@ -59,7 +59,7 @@ namespace jmpr
 		void uiLoop();
 
 		bool insertCartridge(const std::string &rom_file);
-		void setBootRom(const std::string &rom_file);
+		bool setBootRom(const std::string &rom_file);
 		void setVolume(float volume);
 		void toggleAudioChannel(u8 id);
 

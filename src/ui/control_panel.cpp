@@ -34,6 +34,7 @@ namespace jmpr
     void UI::initControls()
     {
         _controls.browser = false;
+        _controls.boot = false;
         _controls.tiles = false;
         _controls.tileBank = 0;
         _controls.vol = 0.05f;
@@ -106,6 +107,21 @@ namespace jmpr
             }
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Boot ROM"))
+        {
+            ImGui::Text((std::string("Current: ") + _boot->getCurrentBootFile()).c_str());
+            if (ImGui::MenuItem("Select ROM"))
+            {
+                initFileBrowser();
+                _controls.boot = true;
+            }
+            if (ImGui::MenuItem("Clear selection"))
+            {
+                GameBoy::getInstance()->setBootRom("");
+            }
+            ImGui::EndMenu();
+        }
+
         if (ImGui::MenuItem("Quit"))
             _opened = false;
     }
@@ -251,21 +267,28 @@ namespace jmpr
 
     void UI::browserWindow()
     {
-        if (_controls.browser)
-        {
-            _file_browser.Display();
+        if (!_controls.browser)
+            return;
 
-            if (_file_browser.HasSelected())
+        _file_browser.Display();
+
+        if (_file_browser.HasSelected())
+        {
+            if (_controls.boot)
+            {
+                openBoot(_file_browser.GetSelected().string());
+            }
+            else
             {
                 openROM(_file_browser.GetSelected().string());
-
-                _file_browser.ClearSelected();
-                _controls.browser = false;
             }
+
+            _file_browser.ClearSelected();
+            _controls.browser = false;
         }
     }
 
-    void UI::openROM(std::string romPath)
+    void UI::openROM(const std::string &romPath)
     {
         auto it = std::find(_recents.begin(), _recents.end(), romPath);
         if (it != _recents.end())
@@ -281,5 +304,12 @@ namespace jmpr
             _game_window.open();
             GameBoy::getInstance()->resume();
         }
+    }
+
+    void UI::openBoot(const std::string &bootPath)
+    {
+        GameBoy::getInstance()->setBootRom(bootPath);
+        // TODO display error message if wrong
+        _controls.boot = false;
     }
 }

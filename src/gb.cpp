@@ -26,7 +26,7 @@ namespace jmpr
 		_vdma = std::make_unique<VideoDMA>(_ppu->getVRAM());
 		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get());
 		_dbg = Debugger(_bus.get(), true);
-		_ui = UI(_ppu.get(), _apu.get());
+		_ui = UI(_ppu.get(), _apu.get(), _boot.get());
 
 		_running = false;
 		_ticks = 0;
@@ -132,26 +132,9 @@ namespace jmpr
 		return true;
 	}
 
-	void GameBoy::setBootRom(const std::string &rom_file)
+	bool GameBoy::setBootRom(const std::string &rom_file)
 	{
-		// pause();
-
-		// SDL_Delay(100);
-
-		// _cart = std::make_unique<Cartridge>(rom_file);
-
-		// if (!_cart->isValid())
-		// 	return false;
-
-		// std::cout << *_cart.get() << std::endl;
-		// _cgb_mode = _cart->isColor();
-
-		// reboot();
-		// _bus->connectCartridge(_cart.get());
-
-		// _ticks = 0;
-
-		// return true;
+		return _boot->load(rom_file);
 	}
 
 	void GameBoy::setVolume(float volume)

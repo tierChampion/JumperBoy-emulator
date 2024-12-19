@@ -7,10 +7,11 @@
 
 namespace jmpr
 {
-	UI::UI(PPU* ppu, APU *apu)
+	UI::UI(PPU* ppu, APU *apu, BootRom* boot)
 		: _opened(true),
 		  _game_window(ppu),
 		  _audio_manager(apu),
+		  _boot(boot),
 		  _input_preset(0),
 		  _last_input(SDL_KeyboardEvent())
 	{

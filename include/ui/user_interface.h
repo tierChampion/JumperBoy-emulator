@@ -20,10 +20,12 @@ namespace jmpr
 	class VRAM;
 	class PPU;
 	class APU;
+	class BootRom;
 
 	struct Controls
 	{
 		bool browser;
+		bool boot;
 		bool tiles;
 		u8 tileBank;
 		float vol;
@@ -60,9 +62,13 @@ namespace jmpr
 		std::vector<std::map<std::string, JumperInput>> _input_maps;
 		u8 _input_preset;
 
+		BootRom *_boot;
+
 	public:
-		UI() {}
-		UI(PPU* ppu, APU* apu);
+		UI()
+		{
+		}
+		UI(PPU *ppu, APU *apu, BootRom *boot);
 		void cleanup();
 
 		bool isOpened() { return _opened; }
@@ -79,7 +85,8 @@ namespace jmpr
 		void render();
 
 		void renderImGui();
-		void openROM(std::string romPath);
+		void openROM(const std::string &romPath);
+		void openBoot(const std::string &bootPath);
 		void fileMenu();
 		void optionsMenu();
 		void palletWindow();
