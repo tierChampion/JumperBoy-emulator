@@ -406,7 +406,7 @@ namespace jmpr
 				pixel = _lcd->getBGWindowColor(0);
 			}
 
-			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (!_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
 			{

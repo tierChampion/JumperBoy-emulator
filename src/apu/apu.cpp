@@ -151,7 +151,7 @@ namespace jmpr
 		// Power OFF
 		if (!_apu_power)
 		{
-			// todo: set every single registers in the apu to 0.
+			// TODO set every single registers in the apu to 0.
 		}
 	}
 

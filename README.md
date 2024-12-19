@@ -23,3 +23,18 @@ For the audio to work, you might need to set the SDL_AUDIODRIVER environnement v
 
 To compile this application, simply compile it like a cmake project in microsoft visual studio 2022. For now, only the x64 versions 
 are working.
+
+## Tests
+
+Passes all the basic Blargg test for instructions, the acid2 tests by Math Currie.
+
+Behaviour that is known to not be correct / tested:
+- OBJ priority in CGB mode
+- RAM for MBC1
+- MBC3 & MBC5
+
+### Games
+
+Some games that have issues are:
+- Pokemon Crystal (text doesn't render correctly)
+- All MBC5 games (not implemented yet)

@@ -8,6 +8,9 @@
         },
         {
             "path": "./include"
+        },
+        {
+            "path": "./roms"
         }
     ],
     "settings": {

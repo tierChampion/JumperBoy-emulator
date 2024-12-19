@@ -44,8 +44,6 @@ namespace jmpr
 
 		else if (between(address, 0x4000, 0x7FFF))
 		{
-			u8 romMaskSize = static_cast<u8>(std::log2(_rom_banks.size() - 1)) + 1;
-			u8 romMask = (1 << romMaskSize) - 1;
 			u8 bankId = _rom_banks.size() > 0b11111 ? (_ram_bank_num << 5) | _rom_bank_num : _rom_bank_num;
 			return _rom_banks[bankId & _rom_bank_mask][address - 0x4000];
 		}
@@ -144,6 +142,7 @@ namespace jmpr
 		}
 		else if (between(address, 0x4000, 0x7FFF))
 		{
+			// std::cout << int(address) << std::endl;
 			return _rom_banks[_rom_bank_num & _rom_bank_mask][address - 0x4000];
 		}
 

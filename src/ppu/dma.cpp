@@ -29,7 +29,6 @@ namespace jmpr
 
 	void ObjectDMA::requestDMA(u8 source)
 	{
-
 		_dma = source;		   // MSB of the address to copie to OAM.
 		_process_timer = 0xA0; // process is 160 cpu cycles long
 	}
@@ -112,10 +111,10 @@ namespace jmpr
 			{
 				_current_length = _total_length;
 			}
-			// else
-			// {
-			// 	continueHBlankDMA();
-			// }
+			else
+			{
+				continueHBlankDMA();
+			}
 		}
 	}
 
@@ -152,7 +151,7 @@ namespace jmpr
 	{
 		if (_mode == 1)
 		{
-			_current_length = std::min((u16)0x10, _total_length);
+			_current_length = std::min((u16)0x0010, _total_length);
 		}
 	}
 
