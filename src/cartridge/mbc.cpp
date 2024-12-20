@@ -6,7 +6,7 @@ namespace jmpr
 {
 	// MBC 1
 
-	MBC1::MBC1(const std::vector<u8>& romData, u32 ramSize, bool hasBattery) : MBC(ramSize > 0, hasBattery)
+	MBC1::MBC1(const std::vector<u8> &romData, u32 ramSize, bool hasBattery) : MBC(ramSize > 0, hasBattery)
 	{
 		_rom_bank_num = 1;
 		_ram_enabled = 0;
@@ -95,7 +95,7 @@ namespace jmpr
 
 	// MBC 3
 
-	MBC3::MBC3(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer) : MBC(ramSize > 0, hasBattery)
+	MBC3::MBC3(const std::vector<u8> &romData, u32 ramSize, bool hasBattery, bool hasTimer) : MBC(ramSize > 0, hasBattery)
 	{
 		_has_timer = hasTimer;
 
@@ -142,7 +142,6 @@ namespace jmpr
 		}
 		else if (between(address, 0x4000, 0x7FFF))
 		{
-			// std::cout << int(address) << std::endl;
 			return _rom_banks[_rom_bank_num & _rom_bank_mask][address - 0x4000];
 		}
 
@@ -208,6 +207,78 @@ namespace jmpr
 			{
 				_clk_registers[_ram_rtc_select - 8] = data;
 			}
+		}
+	}
+
+	MBC5::MBC5(const std::vector<u8> &romData, u32 ramSize, bool hasBattery) : MBC(ramSize > 0, hasBattery)
+	{
+		_rom_bank_num = 1;
+		_ram_enabled = 0;
+		_ram_bank_num = 0;
+
+		u16 romBankCount = romData.size() / 0x4000;
+		u16 romMaskSize = static_cast<u8>(std::log2(romBankCount - 1)) + 1;
+		_rom_bank_mask = (1 << romMaskSize) - 1;
+
+		for (u16 i = 0; i < romBankCount; i++)
+		{
+			_rom_banks.push_back(std::vector<u8>(romData.begin() + i * 0x4000, romData.begin() + (i + 1) * 0x4000));
+		}
+
+		// Only allocate RAM if needed
+		if (!_has_ram)
+			return;
+
+		u8 ramBankCount = ramSize / 0x2000;
+
+		for (u8 i = 0; i < ramBankCount; i++)
+		{
+			_ram_banks.push_back(std::vector<u8>(0x2000));
+		}
+	}
+
+	u8 MBC5::read(u16 address) const
+	{
+		if (between(address, 0x0000, 0x3FFF))
+		{
+			return _rom_banks[0][address];
+		}
+
+		else if (between(address, 0x4000, 0x7FFF))
+		{
+			return _rom_banks[_rom_bank_num & _rom_bank_mask][address - 0x4000];
+		}
+
+		else if (between(address, 0xA000, 0xBFFF) && _ram_enabled == 0x0A && _has_ram)
+		{
+			return _ram_banks[_ram_bank_num][address - 0xA000];
+		}
+
+		return 0xFF;
+	}
+
+	void MBC5::write(u16 address, u8 data)
+	{
+
+		if (between(address, 0x0000, 0x1FFF))
+		{
+			_ram_enabled = data & 0xF;
+		}
+		else if (between(address, 0x2000, 0x2FFF))
+		{
+			_rom_bank_num = _rom_bank_num & 0xFF00 | data;
+		}
+		else if (between(address, 0x3000, 0x3FFF))
+		{
+			_rom_bank_num = _rom_bank_num & 0x00FF | ((data & 1) << 8);
+		}
+		else if (between(address, 0x6000, 0x7FFF))
+		{
+			_ram_bank_num = data & 0x0F;
+		}
+		else if (between(address, 0xA000, 0xBFFF)) 
+		{
+			_ram_banks[_ram_bank_num][address - 0xA000] = data;
 		}
 	}
 }

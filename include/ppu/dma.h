@@ -58,7 +58,7 @@ namespace jmpr {
 		void setStart(u8 start);
 		bool inProcess();
 		void requestDMA(u8 source);
-		void processDMA();
+		void processDMA(bool halted);
 		void continueHBlankDMA();
 
 		u8 readDMA() const;

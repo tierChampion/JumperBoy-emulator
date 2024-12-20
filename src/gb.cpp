@@ -180,7 +180,7 @@ namespace jmpr
 			}
 
 			_odma->processDMA();
-			_vdma->processDMA();
+			_vdma->processDMA(_cpu->isHalted());
 		}
 	}
 }

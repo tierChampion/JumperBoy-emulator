@@ -118,9 +118,9 @@ namespace jmpr
 		}
 	}
 
-	void VideoDMA::processDMA()
+	void VideoDMA::processDMA(bool halted)
 	{
-		if (inProcess())
+		if (inProcess() && !halted)
 		{
 			// do the transfer (2 bytes)
 			u16 sourceAddress = (_source & 0xFFF0) + _elapsed_length;

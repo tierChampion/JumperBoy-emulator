@@ -40,6 +40,8 @@ namespace jmpr
 
 		u32 rom_size = (u32)(end - begin);
 
+		std::cout << "size: " << rom_size << std::endl;
+
 		_rom_data = std::vector<u8>(rom_size);
 
 		stream.read((char *)_rom_data.data(), _rom_data.size());
@@ -476,7 +478,7 @@ namespace jmpr
 	 */
 	bool Cartridge::isColor() const
 	{
-		return _header._cgb_flag == 0xC0 || _header._cgb_flag == 0x80;
+		return _header._cgb_flag == 0xC0;// || _header._cgb_flag == 0x80;
 	}
 
 	std::ostream &operator<<(std::ostream &os, const Cartridge &cartridge)

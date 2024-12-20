@@ -3,12 +3,13 @@
 #include <common.h>
 #include <vector>
 
-namespace jmpr {
+namespace jmpr
+{
 
-	class MBC {
+	class MBC
+	{
 
 	protected:
-
 		std::vector<std::vector<u8>> _rom_banks;
 		std::vector<std::vector<u8>> _ram_banks;
 
@@ -16,31 +17,31 @@ namespace jmpr {
 		bool _has_battery;
 
 		bool _waiting_for_save;
-		u8 _rom_bank_mask;
+		u16 _rom_bank_mask;
 
 	public:
-
 		MBC(bool hasRam, bool hasBattery);
 
 		virtual u8 read(u16 address) const = 0;
 		virtual void write(u16 address, u8 data) = 0;
 
 		bool hasSavePending() const;
-		void save(const char* path);
-		void loadSave(const char* path);
+		void save(const char *path);
+		void loadSave(const char *path);
 	};
 
-	class NoMBC : public MBC {
+	class NoMBC : public MBC
+	{
 
 	public:
-
-		NoMBC(const std::vector<u8>& romData, bool hasRam, bool hasBattery);
+		NoMBC(const std::vector<u8> &romData, bool hasRam, bool hasBattery);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
 	};
 
-	class MBC1 : public MBC {
+	class MBC1 : public MBC
+	{
 
 		u8 _ram_enabled;
 		u8 _rom_bank_num;
@@ -48,20 +49,21 @@ namespace jmpr {
 		u8 _banking_mode;
 
 	public:
-
-		MBC1(const std::vector<u8>& romData, u32 ramSize, bool hasBattery);
+		MBC1(const std::vector<u8> &romData, u32 ramSize, bool hasBattery);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
 	};
 
-	enum class RamRtcMode {
+	enum class RamRtcMode
+	{
 		RAM,
 		RTC,
 		NONE
 	};
 
-	class MBC3 : public MBC {
+	class MBC3 : public MBC
+	{
 
 		u8 _ram_timer_enabled;
 		u8 _rom_bank_num;
@@ -75,20 +77,24 @@ namespace jmpr {
 		bool _has_timer;
 
 	public:
-
-		MBC3(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer);
-
-		u8 read(u16 address) const override;
-		void write(u16 address, u8 data) override;
-	};
-
-	class MBC5 : public MBC {
-
-		MBC5(const std::vector<u8>& romData, u32 ramSize, bool hasBattery, bool hasTimer);
+		MBC3(const std::vector<u8> &romData, u32 ramSize, bool hasBattery, bool hasTimer);
 
 		u8 read(u16 address) const override;
 		void write(u16 address, u8 data) override;
 	};
 
-	std::unique_ptr<MBC> giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8>& romData, u32 ramSize);
+	class MBC5 : public MBC
+	{
+		u8 _ram_enabled;
+		u16 _rom_bank_num;
+		u8 _ram_bank_num;
+
+	public:
+		MBC5(const std::vector<u8> &romData, u32 ramSize, bool hasBattery);
+
+		u8 read(u16 address) const override;
+		void write(u16 address, u8 data) override;
+	};
+
+	std::unique_ptr<MBC> giveAppropriateMBC(u8 cartridgeHardware, const std::vector<u8> &romData, u32 ramSize);
 }

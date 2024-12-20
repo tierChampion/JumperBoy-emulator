@@ -9,7 +9,7 @@ namespace jmpr
 {
     const u8 DEFAULT_SCALE = 4;
 
-    GameWindow::GameWindow(PPU* ppu) : _ppu(ppu), _opened(false),
+    GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
                                        _debug(false),
                                        _bank(0),
                                        _pallet_id(0),
@@ -186,7 +186,7 @@ namespace jmpr
         {
             for (u16 x = 0; x < 16; x++)
             {
-                renderSingleTile((y * 16) + x, (x)*tileDim + tileDim / 2, y * tileDim);
+                renderSingleTile((y * 16) + x, x * tileDim + tileDim / 2, y * tileDim);
             }
         }
     }
