@@ -12,6 +12,7 @@
 #include <ram.h>
 #include <ppu/dma.h>
 #include <io/io.h>
+#include <io/speed_manager.h>
 #include <cpu/debugging.h>
 #include <ui/user_interface.h>
 
@@ -34,7 +35,7 @@ namespace jmpr
 		std::unique_ptr<ObjectDMA> _odma;
 		std::unique_ptr<VideoDMA> _vdma;
 		std::unique_ptr<IO> _io;
-		std::unique_ptr<InterruptHandler> _it_handler;
+		std::unique_ptr<SpeedManager> _speed;
 
 		Debugger _dbg;
 

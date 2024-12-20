@@ -478,7 +478,7 @@ namespace jmpr
 	 */
 	bool Cartridge::isColor() const
 	{
-		return _header._cgb_flag == 0xC0;// || _header._cgb_flag == 0x80;
+		return _header._cgb_flag == 0xC0 || _header._cgb_flag == 0x80;
 	}
 
 	std::ostream &operator<<(std::ostream &os, const Cartridge &cartridge)

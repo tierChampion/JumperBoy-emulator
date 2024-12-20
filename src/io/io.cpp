@@ -2,6 +2,7 @@
 
 #include <io/joypad.h>
 #include <io/timer.h>
+#include <io/speed_manager.h>
 #include <apu/apu.h>
 #include <ppu/lcd.h>
 #include <ppu/dma.h>
@@ -25,9 +26,7 @@ namespace jmpr
 	*/
 
 	// Initial states: https://gbdev.io/pandocs/Power_Up_Sequence.html
-	IO::IO(Joypad *pad, Timer *tim, APU *apu, LCD* lcd, ObjectDMA *odma, VideoDMA *vdma) : _serial_trans{0x00, 0x7E},
-																										   _vram_dma{0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
-																										   _bg_obj_pallets{0xFF, 0xFF}
+	IO::IO(Joypad *pad, Timer *tim, APU *apu, LCD *lcd, ObjectDMA *odma, VideoDMA *vdma, SpeedManager* speed) : _serial_trans{0x00, 0x7E}
 	{
 		_joypad = pad;
 		_timer = tim;
@@ -35,10 +34,7 @@ namespace jmpr
 		_lcd = lcd;
 		_odma = odma;
 		_vdma = vdma;
-
-		_vram_select = 0xFF;
-		_wram_select = 0xFF;
-		_key_1 = 0x00;
+		_speed = speed;
 	}
 
 	u8 IO::read(u16 address) const
@@ -57,11 +53,11 @@ namespace jmpr
 		}
 		else if (between(range, 0x4, 0x7))
 		{
-			out = _timer->read(address);
+			out = _timer->read(range);
 		}
 		else if (between(range, 0x10, 0x3F))
 		{
-			out = _apu->read(address);
+			out = _apu->read(range);
 		}
 		else if (range == 0x46)
 		{
@@ -73,31 +69,15 @@ namespace jmpr
 		}
 		else if (range == 0x4D)
 		{
-			out = _key_1;
+			out = _speed->getKey1();
 		}
-		else if (range == 0x4F)
-		{
-			out = _vram_select;
-		}
-		// else if (range == 0x50)
-		// {
-		// 	out = _disable_bootrom;
-		// }
 		else if (range == 0x55)
 		{
 			out = _vdma->readDMA();
 		}
-		else if (between(range, 0x68, 0x6B))
-		{
-			out = _bg_obj_pallets[range - 0x68]; // cgb only
-		}
 		else if (range == 0x6C)
 		{
 			out = _lcd->getPriorityMode();
-		}
-		else if (range == 0x70)
-		{
-			out = _wram_select;
 		}
 		else
 		{
@@ -138,13 +118,9 @@ namespace jmpr
 		}
 		else if (range == 0x4D)
 		{
-			_key_1 = data;
+			_speed->requestSpeedSwitch();
 			std::cout << "trying to arm the speed mode " << (data & 1) << std::endl;
 		}
-		// else if (range == 0x50)
-		// {
-		// 	_disable_bootrom = data;
-		// }
 		else if (between(range, 0x51, 0x55))
 		{
 			_vdma->write(range, data);

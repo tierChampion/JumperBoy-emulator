@@ -24,7 +24,8 @@ namespace jmpr
 		_timer = std::make_unique<Timer>(_apu.get(), _cpu->getInterruptHandler());
 		_odma = std::make_unique<ObjectDMA>(_ppu->getOAM());
 		_vdma = std::make_unique<VideoDMA>(_ppu->getVRAM());
-		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get());
+		_speed = std::make_unique<SpeedManager>();
+		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get(), _speed.get());
 		_dbg = Debugger(_bus.get(), true);
 		_ui = UI(_ppu.get(), _apu.get(), _boot.get());
 
@@ -33,9 +34,6 @@ namespace jmpr
 		_cgb_mode = false;
 		_fps = 59.7f;
 		_capped = true;
-
-		// TODO add a ui component for this operation
-		// _boot->load(std::string(DIRECTORY_PATH) + "/roms/boot/dmg.bin");
 	}
 
 	int GameBoy::runGameBoy()
@@ -70,6 +68,7 @@ namespace jmpr
 		_cpu->connectBus(_bus.get());
 		_cpu->connectVideoDMA(_vdma.get());
 		_cpu->connectBoot(_boot.get());
+		_cpu->connectSpeedManager(_speed.get());
 		_ppu->connectVideoDMA(_vdma.get());
 		_odma->connectBus(_bus.get());
 		_vdma->connectBus(_bus.get());
@@ -173,8 +172,12 @@ namespace jmpr
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
 				_timer->update();
-				_ppu->update();
-				_apu->update();
+				// TODO these 2 are not affected by the speed switch
+				if (!_speed->isDoubleSpeed() || t_state % 2 == 0)
+				{
+					_ppu->update();
+					_apu->update();
+				}
 
 				_ticks++;
 			}

@@ -16,6 +16,7 @@ namespace jmpr
 	class InterruptHandler;
 	class VideoDMA;
 	class BootRom;
+	class SpeedManager;
 
 	struct CpuRegisters
 	{
@@ -44,6 +45,7 @@ namespace jmpr
 		Bus *_bus;
 		VideoDMA *_vdma;
 		BootRom *_boot;
+		SpeedManager *_speed;
 
 		// Current Instruction
 		u8 _curr_opcode;
@@ -69,6 +71,7 @@ namespace jmpr
 		void connectBus(Bus *bus) { _bus = bus; }
 		void connectVideoDMA(VideoDMA *vdma) { _vdma = vdma; }
 		void connectBoot(BootRom *boot) { _boot = boot; }
+		void connectSpeedManager(SpeedManager *speed) { _speed = speed; }
 
 		InterruptHandler *getInterruptHandler() { return _it_handler.get(); }
 

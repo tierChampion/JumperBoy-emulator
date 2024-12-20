@@ -229,6 +229,7 @@ namespace jmpr
 		// TODO hard disabled the stop for now.
 		// 		This instruction is pretty much only used when switching speeds (which resumes after some time)
 		//		and the functionallity is not implemented. Simply hopping over is good enough and seems to be fine.
+		_speed->toggleSpeed();
 		// _stopped = true;
 	}
 
