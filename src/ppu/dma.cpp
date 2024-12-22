@@ -81,10 +81,10 @@ namespace jmpr
 			_source = (_source & 0xFF00) | (data);
 			break;
 		case 0x53:
-			_destination = (_source & 0x00FF) | (data << 8);
+			_destination = (_destination & 0x00FF) | (data << 8);
 			break;
 		case 0x54:
-			_destination = (_source & 0xFF00) | (data);
+			_destination = (_destination & 0xFF00) | (data);
 			break;
 		case 0x55:
 			requestDMA(data);
@@ -96,7 +96,6 @@ namespace jmpr
 
 	void VideoDMA::requestDMA(u8 source)
 	{
-		// std::cout << "VDMA REQUEST: " << int(bit(source, 7)) << std::endl;
 		if (_mode == 1 && _total_length > 0 && bit(source, 7) == 0)
 		{
 			_total_length = 0;
@@ -127,6 +126,10 @@ namespace jmpr
 			u16 destinationAddress = ((_destination & 0x1FF0) | 0x8000) + _elapsed_length;
 
 			u8 i = 0;
+			if (_vram->getBank() == 1) {
+				std::cout << "oh yeah!" << std::endl;
+			}
+
 			while (_current_length > 0 && i < 2)
 			{
 				_vram->write(destinationAddress, _bus->read(sourceAddress));
