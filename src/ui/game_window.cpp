@@ -26,11 +26,13 @@ namespace jmpr
     void GameWindow::initWindow()
     {
         u16 width = _scale * X_RESOLUTION;
-
-        if (_debug)
-            width += (16 * 8) * _scale + (_scale * 15) + _scale * 4;
-
         u16 height = _scale * Y_RESOLUTION;
+
+        if (_debug) {
+            width += (16 * 8) * _scale + (_scale * 15) + _scale * 4;
+            height = std::max(_scale * Y_RESOLUTION, (24 * 8) * _scale + (_scale * 23));
+        }
+
 
         if (_window == nullptr)
             _window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
