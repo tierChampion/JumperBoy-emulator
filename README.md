@@ -1,6 +1,14 @@
 # JumperBoy-emulator
+<img src="./img/jump-man.png" width="100">
+
 GameBoy Emulator using SDL2 for rendering and audio, and Imgui for the user interface. 
 Works on both linux and windows.
+
+![pkmn](./img/pkmn-red.png "Pokemon Red")
+*Fight against the rival in Pokemon Red*
+
+![zelda](./img/zelda-dx.png "Link's Awakening")
+*Exploring in Link's awakening*
 
 ## Compilation
 
@@ -26,15 +34,18 @@ are working.
 
 ## Tests
 
-Passes all the basic Blargg test for instructions, the acid2 tests by Math Currie.
+Passes all the basic Blargg test for instructions and the acid2 tests by Math Currie.
 
-Behaviour that is known to not be correct / tested:
-- OBJ priority in CGB mode
-- RAM for MBC1
-- MBC3 & MBC5
+![test](./img/blargg-instr.png "Blargg")
+*Blargg cpu_instrs.gb test ROM result*
 
-### Games
+The Mooneye tests for MBC1 and MBC5 ROM data also passes.
 
-Some games that have issues are:
-- Pokemon Crystal (text doesn't render correctly)
-- All MBC5 games (not implemented yet)
+## Games
+
+Most GB games should work fine if the proper cartridge hardware is supported. However, most CGB games won't be functional
+
+### Known Issues
+
+- Pokemon Silver/Gold: Restarts the game when doing random actions 
+- Pokemon Crystal: Doesn't close the menu properly and triggers the "no window available for popping" debugging message

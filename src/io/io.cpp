@@ -119,7 +119,6 @@ namespace jmpr
 		else if (range == 0x4D)
 		{
 			_speed->requestSpeedSwitch();
-			std::cout << "trying to arm the speed mode " << (data & 1) << std::endl;
 		}
 		else if (between(range, 0x51, 0x55))
 		{
