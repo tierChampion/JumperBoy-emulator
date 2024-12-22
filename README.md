@@ -5,9 +5,11 @@ GameBoy Emulator using SDL2 for rendering and audio, and Imgui for the user inte
 Works on both linux and windows.
 
 ![pkmn](./img/pkmn-red.png "Pokemon Red")
+
 *Fight against the rival in Pokemon Red*
 
 ![zelda](./img/zelda-dx.png "Link's Awakening")
+
 *Exploring in Link's awakening*
 
 ## Compilation
@@ -37,15 +39,24 @@ are working.
 Passes all the basic Blargg test for instructions and the acid2 tests by Math Currie.
 
 ![test](./img/blargg-instr.png "Blargg")
+
 *Blargg cpu_instrs.gb test ROM result*
 
 The Mooneye tests for MBC1 and MBC5 ROM data also passes.
 
 ## Games
 
-Most GB games should work fine if the proper cartridge hardware is supported. However, most CGB games won't be functional
+Most GB games should work fine if the proper cartridge hardware is supported (This includes CGB ports like Link's Awakening DX). However, most CGB games won't be functional.
 
 ### Known Issues
 
 - Pokemon Silver/Gold: Restarts the game when doing random actions 
 - Pokemon Crystal: Doesn't close the menu properly and triggers the "no window available for popping" debugging message
+
+## Documentation
+
+For more info on how the system works, see the [docs folder](./docs/) as well as these links:
+
+- [Pan Docs](https://gbdev.io/pandocs/About.html)
+- [GB opcode](https://gbdev.io/gb-opcodes/optables/)
+- [CGB APU](https://jsgroth.dev/blog/posts/game-boy-color/)
