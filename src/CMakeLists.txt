@@ -38,6 +38,7 @@ add_executable(JumperBoy
 "ui/game_window.cpp"
 "ui/control_panel.cpp"
 "ui/audio_manager.cpp"
+"ui/user_settings.cpp"
 "../libs/imgui/imgui.cpp"
 "../libs/imgui/imgui_demo.cpp"
 "../libs/imgui/imgui_draw.cpp"

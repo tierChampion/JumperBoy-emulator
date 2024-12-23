@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 
+#include <ui/user_settings.h>
+
 namespace jmpr
 {
 
