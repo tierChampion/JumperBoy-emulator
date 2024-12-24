@@ -61,7 +61,6 @@ namespace jmpr
             {"M", JumperInput::START},
             {"O", JumperInput::MAX_SPEED}};
 
-        std::cout << int(i.inputs["A"]) << std::endl;
         return i;
     }
 
@@ -184,9 +183,6 @@ namespace jmpr
             {"volume", volume},
         };
     }
-
-    // Pallet and Input Map json translations
-
 }
 
 namespace nlohmann

@@ -137,11 +137,9 @@ namespace jmpr
             _game_window.toggleDebug(_controls.tileBank & 0x2);
             _controls.tileBank = (_controls.tileBank + 1) & 0x3;
         }
-        // TODO maybe only set the settings at the end and use the controls for intermediate
-        if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f, "%.2f"))
+        if (ImGui::SliderFloat("Volume", &_settings->volume, 0.0f, 1.0f, "%.2f"))
         {
-            _settings->volume = _controls.vol;
-            GameBoy::getInstance()->setVolume(_controls.vol);
+            GameBoy::getInstance()->setVolume(_settings->volume);
         }
         if (ImGui::BeginMenu("Audio channels"))
         {
@@ -170,7 +168,6 @@ namespace jmpr
                 if (ImGui::Selectable(_settings->pallets[i].name.c_str(), _settings->pallet_selection == i))
                 {
                     _settings->pallet_selection = i;
-                    // _game_window.setUsedPallet(_controls.pallet);
                 }
             }
             ImGui::EndListBox();
@@ -209,6 +206,7 @@ namespace jmpr
         if (_controls.controls)
         {
             ImGui::Begin("Select your controls:");
+            ImGui::InputText("Name", _controls.inputName, sizeof(_controls.inputName));
             for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
             {
                 if (ImGui::Selectable(
@@ -222,7 +220,7 @@ namespace jmpr
             {
                 // TODO name for the input map
                 InputMap inputMap;
-                inputMap.name = "ayo man please give me a name";
+                inputMap.name = _controls.inputName;
                 for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
                 {
                     if (_controls.inputs[i - 1] == "")
@@ -245,6 +243,8 @@ namespace jmpr
         if (_controls.palletCreation)
         {
             ImGui::Begin("Create your new pallet");
+
+            ImGui::InputText("Name", _controls.palletName, sizeof(_controls.palletName));
             ImGui::ColorPicker3("Color #1:", &_controls.colors[0]);
             ImGui::ColorPicker3("Color #2:", &_controls.colors[3]);
             ImGui::ColorPicker3("Color #3:", &_controls.colors[6]);
@@ -253,18 +253,16 @@ namespace jmpr
             if (ImGui::Button("Confirm"))
             {
                 Pallet pallet;
-                pallet.name = "give me a name pls";
+                pallet.name = _controls.palletName;
                 for (u8 i = 0; i < 4; i++)
                 {
                     pallet.colors[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
-                                ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
-                                ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
+                                       ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
+                                       ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
 
-                    std::cout << (int)pallet.colors[i] << std::endl;
                 }
 
                 _settings->pallets.push_back(pallet);
-                // _game_window.addPallet(pallet);
                 _controls.palletCreation = false;
             }
             ImGui::End();
@@ -315,7 +313,6 @@ namespace jmpr
     void UI::openBoot(const std::string &bootPath)
     {
         GameBoy::getInstance()->setBootRom(bootPath);
-        // TODO display error message if wrong
         _controls.boot = false;
     }
 }

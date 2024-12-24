@@ -36,8 +36,10 @@ namespace jmpr
 		bool channel4;
 		u8 pallet;
 		bool palletCreation;
+		char palletName[32];
 		float colors[12] = {0};
 		bool controls;
+		char inputName[32];
 		std::string inputs[9] = {""};
 		bool capped;
 		float fps;
