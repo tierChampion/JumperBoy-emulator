@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 
+// TODO switch to specific .config or APPDATA locations
 const char *LOCATION_FILE = "./location.txt";
 const char *SETTINGS_FILE = "./settings.json";
 
@@ -10,7 +11,6 @@ namespace jmpr
 {
     UserSettings::UserSettings()
     {
-        // TODO set default values
         setToDefault();
         loadSettings();
     }
@@ -18,14 +18,69 @@ namespace jmpr
     void UserSettings::setToDefault()
     {
         settings_location = SETTINGS_FILE;
-        // TODO ...
+
+        recents = std::vector<std::string>();
+        pallets = std::vector<Pallet>();
+        input_maps = std::vector<InputMap>();
+
+        pallets.push_back(getDefaultPallet());
+        input_maps.push_back(getDefaultInputMap());
+
+        rom_folder = "";
+        boot_folder = "";
+        save_folder = "";
+        input_selection = 0;
+        pallet_selection = 0;
+        resolution_scale = 1;
+        volume = 1;
     }
 
-    // TODO how to have the user change the settings file (load a new one during execution)
+    Pallet UserSettings::getDefaultPallet() const
+    {
+        Pallet p;
+        p.name = "Classic GB";
+        p.colors = {0xFFFF,
+                    0x3DEF,
+                    0x1CE7,
+                    0x0C63};
+        return p;
+    }
+
+    InputMap UserSettings::getDefaultInputMap() const
+    {
+        InputMap i;
+        i.name = "Default";
+        i.inputs = {
+            {"W", JumperInput::UP},
+            {"A", JumperInput::LEFT},
+            {"S", JumperInput::DOWN},
+            {"D", JumperInput::RIGHT},
+            {"H", JumperInput::A},
+            {"J", JumperInput::B},
+            {"N", JumperInput::SELECT},
+            {"M", JumperInput::START},
+            {"O", JumperInput::MAX_SPEED}};
+
+        std::cout << int(i.inputs["A"]) << std::endl;
+        return i;
+    }
+
+    Pallet UserSettings::currentPallet() const
+    {
+        return pallets[pallet_selection];
+    }
+
+    InputMap UserSettings::currentInputMap() const
+    {
+        return input_maps[input_selection];
+    }
+
+    // TODO how to have the user change the settings file (load a new one during execution) ?
     void UserSettings::loadSettings()
     {
         loadSettingLocation();
         loadSettingsFile();
+        save();
     }
 
     void UserSettings::loadSettingLocation()
@@ -39,7 +94,12 @@ namespace jmpr
         }
         else
         {
-            // TODO create the location file if it doesn't exist
+            std::ofstream o(LOCATION_FILE);
+            if (o.is_open())
+            {
+                o << SETTINGS_FILE;
+                o.close();
+            }
         }
     }
 
@@ -74,7 +134,6 @@ namespace jmpr
         }
         if (!success)
         {
-            // TODO set to default values
             setToDefault();
         }
     }
@@ -102,10 +161,10 @@ namespace jmpr
         j.at("boot_folder").get_to(boot_folder);
         j.at("save_folder").get_to(save_folder);
 
-        j.at("input_selection").get_to(rom_folder);
-        j.at("pallet_selection").get_to(boot_folder);
-        j.at("resolution_scale").get_to(save_folder);
-        j.at("volume").get_to(save_folder);
+        j.at("input_selection").get_to(input_selection);
+        j.at("pallet_selection").get_to(pallet_selection);
+        j.at("resolution_scale").get_to(resolution_scale);
+        j.at("volume").get_to(volume);
     }
 
     void UserSettings::toJson(nlohmann::json &j)
@@ -124,5 +183,37 @@ namespace jmpr
             {"resolution_scale", resolution_scale},
             {"volume", volume},
         };
+    }
+
+    // Pallet and Input Map json translations
+
+}
+
+namespace nlohmann
+{
+    void from_json(const nlohmann::json &j, jmpr::Pallet &p)
+    {
+        j.at("name").get_to(p.name);
+        j.at("colors").get_to(p.colors);
+    }
+
+    void to_json(nlohmann::json &j, const jmpr::Pallet &p)
+    {
+        j = nlohmann::json{
+            {"name", p.name},
+            {"colors", p.colors}};
+    }
+
+    void from_json(const nlohmann::json &j, jmpr::InputMap &i)
+    {
+        j.at("name").get_to(i.name);
+        j.at("inputs").get_to(i.inputs);
+    }
+
+    void to_json(nlohmann::json &j, const jmpr::InputMap &i)
+    {
+        j = nlohmann::json{
+            {"name", i.name},
+            {"inputs", i.inputs}};
     }
 }

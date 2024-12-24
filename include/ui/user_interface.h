@@ -4,6 +4,7 @@
 #include <ui/inputs.h>
 #include <ui/game_window.h>
 #include <ui/audio_manager.h>
+#include <ui/user_settings.h>
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -58,9 +59,8 @@ namespace jmpr
 		ImGui::FileBrowser _file_browser;
 
 		Controls _controls;
-		std::vector<std::string> _recents;
-		std::vector<std::map<std::string, JumperInput>> _input_maps;
-		u8 _input_preset;
+
+		std::unique_ptr<UserSettings> _settings;
 
 		BootRom *_boot;
 
@@ -92,8 +92,5 @@ namespace jmpr
 		void palletWindow();
 		void browserWindow();
 		void controlsWindow();
-
-		void loadSettings();
-		void saveSettings();
 	};
 }

@@ -54,7 +54,7 @@ namespace jmpr
         _file_browser = ImGui::FileBrowser();
         _file_browser.SetTitle("Search for ROM");
         _file_browser.SetTypeFilters({".gb", ".gbc"});
-        _file_browser.SetPwd(DIRECTORY_PATH);
+        _file_browser.SetPwd("");
 
         _file_browser.Open();
         _controls.browser = true;
@@ -96,9 +96,9 @@ namespace jmpr
             initFileBrowser();
         if (ImGui::BeginMenu("Open recent"))
         {
-            for (s8 i = _recents.size() - 1; i >= 0; i--)
+            for (s8 i = _settings->recents.size() - 1; i >= 0; i--)
             {
-                std::string recent = _recents[i];
+                std::string recent = _settings->recents[i];
 
                 if (ImGui::MenuItem(recent.c_str()))
                 {
@@ -137,8 +137,10 @@ namespace jmpr
             _game_window.toggleDebug(_controls.tileBank & 0x2);
             _controls.tileBank = (_controls.tileBank + 1) & 0x3;
         }
+        // TODO maybe only set the settings at the end and use the controls for intermediate
         if (ImGui::SliderFloat("Volume", &_controls.vol, 0.0f, 1.0f, "%.2f"))
         {
+            _settings->volume = _controls.vol;
             GameBoy::getInstance()->setVolume(_controls.vol);
         }
         if (ImGui::BeginMenu("Audio channels"))
@@ -163,23 +165,23 @@ namespace jmpr
         }
         if (ImGui::BeginListBox("Pallet"))
         {
-            for (u8 i = 0; i < _game_window.getPalletsSize(); i++)
+            for (u8 i = 0; i < _settings->pallets.size(); i++)
             {
-                if (ImGui::Selectable(std::to_string(i).c_str(), _controls.pallet == i))
+                if (ImGui::Selectable(_settings->pallets[i].name.c_str(), _settings->pallet_selection == i))
                 {
-                    _controls.pallet = i;
-                    _game_window.setUsedPallet(_controls.pallet);
+                    _settings->pallet_selection = i;
+                    // _game_window.setUsedPallet(_controls.pallet);
                 }
             }
             ImGui::EndListBox();
         }
         if (ImGui::BeginListBox("Controls"))
         {
-            for (u8 i = 0; i < _input_maps.size(); i++)
+            for (u8 i = 0; i < _settings->input_maps.size(); i++)
             {
-                if (ImGui::Selectable(std::to_string(i).c_str(), _input_preset == i))
+                if (ImGui::Selectable(_settings->input_maps[i].name.c_str(), _settings->input_selection == i))
                 {
-                    _input_preset = i;
+                    _settings->input_selection = i;
                 }
             }
             ImGui::EndListBox();
@@ -218,7 +220,9 @@ namespace jmpr
 
             if (ImGui::Button("Confirm"))
             {
-                std::map<std::string, JumperInput> inputMap;
+                // TODO name for the input map
+                InputMap inputMap;
+                inputMap.name = "ayo man please give me a name";
                 for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
                 {
                     if (_controls.inputs[i - 1] == "")
@@ -227,9 +231,9 @@ namespace jmpr
                         ImGui::End();
                         return;
                     }
-                    inputMap[_controls.inputs[i - 1]] = static_cast<JumperInput>(i);
+                    inputMap.inputs[_controls.inputs[i - 1]] = static_cast<JumperInput>(i);
                 }
-                _input_maps.push_back(inputMap);
+                _settings->input_maps.push_back(inputMap);
                 _controls.controls = false;
             }
             ImGui::End();
@@ -248,17 +252,19 @@ namespace jmpr
 
             if (ImGui::Button("Confirm"))
             {
-                std::array<u16, 4> pallet;
+                Pallet pallet;
+                pallet.name = "give me a name pls";
                 for (u8 i = 0; i < 4; i++)
                 {
-                    pallet[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
+                    pallet.colors[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
                                 ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
                                 ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
 
-                    std::cout << (int)pallet[i] << std::endl;
+                    std::cout << (int)pallet.colors[i] << std::endl;
                 }
 
-                _game_window.addPallet(pallet);
+                _settings->pallets.push_back(pallet);
+                // _game_window.addPallet(pallet);
                 _controls.palletCreation = false;
             }
             ImGui::End();
@@ -290,13 +296,13 @@ namespace jmpr
 
     void UI::openROM(const std::string &romPath)
     {
-        auto it = std::find(_recents.begin(), _recents.end(), romPath);
-        if (it != _recents.end())
-            _recents.erase(it);
-        else if (_recents.size() == MAXIMUM_RECENT_COUNT)
-            _recents.erase(_recents.begin());
+        auto it = std::find(_settings->recents.begin(), _settings->recents.end(), romPath);
+        if (it != _settings->recents.end())
+            _settings->recents.erase(it);
+        else if (_settings->recents.size() == MAXIMUM_RECENT_COUNT)
+            _settings->recents.erase(_settings->recents.begin());
 
-        _recents.push_back(romPath);
+        _settings->recents.push_back(romPath);
 
         bool valid = GameBoy::getInstance()->insertCartridge(romPath);
         if (valid)

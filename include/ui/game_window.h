@@ -10,6 +10,7 @@ namespace jmpr
 {
     class PPU;
     class APU;
+    class UserSettings;
 
     class GameWindow
     {
@@ -24,26 +25,17 @@ namespace jmpr
         bool _debug;
         u8 _bank;
 
-        std::vector<std::array<u16, 4>> _pallets;
-        u8 _pallet_id;
-
-        u8 _scale;
+        UserSettings* _settings;
 
     public:
         GameWindow() {}
-        GameWindow(PPU* ppu);
+        GameWindow(PPU* ppu, UserSettings* settings);
         void cleanup();
 
         void render();
         void toggleDebug(u8 bank);
         void open();
         void close();
-
-        void addPallet(const std::array<u16, 4> &pallet);
-        std::vector<std::array<u16, 4>> getPallets() const;
-        u8 getPalletsSize() const;
-
-        void setUsedPallet(u8 palletId);
 
     private:
         void initWindow();

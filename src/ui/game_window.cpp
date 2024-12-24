@@ -3,36 +3,35 @@
 #include <ppu/ppu.h>
 #include <apu/apu.h>
 
+#include <ui/user_settings.h>
+
 #include <gb.h>
 
 namespace jmpr
 {
-    const u8 DEFAULT_SCALE = 4;
-
-    GameWindow::GameWindow(PPU *ppu) : _ppu(ppu), _opened(false),
-                                       _debug(false),
-                                       _bank(0),
-                                       _pallet_id(0),
-                                       _scale(DEFAULT_SCALE)
+    GameWindow::GameWindow(PPU *ppu, UserSettings *settings) : _ppu(ppu), _settings(settings), _opened(false),
+                                                               _debug(false),
+                                                               _bank(0),
+                                                               _window(nullptr)
     {
         // Initialize SDL Video
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
-            std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
+            std::cerr << "Couldn't initialize SDL video: " << SDL_GetError() << std::endl;
             exit(-10);
         }
     }
 
     void GameWindow::initWindow()
     {
-        u16 width = _scale * X_RESOLUTION;
-        u16 height = _scale * Y_RESOLUTION;
+        u16 width = _settings->resolution_scale * X_RESOLUTION;
+        u16 height = _settings->resolution_scale * Y_RESOLUTION;
 
-        if (_debug) {
-            width += (16 * 8) * _scale + (_scale * 15) + _scale * 4;
-            height = std::max(_scale * Y_RESOLUTION, (24 * 8) * _scale + (_scale * 23));
+        if (_debug)
+        {
+            width += (16 * 8) * _settings->resolution_scale + (_settings->resolution_scale * 15) + _settings->resolution_scale * 4;
+            height = std::max(_settings->resolution_scale * Y_RESOLUTION, (24 * 8) * _settings->resolution_scale + (_settings->resolution_scale * 23));
         }
-
 
         if (_window == nullptr)
             _window = SDL_CreateWindow("JumperBoy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -77,38 +76,13 @@ namespace jmpr
         }
     }
 
-    void GameWindow::addPallet(const std::array<u16, 4> &pallet)
-    {
-        // todo, tell the ui!
-        if (_pallets.size() < 256)
-        {
-            _pallets.push_back(pallet);
-        }
-        else
-        {
-            _pallets[255] = pallet;
-        }
-    }
-
-    std::vector<std::array<u16, 4>> GameWindow::getPallets() const
-    {
-        return _pallets;
-    }
-
-    u8 GameWindow::getPalletsSize() const
-    {
-        return _pallets.size();
-    }
-
-    void GameWindow::setUsedPallet(u8 palletId)
-    {
-        _pallet_id = palletId;
-    }
-
     void GameWindow::cleanup()
     {
-        destroyGraphics();
-        SDL_DestroyWindow(_window);
+        if (_window)
+        {
+            destroyGraphics();
+            SDL_DestroyWindow(_window);
+        }
     }
 
     void GameWindow::destroyGraphics()
@@ -141,8 +115,8 @@ namespace jmpr
         _ppu->dispatchRender();
 
         SDL_Rect rect;
-        rect.w = _scale;
-        rect.h = _scale;
+        rect.w = _settings->resolution_scale;
+        rect.h = _settings->resolution_scale;
         rect.x = 0;
         rect.y = 0;
 
@@ -154,7 +128,7 @@ namespace jmpr
 
                 if (!GameBoy::getInstance()->isCGB())
                 {
-                    SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
+                    SDL_FillRect(_surface, &rect, _settings->currentPallet().colors[color]);
                 }
                 else
                 {
@@ -163,25 +137,25 @@ namespace jmpr
                     u16 blue = (color & 0b111110000000000) >> 10;
                     SDL_FillRect(_surface, &rect, blue | (green << 5) | (red << 10));
                 }
-                rect.x += _scale;
+                rect.x += _settings->resolution_scale;
             }
 
             rect.x = 0;
-            rect.y += _scale;
+            rect.y += _settings->resolution_scale;
         }
     }
 
     void GameWindow::renderTiles()
     {
-        u16 tileDim = (8 + 1) * _scale;
+        u16 tileDim = (8 + 1) * _settings->resolution_scale;
 
         SDL_Rect rect;
-        rect.x = X_RESOLUTION * _scale;
+        rect.x = X_RESOLUTION * _settings->resolution_scale;
         rect.y = 0;
         rect.w = tileDim / 2;
-        rect.h = Y_RESOLUTION * _scale;
+        rect.h = Y_RESOLUTION * _settings->resolution_scale;
 
-        SDL_FillRect(_surface, &rect, _pallets[_pallet_id][3]);
+        SDL_FillRect(_surface, &rect, _settings->currentPallet().colors[3]);
 
         // display the 384 tiles
         for (u16 y = 0; y < 24; y++)
@@ -204,35 +178,35 @@ namespace jmpr
         }
 
         SDL_Rect rect;
-        rect.w = _scale;
-        rect.h = _scale;
+        rect.w = _settings->resolution_scale;
+        rect.h = _settings->resolution_scale;
 
         for (u8 y = 0; y < 8; y++)
         {
             u8 pal1 = data[2 * y];
             u8 pal2 = data[2 * y + 1];
 
-            rect.y = yPos + _scale * y;
+            rect.y = yPos + _settings->resolution_scale * y;
 
             for (u8 x = 0; x < 8; x++)
             {
                 u8 color = (bit(pal2, 7 - x) << 1) | (bit(pal1, 7 - x));
-                rect.x = xPos + _scale * x + X_RESOLUTION * _scale;
+                rect.x = xPos + _settings->resolution_scale * x + X_RESOLUTION * _settings->resolution_scale;
 
-                SDL_FillRect(_surface, &rect, _pallets[_pallet_id][color]);
+                SDL_FillRect(_surface, &rect, _settings->currentPallet().colors[color]);
             }
         }
     }
 
     void GameWindow::renderPallets()
     {
-        u16 tileDim = (8 + 1) * _scale;
+        u16 tileDim = (8 + 1) * _settings->resolution_scale;
 
         SDL_Rect rect;
-        rect.x = X_RESOLUTION * _scale;
+        rect.x = X_RESOLUTION * _settings->resolution_scale;
         rect.y = 0;
-        rect.w = 8 * _scale;
-        rect.h = 8 * _scale;
+        rect.w = 8 * _settings->resolution_scale;
+        rect.h = 8 * _settings->resolution_scale;
 
         for (u16 z = 0; z < 2; z++)
         {
@@ -241,7 +215,7 @@ namespace jmpr
                 rect.y = y * tileDim + z * 8 * tileDim;
                 for (u16 x = 0; x < 4; x++)
                 {
-                    rect.x = x * tileDim + X_RESOLUTION * _scale;
+                    rect.x = x * tileDim + X_RESOLUTION * _settings->resolution_scale;
                     u16 color = _ppu->getCRAM(z)->ppuRead(y, x, 0) | (_ppu->getCRAM(z)->ppuRead(y, x, 1) << 8);
 
                     u16 red = color & 0b11111;
