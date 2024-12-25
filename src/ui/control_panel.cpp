@@ -6,7 +6,6 @@
 
 namespace jmpr
 {
-
     const u8 MAXIMUM_RECENT_COUNT = 10;
 
     void UI::initImGui()
@@ -33,7 +32,8 @@ namespace jmpr
 
     void UI::initControls()
     {
-        _controls.browser = false;
+        _controls.fileBrowser = false;
+        _controls.folderBrowser = false;
         _controls.boot = false;
         _controls.tiles = false;
         _controls.tileBank = 0;
@@ -54,10 +54,26 @@ namespace jmpr
         _file_browser = ImGui::FileBrowser();
         _file_browser.SetTitle("Search for ROM");
         _file_browser.SetTypeFilters({".gb", ".gbc"});
-        _file_browser.SetPwd("");
+        _file_browser.SetPwd(_controls.boot ? _settings->boot_folder : _settings->rom_folder);
 
         _file_browser.Open();
-        _controls.browser = true;
+        _controls.fileBrowser = true;
+    }
+
+    void UI::initFolderBrowser()
+    {
+        _folder_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_HideRegularFiles);
+        _folder_browser.SetTitle("Search for folder");
+        std::string pwd = "";
+        switch (_controls.pathType) {
+            case PathType::ROM: pwd = _settings->rom_folder; break;
+            case PathType::BOOT: pwd = _settings->boot_folder; break;
+            case PathType::SAVE: pwd = _settings->save_folder; break;
+        }
+        _file_browser.SetPwd(pwd);
+
+        _folder_browser.Open();
+        _controls.folderBrowser = true;
     }
 
     void UI::renderImGui()
@@ -72,15 +88,35 @@ namespace jmpr
             fileMenu();
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Options"))
+        if (ImGui::BeginMenu("Control"))
         {
-            optionsMenu();
+            controlsMenu();
             ImGui::EndMenu();
         }
-
+        if (ImGui::BeginMenu("Visuals"))
+        {
+            visualsMenu();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Audio"))
+        {
+            audioMenu();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Miscellaneous"))
+        {
+            miscellaneousMenu();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Path"))
+        {
+            pathMenu();
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
 
         browserWindow();
+        pathWindow();
         controlsWindow();
         palletWindow();
 
@@ -112,8 +148,8 @@ namespace jmpr
             ImGui::Text((std::string("Current: ") + _boot->getCurrentBootFile()).c_str());
             if (ImGui::MenuItem("Select ROM"))
             {
-                initFileBrowser();
                 _controls.boot = true;
+                initFileBrowser();
             }
             if (ImGui::MenuItem("Clear selection"))
             {
@@ -126,17 +162,51 @@ namespace jmpr
             _opened = false;
     }
 
-    void UI::optionsMenu()
+    void UI::controlsMenu()
     {
-        if (ImGui::Button("Reboot"))
+        if (ImGui::BeginListBox("Controls"))
         {
-            GameBoy::getInstance()->reboot();
+            for (u8 i = 0; i < _settings->input_maps.size(); i++)
+            {
+                if (ImGui::Selectable(_settings->input_maps[i].name.c_str(), _settings->input_selection == i))
+                {
+                    _settings->input_selection = i;
+                }
+            }
+            ImGui::EndListBox();
         }
+        if (ImGui::Button("Add controls..."))
+        {
+            _controls.controls = true;
+        }
+    }
+
+    void UI::visualsMenu()
+    {
         if (ImGui::Checkbox("Show tiles", &_controls.tiles))
         {
             _game_window.toggleDebug(_controls.tileBank & 0x2);
             _controls.tileBank = (_controls.tileBank + 1) & 0x3;
         }
+        if (ImGui::BeginListBox("Pallet"))
+        {
+            for (u8 i = 0; i < _settings->pallets.size(); i++)
+            {
+                if (ImGui::Selectable(_settings->pallets[i].name.c_str(), _settings->pallet_selection == i))
+                {
+                    _settings->pallet_selection = i;
+                }
+            }
+            ImGui::EndListBox();
+        }
+        if (ImGui::Button("Add pallet..."))
+        {
+            _controls.palletCreation = true;
+        }
+    }
+
+    void UI::audioMenu()
+    {
         if (ImGui::SliderFloat("Volume", &_settings->volume, 0.0f, 1.0f, "%.2f"))
         {
             GameBoy::getInstance()->setVolume(_settings->volume);
@@ -161,35 +231,13 @@ namespace jmpr
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginListBox("Pallet"))
+    }
+
+    void UI::miscellaneousMenu()
+    {
+        if (ImGui::Button("Reboot"))
         {
-            for (u8 i = 0; i < _settings->pallets.size(); i++)
-            {
-                if (ImGui::Selectable(_settings->pallets[i].name.c_str(), _settings->pallet_selection == i))
-                {
-                    _settings->pallet_selection = i;
-                }
-            }
-            ImGui::EndListBox();
-        }
-        if (ImGui::BeginListBox("Controls"))
-        {
-            for (u8 i = 0; i < _settings->input_maps.size(); i++)
-            {
-                if (ImGui::Selectable(_settings->input_maps[i].name.c_str(), _settings->input_selection == i))
-                {
-                    _settings->input_selection = i;
-                }
-            }
-            ImGui::EndListBox();
-        }
-        if (ImGui::Button("Add pallet..."))
-        {
-            _controls.palletCreation = true;
-        }
-        if (ImGui::Button("Add controls..."))
-        {
-            _controls.controls = true;
+            GameBoy::getInstance()->reboot();
         }
         if (ImGui::SliderFloat("FPS", &_controls.fps, 1.0f, 150.0f, "%.1f"))
         {
@@ -201,77 +249,94 @@ namespace jmpr
         }
     }
 
+    void UI::pathMenu()
+    {
+        if (ImGui::MenuItem("ROM folder"))
+        {
+            _controls.pathType = PathType::ROM;
+            initFolderBrowser();
+        }
+        if (ImGui::MenuItem("BOOT folder"))
+        {
+            _controls.pathType = PathType::BOOT;
+            initFolderBrowser();
+        }
+        if (ImGui::MenuItem("Save folder"))
+        {
+            _controls.pathType = PathType::SAVE;
+            initFolderBrowser();
+        }
+    }
+
     void UI::controlsWindow()
     {
-        if (_controls.controls)
+        if (!_controls.controls)
+            return;
+
+        ImGui::Begin("Select your controls:");
+        ImGui::InputText("Name", _controls.inputName, sizeof(_controls.inputName));
+        for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
         {
-            ImGui::Begin("Select your controls:");
-            ImGui::InputText("Name", _controls.inputName, sizeof(_controls.inputName));
+            if (ImGui::Selectable(
+                    ("(" + inputToName(static_cast<JumperInput>(i)) + ") " + _controls.inputs[i - 1]).c_str()))
+            {
+                _controls.inputs[i - 1] = std::toupper(_last_input.keysym.sym);
+            }
+        }
+
+        if (ImGui::Button("Confirm"))
+        {
+            InputMap inputMap;
+            inputMap.name = _controls.inputName;
             for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
             {
-                if (ImGui::Selectable(
-                        ("(" + inputToName(static_cast<JumperInput>(i)) + ") " + _controls.inputs[i - 1]).c_str()))
+                if (_controls.inputs[i - 1] == "")
                 {
-                    _controls.inputs[i - 1] = std::toupper(_last_input.keysym.sym);
+                    std::cerr << "Error: The new control map is incomplete." << std::endl;
+                    ImGui::End();
+                    return;
                 }
+                inputMap.inputs[_controls.inputs[i - 1]] = static_cast<JumperInput>(i);
             }
-
-            if (ImGui::Button("Confirm"))
-            {
-                // TODO name for the input map
-                InputMap inputMap;
-                inputMap.name = _controls.inputName;
-                for (u8 i = 1; i <= static_cast<u8>(JumperInput::MAX_SPEED); i++)
-                {
-                    if (_controls.inputs[i - 1] == "")
-                    {
-                        std::cerr << "Error: The new control map is incomplete." << std::endl;
-                        ImGui::End();
-                        return;
-                    }
-                    inputMap.inputs[_controls.inputs[i - 1]] = static_cast<JumperInput>(i);
-                }
-                _settings->input_maps.push_back(inputMap);
-                _controls.controls = false;
-            }
-            ImGui::End();
+            _settings->input_maps.push_back(inputMap);
+            _controls.controls = false;
         }
+        ImGui::End();
     }
 
     void UI::palletWindow()
     {
-        if (_controls.palletCreation)
+        if (!_controls.palletCreation)
+            return;
+
+        ImGui::Begin("Create your new pallet");
+
+        ImGui::InputText("Name", _controls.palletName, sizeof(_controls.palletName));
+        ImGui::ColorPicker3("Color #1:", &_controls.colors[0]);
+        ImGui::ColorPicker3("Color #2:", &_controls.colors[3]);
+        ImGui::ColorPicker3("Color #3:", &_controls.colors[6]);
+        ImGui::ColorPicker3("Color #4:", &_controls.colors[9]);
+
+        if (ImGui::Button("Confirm"))
         {
-            ImGui::Begin("Create your new pallet");
-
-            ImGui::InputText("Name", _controls.palletName, sizeof(_controls.palletName));
-            ImGui::ColorPicker3("Color #1:", &_controls.colors[0]);
-            ImGui::ColorPicker3("Color #2:", &_controls.colors[3]);
-            ImGui::ColorPicker3("Color #3:", &_controls.colors[6]);
-            ImGui::ColorPicker3("Color #4:", &_controls.colors[9]);
-
-            if (ImGui::Button("Confirm"))
+            Pallet pallet;
+            pallet.name = _controls.palletName;
+            for (u8 i = 0; i < 4; i++)
             {
-                Pallet pallet;
-                pallet.name = _controls.palletName;
-                for (u8 i = 0; i < 4; i++)
-                {
-                    pallet.colors[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
-                                       ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
-                                       ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
-
-                }
-
-                _settings->pallets.push_back(pallet);
-                _controls.palletCreation = false;
+                pallet.colors[i] = (static_cast<u16>(_controls.colors[3 * i] * 31.0f)) |
+                                   ((static_cast<u16>(_controls.colors[3 * i + 1] * 31.0f) << 5)) |
+                                   ((static_cast<u16>(_controls.colors[3 * i + 2] * 31.0f) << 10));
             }
-            ImGui::End();
+
+            _settings->pallets.push_back(pallet);
+            _controls.palletCreation = false;
         }
+        ImGui::End();
     }
 
     void UI::browserWindow()
     {
-        if (!_controls.browser)
+        if (!_controls.fileBrowser)
             return;
 
         _file_browser.Display();
@@ -288,7 +353,28 @@ namespace jmpr
             }
 
             _file_browser.ClearSelected();
-            _controls.browser = false;
+            _controls.boot = false;
+            _controls.fileBrowser = false;
+        }
+    }
+
+    void UI::pathWindow()
+    {
+        if (!_controls.folderBrowser)
+            return;
+
+        _folder_browser.Display();
+
+        if (_folder_browser.HasSelected())
+        {
+            switch (_controls.pathType) {
+                case PathType::ROM: _settings->rom_folder = _folder_browser.GetSelected().string(); break;
+                case PathType::BOOT: _settings->boot_folder = _folder_browser.GetSelected().string(); break;
+                case PathType::SAVE: _settings->save_folder = _folder_browser.GetSelected().string(); break;
+            }
+
+            _folder_browser.ClearSelected();
+            _controls.folderBrowser = false;
         }
     }
 
@@ -313,6 +399,5 @@ namespace jmpr
     void UI::openBoot(const std::string &bootPath)
     {
         GameBoy::getInstance()->setBootRom(bootPath);
-        _controls.boot = false;
     }
 }

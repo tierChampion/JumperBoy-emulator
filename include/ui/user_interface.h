@@ -23,9 +23,16 @@ namespace jmpr
 	class APU;
 	class BootRom;
 
+	enum class PathType {
+		ROM,
+		BOOT,
+		SAVE
+	};
+
 	struct Controls
 	{
-		bool browser;
+		bool fileBrowser;
+		bool folderBrowser;
 		bool boot;
 		bool tiles;
 		u8 tileBank;
@@ -41,6 +48,8 @@ namespace jmpr
 		bool controls;
 		char inputName[32];
 		std::string inputs[9] = {""};
+		PathType pathType;
+		char path[256];
 		bool capped;
 		float fps;
 	};
@@ -59,6 +68,7 @@ namespace jmpr
 		SDL_Renderer *_imgui_renderer;
 		ImGuiIO _imgui_io;
 		ImGui::FileBrowser _file_browser;
+		ImGui::FileBrowser _folder_browser;
 
 		Controls _controls;
 
@@ -81,6 +91,7 @@ namespace jmpr
 		void initImGui();
 		void initControls();
 		void initFileBrowser();
+		void initFolderBrowser();
 
 		void handleEvents(bool gamePlaying);
 
@@ -90,9 +101,14 @@ namespace jmpr
 		void openROM(const std::string &romPath);
 		void openBoot(const std::string &bootPath);
 		void fileMenu();
-		void optionsMenu();
+		void controlsMenu();
+		void visualsMenu();
+		void audioMenu();
+		void miscellaneousMenu();
+		void pathMenu();
 		void palletWindow();
 		void browserWindow();
+		void pathWindow();
 		void controlsWindow();
 	};
 }
