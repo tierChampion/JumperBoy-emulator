@@ -4,6 +4,7 @@
 #include <ui/inputs.h>
 #include <ui/game_window.h>
 #include <ui/audio_manager.h>
+#include <ui/user_settings.h>
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -20,23 +21,34 @@ namespace jmpr
 	class VRAM;
 	class PPU;
 	class APU;
+	class BootRom;
+
+	enum class PathType
+	{
+		ROM,
+		BOOT,
+		SAVE
+	};
 
 	struct Controls
 	{
-		bool browser;
+		bool fileBrowser;
+		bool folderBrowser;
+		bool boot;
 		bool tiles;
 		u8 tileBank;
-		float vol;
 		bool channel1;
 		bool channel2;
 		bool channel3;
 		bool channel4;
-		u8 pallet;
 		bool palletCreation;
+		char palletName[32];
 		float colors[12] = {0};
 		bool controls;
+		char inputName[32];
 		std::string inputs[9] = {""};
-		bool capped;
+		PathType pathType;
+		char path[256];
 		float fps;
 	};
 
@@ -54,39 +66,45 @@ namespace jmpr
 		SDL_Renderer *_imgui_renderer;
 		ImGuiIO _imgui_io;
 		ImGui::FileBrowser _file_browser;
+		ImGui::FileBrowser _folder_browser;
 
 		Controls _controls;
-		std::vector<std::string> _recents;
-		std::vector<std::map<std::string, JumperInput>> _input_maps;
-		u8 _input_preset;
+
+		std::unique_ptr<UserSettings> _settings;
+
+		BootRom *_boot;
 
 	public:
 		UI() {}
-		UI(PPU* ppu, APU* apu);
+		UI(PPU *ppu, APU *apu, BootRom *boot);
+
 		void cleanup();
-
 		bool isOpened() { return _opened; }
-
 		void loop(bool gamePlaying);
+		std::string &getSaveFolder() const { return _settings->save_folder; }
 
 	private:
 		void initImGui();
 		void initControls();
 		void initFileBrowser();
+		void initFolderBrowser();
 
 		void handleEvents(bool gamePlaying);
 
 		void render();
 
 		void renderImGui();
-		void openROM(std::string romPath);
+		void openROM(const std::string &romPath);
+		void openBoot(const std::string &bootPath);
 		void fileMenu();
-		void optionsMenu();
+		void controlsMenu();
+		void visualsMenu();
+		void audioMenu();
+		void miscellaneousMenu();
+		void pathMenu();
 		void palletWindow();
 		void browserWindow();
+		void pathWindow();
 		void controlsWindow();
-
-		void loadSettings();
-		void saveSettings();
 	};
 }

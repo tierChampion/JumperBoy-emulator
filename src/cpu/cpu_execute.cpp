@@ -226,9 +226,9 @@ namespace jmpr
 	 */
 	void CPU::STOP()
 	{
-		// TODO hard disabled the stop for now.
-		// 		This instruction is pretty much only used when switching speeds (which resumes after some time)
-		//		and the functionallity is not implemented. Simply hopping over is good enough and seems to be fine.
+		// TODO
+		// The behaviour here is not perfect, however the real one is very complex and i'm too lazy
+		_speed->toggleSpeed();
 		// _stopped = true;
 	}
 

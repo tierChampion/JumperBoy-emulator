@@ -2,10 +2,14 @@
 
 #include <common.h>
 
-namespace jmpr {
+#include <cartridge/boot.h>
+#include <cartridge/mbc.h>
 
-	struct CartridgeHeader {
+namespace jmpr
+{
 
+	struct CartridgeHeader
+	{
 		u8 _entry[4];
 		u8 _nintendo_logo[0x30];
 		char _title[16];
@@ -23,27 +27,32 @@ namespace jmpr {
 		u16 _global_checksum;
 		bool _valid_sum;
 
-		void formatHeader(const std::vector<u8>::iterator& header);
+		void formatHeader(const std::vector<u8>::iterator &header);
 
 		u32 getRomSize() const;
-		const char* getLicenseeName() const;
+		const char *getLicenseeName() const;
 	};
 
 	class MBC;
 
-	class Cartridge {
-
+	class Cartridge
+	{
 		bool _error;
 		std::string _filename;
 		std::string _savename;
+		std::string _save_folder;
 		std::vector<u8> _rom_data;
 		CartridgeHeader _header;
-		MBC* _mbc;
+		u8 _disable_boot;
+		std::unique_ptr<MBC> _mbc;
+
+		BootRom* _boot;
 
 	public:
-
-		Cartridge() { _error = false; _filename = ""; }
-		Cartridge(const std::string& file);
+		Cartridge();
+		
+		void load(const std::string &file);
+		void connectBoot(BootRom* boot) { _boot = boot; }
 
 		bool isValid() const;
 		bool isColor() const;
@@ -52,7 +61,8 @@ namespace jmpr {
 		void write(u16 address, u8 data);
 
 		void handleSaves() const;
+		void setSaveFolder(const std::string &newFolder) { _save_folder = newFolder; }
 
-		friend std::ostream& operator<<(std::ostream& os, const Cartridge& cartridge);
+		friend std::ostream &operator<<(std::ostream &os, const Cartridge &cartridge);
 	};
 }

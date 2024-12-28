@@ -29,7 +29,6 @@ namespace jmpr
 
 	void ObjectDMA::requestDMA(u8 source)
 	{
-
 		_dma = source;		   // MSB of the address to copie to OAM.
 		_process_timer = 0xA0; // process is 160 cpu cycles long
 	}
@@ -82,10 +81,10 @@ namespace jmpr
 			_source = (_source & 0xFF00) | (data);
 			break;
 		case 0x53:
-			_destination = (_source & 0x00FF) | (data << 8);
+			_destination = (_destination & 0x00FF) | (data << 8);
 			break;
 		case 0x54:
-			_destination = (_source & 0xFF00) | (data);
+			_destination = (_destination & 0xFF00) | (data);
 			break;
 		case 0x55:
 			requestDMA(data);
@@ -97,7 +96,6 @@ namespace jmpr
 
 	void VideoDMA::requestDMA(u8 source)
 	{
-		// std::cout << "VDMA REQUEST: " << int(bit(source, 7)) << std::endl;
 		if (_mode == 1 && _total_length > 0 && bit(source, 7) == 0)
 		{
 			_total_length = 0;
@@ -112,22 +110,26 @@ namespace jmpr
 			{
 				_current_length = _total_length;
 			}
-			// else
-			// {
-			// 	continueHBlankDMA();
-			// }
+			else
+			{
+				continueHBlankDMA();
+			}
 		}
 	}
 
-	void VideoDMA::processDMA()
+	void VideoDMA::processDMA(bool halted)
 	{
-		if (inProcess())
+		if (inProcess() && !halted)
 		{
 			// do the transfer (2 bytes)
 			u16 sourceAddress = (_source & 0xFFF0) + _elapsed_length;
 			u16 destinationAddress = ((_destination & 0x1FF0) | 0x8000) + _elapsed_length;
 
 			u8 i = 0;
+			if (_vram->getBank() == 1) {
+				std::cout << "oh yeah!" << std::endl;
+			}
+
 			while (_current_length > 0 && i < 2)
 			{
 				_vram->write(destinationAddress, _bus->read(sourceAddress));
@@ -152,7 +154,7 @@ namespace jmpr
 	{
 		if (_mode == 1)
 		{
-			_current_length = std::min((u16)0x10, _total_length);
+			_current_length = std::min((u16)0x0010, _total_length);
 		}
 	}
 

@@ -6,11 +6,13 @@
 #include <ppu/ppu.h>
 #include <apu/apu.h>
 #include <cartridge/cartridge.h>
+#include <cartridge/boot.h>
 #include <io/joypad.h>
 #include <io/timer.h>
 #include <ram.h>
 #include <ppu/dma.h>
 #include <io/io.h>
+#include <io/speed_manager.h>
 #include <cpu/debugging.h>
 #include <ui/user_interface.h>
 
@@ -26,13 +28,14 @@ namespace jmpr
 		std::unique_ptr<PPU> _ppu;
 		std::unique_ptr<APU> _apu;
 		std::unique_ptr<Cartridge> _cart;
+		std::unique_ptr<BootRom> _boot;
 		std::unique_ptr<Joypad> _joypad;
 		std::unique_ptr<Timer> _timer;
 		std::unique_ptr<RAM> _ram;
 		std::unique_ptr<ObjectDMA> _odma;
 		std::unique_ptr<VideoDMA> _vdma;
 		std::unique_ptr<IO> _io;
-		std::unique_ptr<InterruptHandler> _it_handler;
+		std::unique_ptr<SpeedManager> _speed;
 
 		Debugger _dbg;
 
@@ -57,6 +60,7 @@ namespace jmpr
 		void uiLoop();
 
 		bool insertCartridge(const std::string &rom_file);
+		bool setBootRom(const std::string &rom_file);
 		void setVolume(float volume);
 		void toggleAudioChannel(u8 id);
 
@@ -78,6 +82,7 @@ namespace jmpr
 		void setCapped(bool newCapped) { _capped = newCapped; }
 
 		void requestSaveHandling() { _cart->handleSaves(); }
+		void setSaveFolder(const std::string &newFolder) { _cart->setSaveFolder(newFolder); }
 
 	private:
 		GameBoy();

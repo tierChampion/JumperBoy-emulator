@@ -29,6 +29,7 @@ namespace jmpr {
 	Bus::Bus() {
 		_cpu = nullptr;
 		_cart = nullptr;
+		_boot = nullptr;
 		_ram = nullptr;
 		_ppu = nullptr;
 		_io = nullptr;
@@ -73,6 +74,9 @@ namespace jmpr {
 		}
 		else if (address == 0xFF4F) {
 			return _ppu->getVRAM()->getBank();
+		}
+		else if (address == 0xFF50) {
+			return _boot->getDisableBoot();
 		}
 		else if (between(address, 0xFF68, 0xFF69)) {
 			return _ppu->getCRAM(0)->read(address);
@@ -136,6 +140,9 @@ namespace jmpr {
 		}
 		else if (address == 0xFF4F) {
 			_ppu->getVRAM()->setBank(data);
+		}
+		else if (address == 0xFF50) {
+			return _boot->setDisableBoot(data);
 		}
 		else if (between(address, 0xFF68, 0xFF69)) {
 			_ppu->getCRAM(0)->write(address, data);

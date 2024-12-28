@@ -1,27 +1,28 @@
 #include <cartridge/cartridge.h>
 
-#include <cartridge/mbc.h>
-
+#include <filesystem>
 #include <unordered_map>
 #include <fstream>
 
 namespace jmpr
 {
+	Cartridge::Cartridge() : _error(false), _disable_boot(0), _filename(""), _rom_data(0)
+	{
+	}
 
 	// 0x0149: how much ram is present on the cartridge in bytes.
-	static const u32 RAM_SIZES[5] = {
-		0,
-		0x800, // Unofficial value. Sometimes used in homebrew
-		0x8000,
-		0x20000,
-		0x10000};
+	static const u32 RAM_SIZES[5] = {0,
+									 0x800, // Unofficial value. Sometimes used in homebrew
+									 0x8000, 0x20000, 0x10000};
 
 	/**
 	 * Load a cartridge from a binary file.
 	 * @param file Path of the file containing the game
 	 */
-	Cartridge::Cartridge(const std::string &file) : _error(false)
+	void Cartridge::load(const std::string &file)
 	{
+		_error = false;
+		_disable_boot = 0;
 
 		std::ifstream stream;
 		stream.open(file, std::fstream::in | std::fstream::binary);
@@ -40,6 +41,8 @@ namespace jmpr
 
 		u32 rom_size = (u32)(end - begin);
 
+		std::cout << "size: " << rom_size << std::endl;
+
 		_rom_data = std::vector<u8>(rom_size);
 
 		stream.read((char *)_rom_data.data(), _rom_data.size());
@@ -48,13 +51,15 @@ namespace jmpr
 
 		_filename = file;
 
-		_savename = (file.substr(0, file.find(".gb")) + ".sav");
+		std::filesystem::path saveFile(file);
+		saveFile.replace_extension(".sav");
+		_savename = saveFile.filename().string();
 
 		stream.close();
 
 		_mbc = giveAppropriateMBC(_header._cartridge_type, _rom_data, RAM_SIZES[_header._ram_size]);
 
-		if (_mbc == nullptr)
+		if (_mbc.get() == nullptr)
 		{
 			_error = true;
 		}
@@ -75,27 +80,28 @@ namespace jmpr
 	 */
 	u8 Cartridge::read(u16 address) const
 	{
-
+		// TODO use logic for the cgb boot rom as well
+		if (address < 0x100 && _boot->isValid())
+		{
+			return _boot->read(address);
+		}
 		return _mbc->read(address);
 	}
 
 	/**
-	 * Write to the rom data on the cartridge.
+	 * Write to the ram data or registers on the cartridge.
 	 * @param address Address to write to.
 	 */
 	void Cartridge::write(u16 address, u8 data)
 	{
-
 		_mbc->write(address, data);
 	}
 
 	void Cartridge::handleSaves() const
 	{
-
 		if (_mbc->hasSavePending())
 		{
-
-			_mbc->save(_savename.c_str());
+			_mbc->save(_save_folder + _savename);
 		}
 	}
 
@@ -104,7 +110,7 @@ namespace jmpr
 	 * rom.
 	 * @param header Bytes to decode starting at location 0x0100
 	 */
-	void CartridgeHeader::formatHeader(const std::vector<u8>::iterator& header)
+	void CartridgeHeader::formatHeader(const std::vector<u8>::iterator &header)
 	{
 
 		for (int i = 0; i < 4; i++)

@@ -46,7 +46,7 @@ namespace jmpr
 			_registers._L = 0x0D;
 		}
 		_SP = 0xFFFE;
-		_PC = 0x100;
+		_PC = _boot->isValid() ? 0x0000 : 0x0100;
 
 		// Fetching states
 		_curr_fetch = 0x0000;

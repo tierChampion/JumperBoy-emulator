@@ -7,20 +7,23 @@
 
 #include <unordered_map>
 
-
-namespace jmpr {
+namespace jmpr
+{
 
 	class GameBoy;
 	class Bus;
 	class RAM;
 	class InterruptHandler;
 	class VideoDMA;
+	class BootRom;
+	class SpeedManager;
 
-	struct CpuRegisters {
+	struct CpuRegisters
+	{
 		u8 _A; // Accumulator
 
 		// Flags: Zero Flag (result is 0), Substraction Flag (if the operation removes),
-		// Half-Carry Flag (if there is a carry in the before last 4 bits) and 
+		// Half-Carry Flag (if there is a carry in the before last 4 bits) and
 		// Carry Flag (if there is a carry at the end)
 		u8 _F;
 		u8 _B;
@@ -31,19 +34,22 @@ namespace jmpr {
 		u8 _L;
 	};
 
-	class CPU {
+	class CPU
+	{
 
 		CpuRegisters _registers;
 
 		u16 _SP; // Stack pointer
 		u16 _PC; // Program counter
 
-		Bus* _bus;
-		VideoDMA* _vdma;
+		Bus *_bus;
+		VideoDMA *_vdma;
+		BootRom *_boot;
+		SpeedManager *_speed;
 
 		// Current Instruction
 		u8 _curr_opcode;
-		const Instruction* _curr_instr;
+		const Instruction *_curr_instr;
 
 		// Instruction information
 		u16 _curr_fetch;
@@ -58,15 +64,16 @@ namespace jmpr {
 		bool _stopped;
 
 	public:
-
 		CPU();
 
 		void reboot();
 
-		void connectBus(Bus* bus) { _bus = bus; }
-		void connectVideoDMA(VideoDMA* vdma) { _vdma = vdma; }
+		void connectBus(Bus *bus) { _bus = bus; }
+		void connectVideoDMA(VideoDMA *vdma) { _vdma = vdma; }
+		void connectBoot(BootRom *boot) { _boot = boot; }
+		void connectSpeedManager(SpeedManager *speed) { _speed = speed; }
 
-		InterruptHandler* getInterruptHandler() { return _it_handler.get(); }
+		InterruptHandler *getInterruptHandler() { return _it_handler.get(); }
 
 		u16 readRegister(Register reg) const;
 		void writeRegister(Register reg, u16 data);
@@ -85,6 +92,7 @@ namespace jmpr {
 		bool cycle();
 		bool reached(u16 address);
 		u8 getOpcode() { return _curr_opcode; }
+		bool isHalted() const { return _halted; }
 
 		u8 readInterruptEnabledRegister();
 		void writeInterruptEnabledRegister(u8 data);
@@ -101,7 +109,6 @@ namespace jmpr {
 		void testSRA();
 
 	private:
-
 		// STACK OPERATIONS
 		void pushStack8(u8 data);
 		void pushStack16(u16 data);
@@ -158,7 +165,7 @@ namespace jmpr {
 		void CB_SET(Register reg);
 
 		// INSTRUCTION FUNCTIONS TABLE
-		typedef void(CPU::*ProcessFunction)();
+		typedef void (CPU::*ProcessFunction)();
 		static const std::unordered_map<InstrType, ProcessFunction> _PROCESSES;
 	};
 }

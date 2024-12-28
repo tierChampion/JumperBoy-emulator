@@ -16,6 +16,7 @@ namespace jmpr
 		_bus = std::make_unique<Bus>();
 		_cpu = std::make_unique<CPU>();
 		_cart = std::make_unique<Cartridge>();
+		_boot = std::make_unique<BootRom>();
 		_ram = std::make_unique<RAM>();
 		_apu = std::make_unique<APU>();
 		_ppu = std::make_unique<PPU>(_cpu->getInterruptHandler());
@@ -23,9 +24,10 @@ namespace jmpr
 		_timer = std::make_unique<Timer>(_apu.get(), _cpu->getInterruptHandler());
 		_odma = std::make_unique<ObjectDMA>(_ppu->getOAM());
 		_vdma = std::make_unique<VideoDMA>(_ppu->getVRAM());
-		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get());
+		_speed = std::make_unique<SpeedManager>();
+		_io = std::make_unique<IO>(_joypad.get(), _timer.get(), _apu.get(), _ppu->getLCD(), _odma.get(), _vdma.get(), _speed.get());
 		_dbg = Debugger(_bus.get(), true);
-		_ui = UI(_ppu.get(), _apu.get());
+		_ui = UI(_ppu.get(), _apu.get(), _boot.get());
 
 		_running = false;
 		_ticks = 0;
@@ -39,8 +41,8 @@ namespace jmpr
 		_running = false;
 		_ticks = 0;
 
-		reboot();
 		connectComponents();
+		reboot();
 
 		std::thread cpuThread([this]()
 							  { cpuLoop(); });
@@ -60,23 +62,30 @@ namespace jmpr
 		_bus->connectRAM(_ram.get());
 		_bus->connectPPU(_ppu.get());
 		_bus->connectIO(_io.get());
+		_bus->connectCartridge(_cart.get());
+		_bus->connectBoot(_boot.get());
 
 		_cpu->connectBus(_bus.get());
 		_cpu->connectVideoDMA(_vdma.get());
+		_cpu->connectBoot(_boot.get());
+		_cpu->connectSpeedManager(_speed.get());
 		_ppu->connectVideoDMA(_vdma.get());
 		_odma->connectBus(_bus.get());
 		_vdma->connectBus(_bus.get());
+		_cart->connectBoot(_boot.get());
+		_cart->setSaveFolder(_ui.getSaveFolder());
 	}
 
 	void GameBoy::reboot()
 	{
-		_cpu->reboot();
-		_ppu->reboot();
-		_apu->reboot();
+		_boot->reboot();
 		_joypad->reboot();
-		_timer->reboot();
 		_odma->reboot();
 		_vdma->reboot();
+		_timer->reboot();
+		_apu->reboot();
+		_ppu->reboot();
+		_cpu->reboot();
 	}
 
 	void GameBoy::cpuLoop()
@@ -108,19 +117,24 @@ namespace jmpr
 
 		SDL_Delay(100);
 
-		_cart = std::make_unique<Cartridge>(rom_file);
+		_cart->load(rom_file);
 
 		if (!_cart->isValid())
 			return false;
 
+		std::cout << *_cart.get() << std::endl;
 		_cgb_mode = _cart->isColor();
 
 		reboot();
-		_bus->connectCartridge(_cart.get());
 
 		_ticks = 0;
 
 		return true;
+	}
+
+	bool GameBoy::setBootRom(const std::string &rom_file)
+	{
+		return _boot->load(rom_file);
 	}
 
 	void GameBoy::setVolume(float volume)
@@ -159,14 +173,18 @@ namespace jmpr
 			for (u8 t_state = 0; t_state < 4; t_state++)
 			{
 				_timer->update();
-				_ppu->update();
-				_apu->update();
+				// TODO these 2 are not affected by the speed switch
+				if (!_speed->isDoubleSpeed() || t_state % 2 == 0)
+				{
+					_ppu->update();
+					_apu->update();
+				}
 
 				_ticks++;
 			}
 
 			_odma->processDMA();
-			_vdma->processDMA();
+			_vdma->processDMA(_cpu->isHalted());
 		}
 	}
 }

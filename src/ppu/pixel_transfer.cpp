@@ -8,7 +8,6 @@
 
 namespace jmpr
 {
-
 	PixelTransferHandler::PixelTransferHandler(LCD* lcd, VRAM *vram, const std::array<std::shared_ptr<CRAM>, 2>& crams)
 	{
 		_lcd = lcd;
@@ -325,14 +324,12 @@ namespace jmpr
 		}
 		else
 		{
-			// return 0xFFFF;
 			u8 lo = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 0);
 			u8 hi = _crams[1]->ppuRead(spr.spr->cgbPallet(), colorId, 1);
 			return lo | (hi << 8);
 		}
 	}
 
-	// todo get it from cram in cgb
 	u16 PixelTransferHandler::spriteColorFetch(u16 color, u8 colorId)
 	{
 		// find the sprite with the lowest xpos that touches the pixel.
@@ -406,7 +403,7 @@ namespace jmpr
 				pixel = _lcd->getBGWindowColor(0);
 			}
 
-			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
+			bool cgbConditionsForSpriteOverride = ((colorIndex == 0) || (!_lcd->bgWindowPriority()) || (bit(_bgw_fetch.attributes, 7) == 0)) || !GameBoy::getInstance()->isCGB();
 
 			if (_lcd->objEnabled() && _spr_fetch.size() > 0 && cgbConditionsForSpriteOverride)
 			{
