@@ -50,8 +50,10 @@ Most GB games should work fine if the proper cartridge hardware is supported (Th
 
 ### Known Issues
 
+- CGB Boot ROM: Using a Boot ROM with a CGB game will not work.
 - Pokemon Silver/Gold: Restarts the game when doing random actions 
 - Pokemon Crystal: Doesn't close the menu properly and triggers the "no window available for popping" debugging message
+
 
 ## Documentation
 
