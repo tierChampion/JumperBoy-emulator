@@ -58,7 +58,7 @@ namespace jmpr
 		return _waiting_for_save && _has_ram && _has_battery;
 	}
 
-	void MBC::save(const char *path)
+	void MBC::save(const std::string& path)
 	{
 
 		std::ofstream outSave(path, std::ios::binary | std::ios::trunc);
@@ -88,7 +88,7 @@ namespace jmpr
 		_waiting_for_save = false;
 	}
 
-	void MBC::loadSave(const char *path)
+	void MBC::loadSave(const std::string& path)
 	{
 
 		if (!_has_battery)

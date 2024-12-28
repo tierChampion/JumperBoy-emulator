@@ -1,5 +1,6 @@
 #include <cartridge/cartridge.h>
 
+#include <filesystem>
 #include <unordered_map>
 #include <fstream>
 
@@ -50,7 +51,9 @@ namespace jmpr
 
 		_filename = file;
 
-		_savename = (file.substr(0, file.find(".gb")) + ".sav");
+		std::filesystem::path saveFile(file);
+		saveFile.replace_extension(".sav");
+		_savename = saveFile.filename().string();
 
 		stream.close();
 
@@ -98,8 +101,7 @@ namespace jmpr
 	{
 		if (_mbc->hasSavePending())
 		{
-
-			_mbc->save(_savename.c_str());
+			_mbc->save(_save_folder + _savename);
 		}
 	}
 

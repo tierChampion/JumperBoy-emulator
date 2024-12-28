@@ -40,6 +40,7 @@ namespace jmpr
 		bool _error;
 		std::string _filename;
 		std::string _savename;
+		std::string _save_folder;
 		std::vector<u8> _rom_data;
 		CartridgeHeader _header;
 		u8 _disable_boot;
@@ -60,6 +61,7 @@ namespace jmpr
 		void write(u16 address, u8 data);
 
 		void handleSaves() const;
+		void setSaveFolder(const std::string &newFolder) { _save_folder = newFolder; }
 
 		friend std::ostream &operator<<(std::ostream &os, const Cartridge &cartridge);
 	};

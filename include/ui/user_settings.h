@@ -30,7 +30,7 @@ namespace jmpr
         std::string save_folder;
         u8 input_selection;
         u8 pallet_selection;
-        u8 resolution_scale;
+        int resolution_scale;
         float volume;
 
         std::string settings_location;

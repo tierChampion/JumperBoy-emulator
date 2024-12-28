@@ -23,7 +23,8 @@ namespace jmpr
 	class APU;
 	class BootRom;
 
-	enum class PathType {
+	enum class PathType
+	{
 		ROM,
 		BOOT,
 		SAVE
@@ -77,15 +78,13 @@ namespace jmpr
 		BootRom *_boot;
 
 	public:
-		UI()
-		{
-		}
+		UI() {}
 		UI(PPU *ppu, APU *apu, BootRom *boot);
+
 		void cleanup();
-
 		bool isOpened() { return _opened; }
-
 		void loop(bool gamePlaying);
+		std::string &getSaveFolder() const { return _settings->save_folder; }
 
 	private:
 		void initImGui();

@@ -203,6 +203,10 @@ namespace jmpr
         {
             _controls.palletCreation = true;
         }
+        if (ImGui::InputInt("Resolution (native: 160x144)", &_settings->resolution_scale)) {
+            // TODO recreate the game window to match the new size
+            _game_window.open();
+        }
     }
 
     void UI::audioMenu()
@@ -368,9 +372,12 @@ namespace jmpr
         if (_folder_browser.HasSelected())
         {
             switch (_controls.pathType) {
-                case PathType::ROM: _settings->rom_folder = _folder_browser.GetSelected().string(); break;
-                case PathType::BOOT: _settings->boot_folder = _folder_browser.GetSelected().string(); break;
-                case PathType::SAVE: _settings->save_folder = _folder_browser.GetSelected().string(); break;
+                case PathType::ROM: _settings->rom_folder = _folder_browser.GetSelected().string() + "/"; break;
+                case PathType::BOOT: _settings->boot_folder = _folder_browser.GetSelected().string() + "/"; break;
+                case PathType::SAVE:
+                    _settings->save_folder = _folder_browser.GetSelected().string() + "/";
+                    GameBoy::getInstance()->setSaveFolder(_settings->save_folder);
+                    break;
             }
 
             _folder_browser.ClearSelected();

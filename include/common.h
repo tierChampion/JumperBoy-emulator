@@ -98,4 +98,20 @@ namespace jmpr
 #elif defined(__linux__)
 #define simpleSleep() usleep(1)
 #endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <shlobj.h>
+std::string getAppDataPath() {
+    char path[MAX_PATH];
+    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path);
+    return std::string(path);
+}
+#elif defined(__linux__)
+	inline std::string getDefaultSettingsPath() {
+		const char* home = std::getenv("HOME");
+		if (!home) return "";
+		return std::string(home) + "/.config/JumperBoy/";
+	}
+#endif
 }

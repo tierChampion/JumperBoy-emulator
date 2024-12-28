@@ -26,8 +26,8 @@ namespace jmpr
 		virtual void write(u16 address, u8 data) = 0;
 
 		bool hasSavePending() const;
-		void save(const char *path);
-		void loadSave(const char *path);
+		void save(const std::string& path);
+		void loadSave(const std::string& path);
 	};
 
 	class NoMBC : public MBC

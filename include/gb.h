@@ -82,6 +82,7 @@ namespace jmpr
 		void setCapped(bool newCapped) { _capped = newCapped; }
 
 		void requestSaveHandling() { _cart->handleSaves(); }
+		void setSaveFolder(const std::string &newFolder) { _cart->setSaveFolder(newFolder); }
 
 	private:
 		GameBoy();

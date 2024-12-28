@@ -1,11 +1,11 @@
 #include <ui/user_settings.h>
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 
-// TODO switch to specific .config or APPDATA locations
-const char *LOCATION_FILE = "./location.txt";
-const char *SETTINGS_FILE = "./settings.json";
+const std::string LOCATION_FILE = "location.txt";
+const std::string SETTINGS_FILE = "settings.json";
 
 namespace jmpr
 {
@@ -17,7 +17,7 @@ namespace jmpr
 
     void UserSettings::setToDefault()
     {
-        settings_location = SETTINGS_FILE;
+        settings_location = getDefaultSettingsPath() + SETTINGS_FILE;
 
         recents = std::vector<std::string>();
         pallets = std::vector<Pallet>();
@@ -31,7 +31,7 @@ namespace jmpr
         save_folder = "";
         input_selection = 0;
         pallet_selection = 0;
-        resolution_scale = 1;
+        resolution_scale = 0.05f;
         volume = 1;
     }
 
@@ -74,17 +74,21 @@ namespace jmpr
         return input_maps[input_selection];
     }
 
-    // TODO how to have the user change the settings file (load a new one during execution) ?
     void UserSettings::loadSettings()
     {
         loadSettingLocation();
         loadSettingsFile();
-        save();
     }
 
     void UserSettings::loadSettingLocation()
     {
-        std::ifstream f(LOCATION_FILE);
+        std::filesystem::path locationPath(getDefaultSettingsPath() + std::string(LOCATION_FILE));
+
+        if (!std::filesystem::exists(locationPath.parent_path())) {
+            std::filesystem::create_directory(locationPath.parent_path());
+        }
+
+        std::ifstream f(locationPath);
 
         if (f.is_open())
         {
@@ -93,11 +97,13 @@ namespace jmpr
         }
         else
         {
-            std::ofstream o(LOCATION_FILE);
+            std::ofstream o(locationPath);
             if (o.is_open())
             {
-                o << SETTINGS_FILE;
+                o << getDefaultSettingsPath() + SETTINGS_FILE;
                 o.close();
+            } else {
+                std::cerr << "Error: could not create the setting location file!" << std::endl;
             }
         }
     }

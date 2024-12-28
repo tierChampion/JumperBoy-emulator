@@ -73,6 +73,7 @@ namespace jmpr
 		_odma->connectBus(_bus.get());
 		_vdma->connectBus(_bus.get());
 		_cart->connectBoot(_boot.get());
+		_cart->setSaveFolder(_ui.getSaveFolder());
 	}
 
 	void GameBoy::reboot()
