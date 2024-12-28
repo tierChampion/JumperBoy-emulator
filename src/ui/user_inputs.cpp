@@ -35,7 +35,10 @@ namespace jmpr
 				JumperInput input = _settings->currentInputMap().inputs[SDL_GetKeyName(_curr_event.key.keysym.sym)];
 				if (gamePlaying && isJoypadInput(input))
 					GameBoy::getInstance()->pressButton(static_cast<u8>(input) - 1);
-
+				else if (input == JumperInput::MAX_SPEED)
+				{
+					GameBoy::getInstance()->setCapped(false);
+				}
 				break;
 			}
 
@@ -44,7 +47,10 @@ namespace jmpr
 				JumperInput input = _settings->currentInputMap().inputs[SDL_GetKeyName(_curr_event.key.keysym.sym)];
 				if (gamePlaying && isJoypadInput(input))
 					GameBoy::getInstance()->releaseButton(static_cast<u8>(input) - 1);
-
+				else if (input == JumperInput::MAX_SPEED)
+				{
+					GameBoy::getInstance()->setCapped(true);
+				}
 				break;
 			}
 			}

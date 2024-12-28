@@ -37,15 +37,12 @@ namespace jmpr
         _controls.boot = false;
         _controls.tiles = false;
         _controls.tileBank = 0;
-        _controls.vol = 0.05f;
         _controls.channel1 = true;
         _controls.channel2 = true;
         _controls.channel3 = true;
         _controls.channel4 = true;
-        _controls.pallet = 0;
         _controls.palletCreation = false;
         _controls.controls = false;
-        _controls.capped = true;
         _controls.fps = 59.7;
     }
 
@@ -205,7 +202,6 @@ namespace jmpr
         }
         if (ImGui::InputInt("Resolution (native: 160x144)", &_settings->resolution_scale)) {
             // TODO recreate the game window to match the new size
-            _game_window.open();
         }
     }
 
@@ -246,10 +242,6 @@ namespace jmpr
         if (ImGui::SliderFloat("FPS", &_controls.fps, 1.0f, 150.0f, "%.1f"))
         {
             GameBoy::getInstance()->setDesiredFPS(_controls.fps);
-        }
-        if (ImGui::Checkbox("Capped FPS", &_controls.capped))
-        {
-            GameBoy::getInstance()->setCapped(_controls.capped);
         }
     }
 

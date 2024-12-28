@@ -37,12 +37,10 @@ namespace jmpr
 		bool boot;
 		bool tiles;
 		u8 tileBank;
-		float vol;
 		bool channel1;
 		bool channel2;
 		bool channel3;
 		bool channel4;
-		u8 pallet;
 		bool palletCreation;
 		char palletName[32];
 		float colors[12] = {0};
@@ -51,7 +49,6 @@ namespace jmpr
 		std::string inputs[9] = {""};
 		PathType pathType;
 		char path[256];
-		bool capped;
 		float fps;
 	};
 
